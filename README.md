@@ -45,7 +45,13 @@ You can learn more in the [Create React App documentation](https://facebook.gith
 
 To learn React, check out the [React documentation](https://reactjs.org/).
 
+### Notes
+- some libraries from package json are not used, copied from the last project, easier to keep track of cool libraries.
+- not all packages up to date because it might break building.
+
 ### TODO
+
+- figure out how to inline things (except for .ico) as data URLs in HTML;
 
 #### Basic version:
 - implement board (with islands, each player has own), ship positioning (not straight) in an extensible way (1d array-like); make ability to continue shooting easy to implement.
@@ -60,6 +66,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - simple AI (no heuristics);
 
 #### Improvements:
+- timer;
 - continue shooting after hit;
 - 5x5 board (names: drill & skirmish);
 - custom board with islands, same amount of water (name: terraforming);
