@@ -48,6 +48,10 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 ### Notes
 - some libraries from package json are not used, copied from the last project, easier to keep track of cool libraries.
 - not all packages up to date because it might break building.
+- tried fixing vulnerabilities, but fixing them only increases vulnerabilities;
+- didn't add config, but can explain how;
+- no need for custom context;
+- Quality games can be done using https://github.com/shevchenkobn/phaser-game;
 
 ### TODO
 

@@ -1,18 +1,27 @@
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import React from 'react';
+import { HashRouter } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { store } from './app/store';
-import App from './App';
+import AppLayout from './AppLayout';
+import { createAppTheme } from './material';
 import reportWebVitals from './reportWebVitals';
 import './index.scss';
 
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <HashRouter>
+        <ThemeProvider theme={createAppTheme()}>
+          <CssBaseline enableColorScheme />
+          <AppLayout />
+        </ThemeProvider>
+      </HashRouter>
     </Provider>
   </React.StrictMode>
 );

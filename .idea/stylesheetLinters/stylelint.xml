@@ -2,6 +2,6 @@
 <project version="4">
   <component name="StylelintConfiguration">
     <config-file value="$PROJECT_DIR$/.stylelintrc.js" />
-    <file-patterns value="{**/*,*}.{css,scss}" />
+    <file-patterns value="{**/*,*}.{css,scss,html}" />
   </component>
 </project>
