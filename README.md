@@ -55,7 +55,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 ### TODO
 
-- figure out how to inline things (except for .ico) as data URLs in HTML;
+- 
 
 #### Basic version:
 - implement board (with islands, each player has own), ship positioning (not straight) in an extensible way (1d array-like); make ability to continue shooting easy to implement.

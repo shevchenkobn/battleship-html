@@ -338,6 +338,11 @@ module.exports = function (webpackEnv) {
           // match the requirements. When no loader matches it will fall
           // back to the "file" loader at the end of the loader list.
           oneOf: [
+            // inlineBuild: added
+            {
+              resourceQuery: /data/,
+              type: isEnvProduction ? 'asset/inline' : 'asset/resource',
+            },
             // TODO: Merge this config once `image/avif` is in the mime-db
             // https://github.com/jshttp/mime-db
             {
@@ -362,21 +367,19 @@ module.exports = function (webpackEnv) {
                 },
               },
             },
-            ...(isEnvProduction // inlineBuild: added
-              ? [
-                  {
-                    test: /\.ico$/,
-                    type: 'asset/inline',
-                    parser: {
-                      dataUrlCondition: {
-                        maxSize: imageInlineSizeLimit,
-                      },
-                    },
-                  },
-                ]
-              : []),
+            // inlineBuild: added
+            isEnvProduction && {
+              test: /\.ico$/,
+              type: 'asset/inline',
+              parser: {
+                dataUrlCondition: {
+                  maxSize: imageInlineSizeLimit,
+                },
+              },
+            },
             {
               test: /\.svg$/,
+              // inlineBuild: added
               ...(isEnvProduction
                 ? { type: 'asset/inline' }
                 : {
@@ -539,6 +542,11 @@ module.exports = function (webpackEnv) {
             // In production, they would get copied to the `build` folder.
             // This loader doesn't use a "test" so it will catch all modules
             // that fall through the other loaders.
+            // inlineBuild: added
+            isEnvProduction && {
+              test: /\.woff2?$/,
+              type: 'asset/inline',
+            },
             {
               // Exclude `js` files to keep "css" loader working as it injects
               // its runtime that would otherwise be processed through "file" loader.
@@ -549,7 +557,7 @@ module.exports = function (webpackEnv) {
             },
             // ** STOP ** Are you adding a new loader?
             // Make sure to add the new loader(s) before the "file" loader.
-          ],
+          ].filter(Boolean), // inlineBuild: added filter
         },
       ].filter(Boolean),
     },
@@ -561,6 +569,10 @@ module.exports = function (webpackEnv) {
           {
             inject: !isEnvProduction || 'body', // inlineBuild: used to be true
             template: paths.appHtml,
+            // inlineBuild: added
+            templateParameters: {
+              isEnvProduction,
+            },
           },
           isEnvProduction
             ? {
