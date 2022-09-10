@@ -379,31 +379,27 @@ module.exports = function (webpackEnv) {
             },
             {
               test: /\.svg$/,
-              // inlineBuild: added
-              ...(isEnvProduction
-                ? { type: 'asset/inline' }
-                : {
-                    use: [
-                      {
-                        loader: require.resolve('@svgr/webpack'),
-                        options: {
-                          prettier: false,
-                          svgo: false,
-                          svgoConfig: {
-                            plugins: [{ removeViewBox: false }],
-                          },
-                          titleProp: true,
-                          ref: true,
-                        },
-                      },
-                      {
-                        loader: require.resolve('file-loader'),
-                        options: {
-                          name: 'static/media/[name].[hash].[ext]',
-                        },
-                      },
-                    ],
-                  }),
+              use: [
+                {
+                  loader: require.resolve('@svgr/webpack'),
+                  options: {
+                    prettier: false,
+                    svgo: false,
+                    svgoConfig: {
+                      plugins: [{ removeViewBox: false }],
+                    },
+                    titleProp: true,
+                    ref: true,
+                  },
+                },
+                {
+                  // inlineBuild: added
+                  loader: require.resolve(isEnvProduction ? 'url-loader' : 'file-loader'),
+                  options: {
+                    name: 'static/media/[name].[hash].[ext]',
+                  },
+                },
+              ],
               issuer: {
                 and: [/\.(ts|tsx|js|jsx|md|mdx)$/],
               },

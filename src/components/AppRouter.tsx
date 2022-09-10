@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate, Route as ReactRoute, Routes } from 'react-router-dom';
+import { MessageId } from '../intl';
 
 export function AppRouter() {
   return (
@@ -20,7 +21,7 @@ export interface Route {
   component: React.ReactElement;
 }
 
-export const gameRoute: Route = { path: 'game', label: 'Play!', component: <></> };
+export const gameRoute: Route = { path: 'game', label: MessageId.PlayAction, component: <></> };
 
 export const routes: ReadonlyArray<Readonly<Route>> = [
   gameRoute,

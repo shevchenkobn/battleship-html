@@ -52,6 +52,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - didn't add config, but can explain how;
 - no need for custom context;
 - Quality games can be done using https://github.com/shevchenkobn/phaser-game;
+- search project for inlineBuild: ;
 
 ### TODO
 

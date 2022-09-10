@@ -4,6 +4,4 @@ export enum StoreSliceName {
   Game = 'game',
 }
 
-export enum ActionType {
-  SetTitle = 'setTitle',
-}
+export const defaultProjectName = 'BattleShip';

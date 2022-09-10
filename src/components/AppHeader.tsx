@@ -1,21 +1,47 @@
-import { Button, Divider, ListItemIcon, ListItemText, MenuItem } from '@mui/material';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
+import ComputerIcon from '@mui/icons-material/Computer';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
-import ComputerIcon from '@mui/icons-material/Computer';
-import Typography from '@mui/material/Typography';
+import { Button, Divider, ListItemIcon, ListItemText, MenuItem, SvgIcon } from '@mui/material';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
-import React from 'react';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import React, { useMemo } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { Link, useLocation } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { AppTitle } from '../features/meta/AppTitle';
+import { selectAppLocale, setLocale } from '../features/meta/metaSlice';
+import { Locale, localeToMessages, MessageId } from '../intl';
+import { SvgProps } from '../svg/svg-factory';
+import { FlagGb } from '../svg/flags/FlagGb';
+import { FlagUa } from '../svg/flags/FlagUa';
 import { gameRoute } from './AppRouter';
+
+export const languageFlags: Record<Locale, React.ComponentType<SvgProps>> = {
+  [Locale.English]: FlagGb,
+  [Locale.Ukrainian]: FlagUa,
+};
+
+export const languages = [
+  {
+    locale: Locale.English,
+    name: localeToMessages[Locale.English][MessageId.Language],
+  },
+  {
+    locale: Locale.Ukrainian,
+    name: localeToMessages[Locale.Ukrainian][MessageId.Language],
+  },
+];
 
 export function AppHeader() {
   const location = useLocation();
+  const locale = useAppSelector(selectAppLocale);
+  const dispatch = useAppDispatch();
   const [anchorTopRightEl, setAnchorTopRightEl] = React.useState<null | HTMLElement>(null);
+  const [anchorLanguageEl, setAnchorLanguageEl] = React.useState<null | HTMLElement>(null);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorTopRightEl(event.currentTarget);
@@ -24,6 +50,21 @@ export function AppHeader() {
   const handleClose = () => {
     setAnchorTopRightEl(null);
   };
+
+  const handleLanguageMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorLanguageEl(event.currentTarget);
+  };
+
+  const handleLanguageClose = () => {
+    setAnchorLanguageEl(null);
+  };
+
+  const handleLanguageSelect = (locale: Locale) => {
+    dispatch(setLocale(locale));
+    handleLanguageClose();
+  };
+
+  const FlagIcon = languageFlags[locale];
 
   return (
     <AppBar position="static">
@@ -38,7 +79,7 @@ export function AppHeader() {
             to={gameRoute.path}
             sx={{ my: 2, color: 'white', display: 'block' }}
           >
-            {gameRoute.label}
+            <FormattedMessage id={gameRoute.label} />
           </Button>
           {/*{routes.map((page) => (*/}
           {/*  <Button*/}
@@ -52,6 +93,44 @@ export function AppHeader() {
           {/*  </Button>*/}
           {/*))}*/}
         </Box>
+        <IconButton
+          size="small"
+          aria-label="account of current user"
+          aria-controls="menu-appbar"
+          aria-haspopup="true"
+          onClick={handleLanguageMenu}
+          color="inherit"
+        >
+          <FlagIcon fontSize={'large'} />
+        </IconButton>
+        <Menu
+          id="menu-appbar"
+          sx={{ mt: '45px' }}
+          anchorEl={anchorLanguageEl}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          keepMounted
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          open={Boolean(anchorLanguageEl)}
+          onClose={handleLanguageClose}
+        >
+          {languages.map((item) => {
+            const Icon = languageFlags[item.locale];
+            return (
+              <MenuItem key={item.locale} onClick={() => handleLanguageSelect(item.locale)}>
+                <ListItemIcon>
+                  <Icon />
+                </ListItemIcon>
+                <ListItemText>{item.name}</ListItemText>
+              </MenuItem>
+            );
+          })}
+        </Menu>
         <IconButton
           size="small"
           aria-label="account of current user"
