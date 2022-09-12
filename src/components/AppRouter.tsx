@@ -27,5 +27,4 @@ export const gameRoute: Route = { path: 'game', label: MessageId.PlayAction, com
 export const routes: ReadonlyArray<Readonly<Route>> = [
   gameRoute,
   { path: 'player/:index', label: 'Player', component: <PlayerPage /> },
-  // { path: 'compare', label: 'Comparison', component: <GeoMapComparePage /> },
 ];

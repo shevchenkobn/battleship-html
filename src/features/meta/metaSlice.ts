@@ -1,13 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { defaultProjectName, StoreSliceName } from '../../app/constants';
 import { RootState } from '../../app/store';
-import { defaultLocale, Locale } from '../../intl';
+import { defaultLocale, Locale, MessageWithValues } from '../../intl';
 
 export interface MetaSlice {
   projectName: string;
   documentTitle: string;
   appTitle: string;
-  title: string;
+  title: MessageWithValues | string;
   titleLocalized: boolean;
   appLocale: Locale;
 }
@@ -51,10 +51,22 @@ const metaSlice = createSlice({
   name: StoreSliceName.Meta,
   initialState,
   reducers: {
-    setTitle(state, action: PayloadAction<string>) {
+    setTitle(state, action: PayloadAction<MessageWithValues | string>) {
+      if (
+        (state.titleLocalized && typeof action.payload === 'string') ||
+        (!state.titleLocalized && typeof action.payload !== 'string')
+      ) {
+        throw new TypeError(
+          'Unexpected title format: string for unlocalized or message with values.'
+        );
+      }
       state.title = action.payload;
       if (!state.titleLocalized) {
-        setTitles(state, state.title);
+        if (typeof action.payload === 'string') {
+          setTitles(state, action.payload);
+        } else {
+          throw new TypeError('Unexpected localized format!');
+        }
       }
     },
     setTitleLocalized(state, action: PayloadAction<TitleLocalizedActionPayload>) {
@@ -85,14 +97,6 @@ function setTitles(state: MetaSlice, title: string) {
   const documentTitle = formatDocumentTitle(title, state.projectName);
   if (state.documentTitle !== documentTitle) {
     state.documentTitle = documentTitle;
-  }
-}
-
-function assertLocalized(state: MetaSlice) {
-  if (!state.titleLocalized) {
-    throw new TypeError(
-      `Title is set automatically using "${setTitle.name}" action if no localization.`
-    );
   }
 }
 

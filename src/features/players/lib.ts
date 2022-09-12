@@ -1,7 +1,17 @@
+import {
+  MessageId,
+  MessageParameterName,
+  MessagePrimitiveValues,
+  MessageWithValues,
+} from '../../intl';
 import { PlayerIndex } from './playersSlice';
 
-export function getDefaultPlayerName(index: PlayerIndex) {
-  return 'Player ' + (index + 1);
+export function getIntlPlayerName(index: PlayerIndex): MessageWithValues {
+  return { id: MessageId.PlayerName, values: getIntlPlayerNameValues(index) };
+}
+
+export function getIntlPlayerNameValues(index: PlayerIndex): MessagePrimitiveValues {
+  return { [MessageParameterName.MessageId]: index + 1 };
 }
 
 export interface PlayerProps {

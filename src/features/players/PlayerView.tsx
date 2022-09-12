@@ -13,51 +13,48 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from '@mui/material';
-import Box from '@mui/material/Box';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { noWhenDefault, when } from '../../app/expressions';
+import { ia, MessageId, MessageWithValues, playerKindMessageIds } from '../../intl';
 import { ComputerPlayerType, Player, PlayerKind, playerKinds } from '../../models/player';
 
 export interface PlayerViewProps {
-  defaultPlayerName: string;
+  intlPlayerName: MessageWithValues;
   showPlayerKindToggle: boolean;
-  isEditing: boolean;
+  isReadonly: boolean;
   player: Player;
   onEditingChange(isEditing: boolean): void;
   onPlayerChange(player: Player): void;
 }
 
 export function PlayerView({
-  defaultPlayerName,
+  intlPlayerName,
   showPlayerKindToggle,
-  isEditing,
+  isReadonly,
   player: originalPlayer,
   onEditingChange,
   onPlayerChange,
 }: PlayerViewProps) {
   const [player, setPlayer] = useState(originalPlayer);
+  const intl = useIntl();
+  useEffect(() => setPlayer(originalPlayer), [originalPlayer]);
 
   const form = (
-    <Box
-      component="form"
-      // sx={{
-      //   '& .MuiTextField-root': { m: 1, width: '25ch' },
-      // }}
-      // noValidate
-      // autoComplete="off"
-    >
+    <>
       {player.kind === PlayerKind.Human ? (
-        <div>
+        <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
           <TextField
             id="player-name"
             value={player.name}
             onChange={(event) => {
               setPlayer({ ...player, name: String(event.target.value) });
             }}
-            label="Player Name"
-            placeholder={defaultPlayerName}
+            label={intl.formatMessage({ id: MessageId.PlayerNameLabel })}
+            className="flex-grow"
+            placeholder={intl.formatMessage(...ia(intlPlayerName))}
             InputProps={{
-              readOnly: isEditing,
+              readOnly: isReadonly,
             }}
           />
           <TextField
@@ -67,104 +64,119 @@ export function PlayerView({
             onChange={(event) => {
               setPlayer({ ...player, password: String(event.target.value) });
             }}
-            label="Password"
+            className="flex-grow"
+            label={intl.formatMessage({ id: MessageId.PlayerPasswordLabel })}
             InputProps={{
-              readOnly: isEditing,
+              readOnly: isReadonly,
             }}
-            helperText="Can be empty, but don't say anyone ;)"
+            helperText={intl.formatMessage({ id: MessageId.PlayerPasswordHelper })}
           />
-        </div>
+        </Stack>
       ) : (
         <></>
       )}
-    </Box>
+    </>
   );
   return (
-    <Card>
-      <CardContent>
-        {showPlayerKindToggle ? (
-          <Stack>
-            {isEditing ? (
-              <ToggleButtonGroup
-                color="primary"
-                value={player.kind}
-                exclusive
-                onChange={(event, value) => {
-                  if (value === player.kind) {
-                    return;
-                  }
-                  const newPlayer = when<Player, PlayerKind>(
-                    value,
-                    [
+    <form>
+      <Card>
+        <CardContent>
+          {showPlayerKindToggle ? (
+            <Stack spacing={2}>
+              {isReadonly ? (
+                <Chip
+                  label={intl.formatMessage({ id: playerKindMessageIds[player.kind] })}
+                  color="primary"
+                />
+              ) : (
+                <ToggleButtonGroup
+                  color="primary"
+                  value={player.kind}
+                  className="flex-grow"
+                  exclusive
+                  disabled={isReadonly}
+                  onChange={(event, value) => {
+                    if (value === player.kind) {
+                      return;
+                    }
+                    const newPlayer = when<Player, PlayerKind>(
+                      value,
                       [
-                        PlayerKind.Computer,
-                        () => ({ kind: PlayerKind.Computer, type: ComputerPlayerType.Random }),
+                        [
+                          PlayerKind.Computer,
+                          () => ({ kind: PlayerKind.Computer, type: ComputerPlayerType.Random }),
+                        ],
+                        [
+                          PlayerKind.Human,
+                          () => {
+                            const human =
+                              originalPlayer.kind === PlayerKind.Human ? originalPlayer : null;
+                            return {
+                              kind: PlayerKind.Human,
+                              name: human?.name ?? '',
+                              password: human?.password ?? '',
+                            };
+                          },
+                        ],
                       ],
-                      [
-                        PlayerKind.Human,
-                        () => {
-                          const human =
-                            originalPlayer.kind === PlayerKind.Human ? originalPlayer : null;
-                          return {
-                            kind: PlayerKind.Human,
-                            name: human?.name ?? '',
-                            password: human?.password ?? '',
-                          };
-                        },
-                      ],
-                    ],
-                    noWhenDefault
-                  );
-                  setPlayer(newPlayer);
-                }}
-                aria-label="Player Kind"
-              >
-                {playerKinds.map((kind) => (
-                  <ToggleButton key={kind} value="kind">
-                    kind
-                  </ToggleButton>
-                ))}
-              </ToggleButtonGroup>
-            ) : (
-              <Chip label={player.kind} color="primary" />
-            )}
-            <Divider />
-            {form}
-          </Stack>
-        ) : (
-          <>{form}</>
-        )}
-      </CardContent>
-      <CardActions>
-        {isEditing ? (
-          <Button startIcon={<EditIcon />} onClick={() => onEditingChange(true)}>
-            Edit
-          </Button>
-        ) : (
-          <>
+                      noWhenDefault
+                    );
+                    setPlayer(newPlayer);
+                  }}
+                  aria-label="Player Kind"
+                >
+                  {playerKinds.map((kind) => (
+                    <ToggleButton key={kind} value={kind} className="flex-grow">
+                      <FormattedMessage id={playerKindMessageIds[kind]} />
+                    </ToggleButton>
+                  ))}
+                </ToggleButtonGroup>
+              )}
+              <Divider />
+              {form}
+            </Stack>
+          ) : (
+            <>{form}</>
+          )}
+        </CardContent>
+        <CardActions>
+          {isReadonly ? (
             <Button
-              color="secondary"
-              startIcon={<CancelIcon />}
-              onClick={() => {
-                onEditingChange(false);
-                setPlayer(originalPlayer);
-              }}
+              variant="outlined"
+              startIcon={<EditIcon />}
+              onClick={() => onEditingChange(true)}
             >
-              Cancel
-            </Button>{' '}
-            <Button
-              startIcon={<CheckCircleIcon />}
-              onSubmit={(event) => {
-                onPlayerChange(player);
-                onEditingChange(false);
-                event.preventDefault();
-              }}
-            >
-              Save
+              <FormattedMessage id={MessageId.EditAction} />
             </Button>
-          </>
-        )}
-      </CardActions>
-    </Card>
+          ) : (
+            <>
+              <Button
+                color="secondary"
+                variant="outlined"
+                startIcon={<CancelIcon />}
+                onClick={() => {
+                  onEditingChange(false);
+                  setPlayer(originalPlayer);
+                }}
+              >
+                <FormattedMessage id={MessageId.CancelAction} />
+              </Button>{' '}
+              <Button
+                variant="outlined"
+                startIcon={<CheckCircleIcon />}
+                type="submit"
+                onClick={(event) => {
+                  onPlayerChange(player);
+                  onEditingChange(false);
+                  event.preventDefault();
+                }}
+              >
+                <FormattedMessage id={MessageId.SaveAction} />
+              </Button>
+            </>
+          )}
+        </CardActions>
+      </Card>
+    </form>
   );
 }
