@@ -3,6 +3,7 @@ import { IntlProvider } from 'react-intl';
 import { useAppDispatch, useAppSelector } from './app/hooks';
 import { AppHeader } from './components/AppHeader';
 import { AppRouter } from './components/AppRouter';
+import { PreventRefresh } from './components/PreventRefresh';
 import { DocumentTitle } from './features/meta/DocumentTitle';
 import Container from '@mui/material/Container';
 import { LocalizeTitle } from './features/meta/LocalizeTitle';
@@ -22,6 +23,7 @@ function AppLayout() {
   const messages = useMemo(() => getIntlMessages(locale), [locale]);
   return (
     <IntlProvider locale={locale} messages={messages}>
+      <PreventRefresh />
       <LocalizeTitle />
       <div className="App">
         <DocumentTitle />

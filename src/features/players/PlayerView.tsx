@@ -8,16 +8,21 @@ import {
   CardContent,
   Chip,
   Divider,
+  Popover,
   Stack,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
 } from '@mui/material';
+import Typography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { noWhenDefault, when } from '../../app/expressions';
 import { ia, MessageId, MessageWithValues, playerKindMessageIds } from '../../intl';
 import { ComputerPlayerType, Player, PlayerKind, playerKinds } from '../../models/player';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
 
 export interface PlayerViewProps {
   intlPlayerName: MessageWithValues;
@@ -40,6 +45,8 @@ export function PlayerView({
   const intl = useIntl();
   useEffect(() => setPlayer(originalPlayer), [originalPlayer]);
 
+  const [anchorHelpEl, setAnchorHelpEl] = useState<HTMLButtonElement | null>(null);
+
   const form = (
     <>
       {player.kind === PlayerKind.Human ? (
@@ -48,7 +55,7 @@ export function PlayerView({
             id="player-name"
             value={player.name}
             onChange={(event) => {
-              setPlayer({ ...player, name: String(event.target.value) });
+              setPlayer({ ...player, name: String(event.currentTarget.value) });
             }}
             label={intl.formatMessage({ id: MessageId.PlayerNameLabel })}
             className="flex-grow"
@@ -62,12 +69,40 @@ export function PlayerView({
             id="player-password"
             value={player.password}
             onChange={(event) => {
-              setPlayer({ ...player, password: String(event.target.value) });
+              setPlayer({ ...player, password: String(event.currentTarget.value) });
             }}
             className="flex-grow"
             label={intl.formatMessage({ id: MessageId.PlayerPasswordLabel })}
             InputProps={{
               readOnly: isReadonly,
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={(event) => {
+                      setAnchorHelpEl(event.currentTarget);
+                    }}
+                    edge="end"
+                  >
+                    <HelpOutlineIcon />
+                  </IconButton>
+                  <Popover
+                    open={!!anchorHelpEl}
+                    anchorEl={anchorHelpEl}
+                    onClose={() => {
+                      setAnchorHelpEl(null);
+                    }}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'center',
+                    }}
+                  >
+                    <Typography sx={{ p: 2 }}>
+                      <FormattedMessage id={MessageId.PlayerPasswordDescription} />
+                    </Typography>
+                  </Popover>
+                </InputAdornment>
+              ),
             }}
             helperText={intl.formatMessage({ id: MessageId.PlayerPasswordHelper })}
           />

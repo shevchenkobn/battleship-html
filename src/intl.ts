@@ -23,6 +23,8 @@ export enum MessageId {
   PlayerNameLabel = 'players.label.name',
   PlayerPasswordLabel = 'players.label.password',
   PlayerPasswordHelper = 'players.label.password.helper',
+  PlayerPasswordDescription = 'players.label.password.description',
+
   PlayerUnknown = 'players.unknown',
   PlayerUnknownFull = 'players.unknown.full',
 
@@ -92,6 +94,9 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.PlayerNameLabel]: 'Player Name',
         [MessageId.PlayerPasswordLabel]: 'Password',
         [MessageId.PlayerPasswordHelper]: "Can be empty, but don't tell anyone ;)",
+        [MessageId.PlayerPasswordDescription]:
+          'Password is required to open your board during the game.',
+
         [MessageId.PlayerUnknown]: "PlayerUnknown's",
         [MessageId.PlayerUnknownFull]: 'Unknown Player (wrong URL).',
 
@@ -115,6 +120,9 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.PlayerNameLabel]: "Ім'я користувача",
         [MessageId.PlayerPasswordLabel]: 'Пароль',
         [MessageId.PlayerPasswordHelper]: 'Може бути порожнім, але нікому не кажіть ;)',
+        [MessageId.PlayerPasswordDescription]:
+          'Пароль необхідний, щоб відкрити власну дошку протягом гри.',
+
         [MessageId.PlayerUnknown]: 'PlayerUnknown-а',
         [MessageId.PlayerUnknownFull]: 'Невідомий гравець (невірна адреса).',
 
