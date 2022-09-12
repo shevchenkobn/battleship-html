@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate, Route as ReactRoute, Routes } from 'react-router-dom';
+import { PlayerPage } from '../features/players/PlayerPage';
 import { MessageId } from '../intl';
 
 export function AppRouter() {
@@ -25,6 +26,6 @@ export const gameRoute: Route = { path: 'game', label: MessageId.PlayAction, com
 
 export const routes: ReadonlyArray<Readonly<Route>> = [
   gameRoute,
-  // { path: 'game', label: 'Play!', component: <GeoMapPage /> },
+  { path: 'player/:index', label: 'Player', component: <PlayerPage /> },
   // { path: 'compare', label: 'Comparison', component: <GeoMapComparePage /> },
 ];

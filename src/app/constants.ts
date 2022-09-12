@@ -1,5 +1,5 @@
 export enum StoreSliceName {
-  Users = 'users',
+  Players = 'players',
   Meta = 'meta',
   Game = 'game',
 }

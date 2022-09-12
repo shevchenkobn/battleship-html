@@ -61,7 +61,7 @@ export function when<V, S>(
 export function when<V, S>(
   switchV: S,
   cases: [caseV: S, expression: (caseV: S) => V][],
-  defaultE?: (caseV: S) => V
+  defaultE: (caseV: S) => V = noWhenDefault
 ): Optional<V> {
   for (const [caseV, expression] of cases) {
     if (caseV === switchV) {
@@ -71,6 +71,10 @@ export function when<V, S>(
   if (defaultE) {
     return defaultE(switchV);
   }
+}
+
+export function noWhenDefault<V>(): V {
+  throw new TypeError("Default in 'when' mustn't be reachable!");
 }
 
 export function whenT<V>(cases: [caseV: boolean, expression: (caseV: true) => V][]): Optional<V>;

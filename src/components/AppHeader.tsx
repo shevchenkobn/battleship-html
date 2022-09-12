@@ -14,7 +14,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { AppTitle } from '../features/meta/AppTitle';
 import { selectAppLocale, setLocale } from '../features/meta/metaSlice';
+import { getDefaultPlayerName } from '../features/players/lib';
+import { PlayerIndex, selectPlayers } from '../features/players/playersSlice';
 import { Locale, localeToMessages, MessageId } from '../intl';
+import { PlayerKind } from '../models/player';
 import { SvgProps } from '../svg/svg-factory';
 import { FlagGb } from '../svg/flags/FlagGb';
 import { FlagUa } from '../svg/flags/FlagUa';
@@ -65,6 +68,14 @@ export function AppHeader() {
   };
 
   const FlagIcon = languageFlags[locale];
+
+  const players = useAppSelector(selectPlayers).map((p, i) => ({
+    kind: p.kind,
+    name:
+      p.kind === PlayerKind.Human
+        ? p.name || <em>{getDefaultPlayerName(i as PlayerIndex)}</em>
+        : p.type,
+  }));
 
   return (
     <AppBar position="static">
@@ -157,21 +168,29 @@ export function AppHeader() {
           open={Boolean(anchorTopRightEl)}
           onClose={handleClose}
         >
-          <MenuItem onClick={handleClose}>
-            <ListItemIcon>
-              <PermIdentityIcon />
-            </ListItemIcon>
-            <ListItemText>
-              <em>Player 1</em>
-            </ListItemText>
-          </MenuItem>
-          <MenuItem onClick={handleClose}>
-            <ListItemIcon>
-              <ComputerIcon />
-            </ListItemIcon>
-            <ListItemText>Chaotic</ListItemText>
-          </MenuItem>
-          <Divider />
+          {players.map((p, i) => (
+            <MenuItem key={i} component={Link} to={'/player/' + i}>
+              <ListItemIcon>
+                {p.kind === PlayerKind.Human ? <PermIdentityIcon /> : <ComputerIcon />}
+              </ListItemIcon>
+              <ListItemText>{p.name}</ListItemText>
+            </MenuItem>
+          ))}
+          {/*<MenuItem onClick={handleClose}>*/}
+          {/*  <ListItemIcon>*/}
+          {/*    <PermIdentityIcon />*/}
+          {/*  </ListItemIcon>*/}
+          {/*  <ListItemText>*/}
+          {/*    <em>Player 1</em>*/}
+          {/*  </ListItemText>*/}
+          {/*</MenuItem>*/}
+          {/*<MenuItem onClick={handleClose}>*/}
+          {/*  <ListItemIcon>*/}
+          {/*    <ComputerIcon />*/}
+          {/*  </ListItemIcon>*/}
+          {/*  <ListItemText>Chaotic</ListItemText>*/}
+          {/*</MenuItem>*/}
+          {/*<Divider />*/}
         </Menu>
       </Toolbar>
     </AppBar>
