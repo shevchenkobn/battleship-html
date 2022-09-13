@@ -32,6 +32,11 @@ export enum MessageId {
   EditAction = 'action.edit',
   CancelAction = 'action.cancel',
   SaveAction = 'action.save',
+
+  ShipNameCarrier = 'game.ship.carrier',
+  ShipNameBattleship = 'game.ship.battleship',
+  ShipNameCruiser = 'game.ship.cruiser',
+  ShipNameDestroyer = 'game.ship.destroyer',
 }
 
 export const playerKindMessageIds: Record<PlayerKind, MessageId> = {
@@ -104,6 +109,11 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.EditAction]: 'Edit',
         [MessageId.CancelAction]: 'Cancel',
         [MessageId.SaveAction]: 'Save',
+
+        [MessageId.ShipNameCarrier]: 'Carrier',
+        [MessageId.ShipNameBattleship]: 'Battleship',
+        [MessageId.ShipNameCruiser]: 'Cruiser',
+        [MessageId.ShipNameDestroyer]: 'Destroyer',
       };
     case Locale.Ukrainian:
       return {
@@ -130,6 +140,11 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.EditAction]: 'Редагувати',
         [MessageId.CancelAction]: 'Відмінити',
         [MessageId.SaveAction]: 'Зберегти',
+
+        [MessageId.ShipNameCarrier]: 'Авіаносець',
+        [MessageId.ShipNameBattleship]: 'Лінкор',
+        [MessageId.ShipNameCruiser]: 'Крейсер',
+        [MessageId.ShipNameDestroyer]: 'Есмінець',
       };
   }
 }

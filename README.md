@@ -54,6 +54,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - Quality games can be done using https://github.com/shevchenkobn/phaser-game;
 - search project for inlineBuild: ;
 - components: layout, page, container (logic), view (view prefix optional);
+- ship overengineering for possible extension (see improvements);
 
 ### TODO
 

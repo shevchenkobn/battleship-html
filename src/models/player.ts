@@ -1,3 +1,5 @@
+import { as } from '../app/types';
+
 export enum PlayerKind {
   Human = 'human',
   Computer = 'computer',
@@ -21,4 +23,10 @@ export enum ComputerPlayerType {
 export interface ComputerPlayer {
   kind: PlayerKind.Computer;
   type: ComputerPlayerType;
+}
+
+export type PlayerIndex = 0 | 1;
+
+export function isValidPlayerIndex(index: unknown): index is PlayerIndex {
+  return Number.isInteger(index) && as<number>(index) && index >= 0 && index <= 1;
 }

@@ -143,3 +143,33 @@ export type SerializePropertyValue<T extends Record<any, any> = any, K = keyof T
   object: T,
   key: K
 ) => any | undefined;
+
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export function encodePoint(point: DeepReadonly<Point>) {
+  return point.x + ',' + point.y;
+}
+
+export function decodePoint(value: string, int = false) {
+  const [x, y] = value.split(',');
+  const parse = int ? Number.parseInt : Number.parseFloat;
+  return {
+    x: parse(x),
+    y: parse(y),
+  };
+}
+
+export function invertPoint(point: DeepReadonly<Point>) {
+  return { x: -point.x, y: -point.y };
+}
+
+export function addPoint(point1: DeepReadonly<Point>, point2: DeepReadonly<Point>) {
+  return { x: point1.x + point2.x, y: point1.y + point2.y };
+}
+
+export function subtractPoint(point1: DeepReadonly<Point>, point2: DeepReadonly<Point>) {
+  return addPoint(point1, invertPoint(point2));
+}

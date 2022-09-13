@@ -4,7 +4,7 @@ import {
   MessagePrimitiveValues,
   MessageWithValues,
 } from '../../intl';
-import { PlayerIndex } from './playersSlice';
+import { PlayerIndex } from '../../models/player';
 
 export function getIntlPlayerName(index: PlayerIndex): MessageWithValues {
   return { id: MessageId.PlayerName, values: getIntlPlayerNameValues(index) };

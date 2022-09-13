@@ -1,10 +1,5 @@
 import { iterate } from 'iterare';
-import { Nullable } from './types';
-
-export interface Point {
-  x: number;
-  y: number;
-}
+import { Nullable, Point } from './types';
 
 export function getContentSize(
   element: HTMLElement,

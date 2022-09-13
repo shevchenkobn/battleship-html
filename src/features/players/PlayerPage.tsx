@@ -4,10 +4,10 @@ import { FormattedMessage } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch } from '../../app/hooks';
 import { MessageId, MessageWithValues } from '../../intl';
+import { isValidPlayerIndex } from '../../models/player';
 import { setTitle } from '../meta/metaSlice';
 import { getIntlPlayerName } from './lib';
 import { PlayerContainer } from './PlayerContainer';
-import { isValidPlayerIndex } from './playersSlice';
 
 export function PlayerPage() {
   const dispatch = useAppDispatch();
