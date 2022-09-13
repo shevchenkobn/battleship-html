@@ -1,28 +1,43 @@
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import LockIcon from '@mui/icons-material/Lock';
 import {
+  Alert,
+  AlertTitle,
   Button,
   Card,
   CardActions,
   CardContent,
   Chip,
   Divider,
+  makeStyles,
   Popover,
   Stack,
   TextField,
+  Theme,
   ToggleButton,
   ToggleButtonGroup,
+  useTheme,
 } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
 import Typography from '@mui/material/Typography';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { noWhenDefault, when } from '../../app/expressions';
+import { AlertDialog } from '../../components/AlertDialog';
 import { ia, MessageId, MessageWithValues, playerKindMessageIds } from '../../intl';
-import { ComputerPlayerType, Player, PlayerKind, playerKinds } from '../../models/player';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
+import {
+  ComputerPlayerType,
+  hasPassword as hasPlayerPassword,
+  Player,
+  PlayerKind,
+  playerKinds,
+} from '../../models/player';
+import { PasswordDialog } from './PasswordDialog';
 
 export interface PlayerViewProps {
   intlPlayerName: MessageWithValues;
@@ -32,6 +47,12 @@ export interface PlayerViewProps {
   onEditingChange(isEditing: boolean): void;
   onPlayerChange(player: Player): void;
 }
+
+// const useDialogStyles = makeStyles((theme: Theme) => ({
+//   root: {
+//     color: theme.palette.warning.main,
+//   },
+// }));
 
 export function PlayerView({
   intlPlayerName,
@@ -43,9 +64,37 @@ export function PlayerView({
 }: PlayerViewProps) {
   const [player, setPlayer] = useState(originalPlayer);
   const intl = useIntl();
-  useEffect(() => setPlayer(originalPlayer), [originalPlayer]);
+
+  const hasPassword = useMemo(() => hasPlayerPassword(originalPlayer), [originalPlayer]);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  useEffect(() => {
+    setPlayer(originalPlayer);
+    setShowPasswordDialog(false);
+    setShowResetDialog(false);
+  }, [originalPlayer]);
+
+  const closeDialog = () => {
+    setShowPasswordDialog(false);
+  };
 
   const [anchorHelpEl, setAnchorHelpEl] = useState<HTMLButtonElement | null>(null);
+
+  const finishSavingChanges = (changedPlayer = player) => {
+    onPlayerChange(changedPlayer);
+    onEditingChange(false);
+  };
+
+  const startSavingChanges = () => {
+    if (hasPassword) {
+      setShowPasswordDialog(true);
+    } else {
+      finishSavingChanges();
+    }
+  };
+
+  // const dialogClasses = useDialogStyles();
+  const theme = useTheme();
 
   const form = (
     <>
@@ -106,6 +155,40 @@ export function PlayerView({
             }}
             helperText={intl.formatMessage({ id: MessageId.PlayerPasswordHelper })}
           />
+          {hasPlayerPassword(originalPlayer) && (
+            <PasswordDialog
+              correctPassword={originalPlayer.password}
+              open={showPasswordDialog}
+              onPasswordSubmit={(confirmed) => {
+                if (!confirmed) {
+                  return;
+                }
+                finishSavingChanges();
+                closeDialog();
+              }}
+              onAbortByCloseAttempt={closeDialog}
+            />
+          )}
+          {showResetDialog && (
+            <AlertDialog
+              open={showResetDialog}
+              title={'Do you really want to reset your data?'}
+              text={'This action cannot be reverted!'}
+              confirmText={<FormattedMessage id={MessageId.ConfirmAction} />}
+              cancelText={<FormattedMessage id={MessageId.CancelAction} />}
+              color={'warning'}
+              // classes={{ root: dialogClasses.root }}
+              onCloseAttempt={(confirmed) => {
+                if (!confirmed) {
+                  setShowResetDialog(false);
+                  return;
+                }
+                const player: Player = { kind: PlayerKind.Human, name: '', password: '' };
+                setPlayer(player);
+                finishSavingChanges(player);
+              }}
+            />
+          )}
         </Stack>
       ) : (
         <></>
@@ -198,15 +281,24 @@ export function PlayerView({
               </Button>{' '}
               <Button
                 variant="outlined"
-                startIcon={<CheckCircleIcon />}
+                startIcon={hasPassword ? <LockIcon /> : <CheckCircleIcon />}
                 type="submit"
                 onClick={(event) => {
-                  onPlayerChange(player);
-                  onEditingChange(false);
+                  startSavingChanges();
                   event.preventDefault();
                 }}
               >
                 <FormattedMessage id={MessageId.SaveAction} />
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<DeleteIcon />}
+                onClick={(event) => {
+                  setShowResetDialog(true);
+                  event.preventDefault();
+                }}
+              >
+                <FormattedMessage id={MessageId.ResetAction} />
               </Button>
             </>
           )}

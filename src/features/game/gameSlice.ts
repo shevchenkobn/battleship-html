@@ -9,7 +9,7 @@ import {
   GameStatus,
   Ship,
   ShipType,
-  StepHistory,
+  TurnHistory,
 } from '../../models/game';
 import { PlayerIndex } from '../../models/player';
 
@@ -76,7 +76,7 @@ function createPlayerState(): PlayerState {
 export interface GameSlice {
   status: GameStatus;
   currentPlayer: PlayerIndex;
-  history: StepHistory;
+  history: TurnHistory;
   /**
    * Game state for each player.
    */

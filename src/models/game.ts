@@ -1,5 +1,7 @@
 import { iterate } from 'iterare';
 import { cloneDeep } from 'lodash-es';
+import { assert } from '../app/lib';
+import { GuardedMap } from '../app/map';
 import {
   addPoint,
   decodePoint,
@@ -7,6 +9,7 @@ import {
   DeepReadonlyArray,
   encodePoint,
   Point,
+  t,
 } from '../app/types';
 import { MessageId } from '../intl';
 import { PlayerIndex } from './player';
@@ -17,17 +20,17 @@ export enum GameStatus {
   Done = 'done',
 }
 
-export interface Step {
+export interface Turn {
   /**
-   * Cell shoots during step in ascending order for each {@link PlayerIndex}.
+   * Cell shoots during turn in ascending order for each {@link PlayerIndex}.
    */
   cells: [Point[], Point[]];
 }
 
 /**
- * Step history sorted in ascending order.
+ * Turn history sorted in ascending order.
  */
-export type StepHistory = Step[];
+export type TurnHistory = Turn[];
 
 export enum BoardCellStatus {
   Untouched = 'untouched',
@@ -62,25 +65,78 @@ export function createBoard(size = defaultBoardSize): Board {
   return Array(size.x).map(() => Array(size.y).map(() => createBoardCell()));
 }
 
-export enum Orientation {
+export enum Direction {
   Left = 'left',
   Bottom = 'bottom',
   Right = 'right',
   Top = 'top',
 }
 
-export const orientationOrder: ReadonlyArray<Orientation> = Object.values(Orientation);
+export const directionOrder: ReadonlyArray<Direction> = Object.values(Direction);
 
-export const defaultOrientation = orientationOrder[0];
+export const defaultDirection = directionOrder[0];
 
+export function tryPushFromEdges(points: DeepReadonly<Point[]>, boardSize = defaultBoardSize) {
+  const pushOffsets = new GuardedMap<Direction, number>(
+    iterate(directionOrder).map((d) => t(d, 0))
+  );
+  for (const point of points) {
+    if (point.x < 0) {
+      pushOffsets.set(Direction.Left, Math.max(pushOffsets.get(Direction.Left), -point.x));
+    } else if (point.x >= boardSize.x) {
+      pushOffsets.set(
+        Direction.Right,
+        Math.min(pushOffsets.get(Direction.Right), -point.x + boardSize.x - 1)
+      );
+    }
+    if (point.y < 0) {
+      pushOffsets.set(Direction.Top, Math.max(pushOffsets.get(Direction.Top), -point.y));
+    } else if (point.y >= boardSize.y) {
+      pushOffsets.set(
+        Direction.Bottom,
+        Math.min(pushOffsets.get(Direction.Bottom), -point.y + boardSize.y - 1)
+      );
+    }
+  }
+  const offsetPoint: Point = { x: 0, y: 0 };
+  for (const [direction, offset] of pushOffsets) {
+    switch (direction) {
+      case Direction.Left:
+      case Direction.Right: {
+        if (offset !== 0) {
+          assert(offsetPoint.x === 0, 'The points do not fit horizontally!');
+          offsetPoint.x = offset;
+        }
+        break;
+      }
+      case Direction.Top:
+      case Direction.Bottom: {
+        if (offset !== 0) {
+          assert(offsetPoint.y === 0, 'The points do not fit vertically!');
+          offsetPoint.y = offset;
+        }
+        break;
+      }
+    }
+  }
+  return applyOffset(offsetPoint, points, false);
+}
+
+/**
+ * https://youtu.be/o3uJCCa5w2A
+ * @param {DeepReadonly<Point[]>} points
+ * @param {Direction} from
+ * @param {Direction} to
+ * @returns {Point[]}
+ */
 export function rotatePoints(
   points: DeepReadonly<Point[]>,
-  from: Orientation,
-  to: Orientation
+  from: Direction,
+  to: Direction
 ): Point[] {
   const newPoints = cloneDeep(points) as Point[];
-  const fromI = orientationOrder.indexOf(from);
-  const toI = orientationOrder.indexOf(to);
+  const fromI = directionOrder.indexOf(from);
+  const toI = directionOrder.indexOf(to);
   const steps = toI - fromI;
   if (steps > 0) {
     for (let i = 0; i < steps; i += 1) {
@@ -132,7 +188,7 @@ export interface ShipType {
   /**
    * Offsets of ship cells, except the first one (it's always `{ x: 0, y: 0 }`). One-cell chips will have it empty.
    *
-   * For example, 2-cell straight ship in {@link Orientation.Left} orientation would have it as `[{ x: 1, y: 0 }]`.
+   * For example, 2-cell straight ship in {@link Direction.Left} direction would have it as `[{ x: 1, y: 0 }]`.
    */
   cellOffsets1: Point[];
   /**
@@ -141,16 +197,16 @@ export interface ShipType {
   shipCount: number;
 }
 
-export function applyOffsets(
-  point: DeepReadonly<Point>,
-  offsets: DeepReadonly<Point[]>,
+export function applyOffset(
+  offset: DeepReadonly<Point>,
+  points: DeepReadonly<Point[]>,
   includeInitial = true
 ): Point[] {
-  const points = includeInitial ? [{ ...point }] : [];
-  for (const offset of offsets) {
-    points.push(addPoint(point, offset));
+  const newPoints = includeInitial ? [cloneDeep(offset) as Point] : [];
+  for (const point of points) {
+    newPoints.push(addPoint(offset, point));
   }
-  return points;
+  return newPoints;
 }
 
 export function isOutOfBound(point: DeepReadonly<Point>, size: DeepReadonly<Point>): boolean {
@@ -167,11 +223,11 @@ export interface Ship {
   // playerIndex: PlayerIndex;
   status: ShipStatus;
   shipTypeId: number;
-  orientation: Orientation;
+  direction: Direction;
   /**
    * All ship cells absolute coordinates in the board. Its size is larger than {@link ShipType.cellOffsets1} by 1.
    *
-   * For example, 2-cell straight ship at `{ x: 3, y: 4 }` with {@link Orientation.Left} orientation would have it as `[{ x: 3, y: 4 }, { x: 4, y: 4 }]`.
+   * For example, 2-cell straight ship at `{ x: 3, y: 4 }` with {@link Direction.Left} direction would have it as `[{ x: 3, y: 4 }, { x: 4, y: 4 }]`.
    */
   shipCells: Point[];
 }
@@ -193,7 +249,7 @@ export function createShip(shipType: DeepReadonly<ShipType>, id = 0): Ship {
     id,
     status: ShipStatus.Afloat,
     shipTypeId: shipType.id,
-    orientation: defaultOrientation,
+    direction: defaultDirection,
     shipCells: [],
   };
 }

@@ -22,8 +22,15 @@ export enum MessageId {
   PlayerName = 'players.name',
   PlayerNameLabel = 'players.label.name',
   PlayerPasswordLabel = 'players.label.password',
+  PlayerPasswordWrong = 'players.label.wrong',
   PlayerPasswordHelper = 'players.label.password.helper',
   PlayerPasswordDescription = 'players.label.password.description',
+
+  PlayerPasswordConfirmationTitle = 'players.password.confirmation.title',
+  PlayerPasswordConfirmationDescription = 'players.password.confirmation.description',
+
+  PlayerResetTitle = 'players.reset.title',
+  PlayerResetText = 'players.reset.text',
 
   PlayerUnknown = 'players.unknown',
   PlayerUnknownFull = 'players.unknown.full',
@@ -32,6 +39,8 @@ export enum MessageId {
   EditAction = 'action.edit',
   CancelAction = 'action.cancel',
   SaveAction = 'action.save',
+  ConfirmAction = 'action.confirm',
+  ResetAction = 'action.reset',
 
   ShipNameCarrier = 'game.ship.carrier',
   ShipNameBattleship = 'game.ship.battleship',
@@ -98,9 +107,17 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.PlayerName]: `Player {${MessageParameterName.MessageId}, number}`,
         [MessageId.PlayerNameLabel]: 'Player Name',
         [MessageId.PlayerPasswordLabel]: 'Password',
+        [MessageId.PlayerPasswordWrong]: 'Wrong password.',
         [MessageId.PlayerPasswordHelper]: "Can be empty, but don't tell anyone ;)",
         [MessageId.PlayerPasswordDescription]:
           'Password is required to open your board during the game.',
+
+        [MessageId.PlayerPasswordConfirmationTitle]: 'Password Confirmation',
+        [MessageId.PlayerPasswordConfirmationDescription]:
+          'To confirm your action, please, enter your password.',
+
+        [MessageId.PlayerResetTitle]: 'Do you really want to reset your data?',
+        [MessageId.PlayerResetText]: 'This action cannot be reverted!',
 
         [MessageId.PlayerUnknown]: "PlayerUnknown's",
         [MessageId.PlayerUnknownFull]: 'Unknown Player (wrong URL).',
@@ -109,6 +126,8 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.EditAction]: 'Edit',
         [MessageId.CancelAction]: 'Cancel',
         [MessageId.SaveAction]: 'Save',
+        [MessageId.ConfirmAction]: 'Confirm',
+        [MessageId.ResetAction]: 'Reset',
 
         [MessageId.ShipNameCarrier]: 'Carrier',
         [MessageId.ShipNameBattleship]: 'Battleship',
@@ -129,9 +148,17 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.PlayerName]: `Гравець {${MessageParameterName.MessageId}, number}`,
         [MessageId.PlayerNameLabel]: "Ім'я користувача",
         [MessageId.PlayerPasswordLabel]: 'Пароль',
+        [MessageId.PlayerPasswordWrong]: 'Невірний пароль.',
         [MessageId.PlayerPasswordHelper]: 'Може бути порожнім, але нікому не кажіть ;)',
         [MessageId.PlayerPasswordDescription]:
           'Пароль необхідний, щоб відкрити власну дошку протягом гри.',
+
+        [MessageId.PlayerResetTitle]: 'Ви справді хочете скинути ваші данні?',
+        [MessageId.PlayerResetText]: 'Цю дію неможливо скасувати!',
+
+        [MessageId.PlayerPasswordConfirmationTitle]: 'Підтвердження паролю',
+        [MessageId.PlayerPasswordConfirmationDescription]:
+          'Щоб підтвердити Вашу дію, будь ласка, введіть ваш пароль.',
 
         [MessageId.PlayerUnknown]: 'PlayerUnknown-а',
         [MessageId.PlayerUnknownFull]: 'Невідомий гравець (невірна адреса).',
@@ -140,6 +167,8 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.EditAction]: 'Редагувати',
         [MessageId.CancelAction]: 'Відмінити',
         [MessageId.SaveAction]: 'Зберегти',
+        [MessageId.ConfirmAction]: 'Підтвердити',
+        [MessageId.ResetAction]: 'Скинути',
 
         [MessageId.ShipNameCarrier]: 'Авіаносець',
         [MessageId.ShipNameBattleship]: 'Лінкор',

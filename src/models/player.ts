@@ -1,4 +1,4 @@
-import { as } from '../app/types';
+import { as, DeepReadonly } from '../app/types';
 
 export enum PlayerKind {
   Human = 'human',
@@ -29,4 +29,8 @@ export type PlayerIndex = 0 | 1;
 
 export function isValidPlayerIndex(index: unknown): index is PlayerIndex {
   return Number.isInteger(index) && as<number>(index) && index >= 0 && index <= 1;
+}
+
+export function hasPassword(player: DeepReadonly<Player>): player is HumanPlayer {
+  return player.kind !== PlayerKind.Human || player.password !== '';
 }

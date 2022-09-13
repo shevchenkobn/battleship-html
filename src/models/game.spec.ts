@@ -1,6 +1,12 @@
 import { normalizeMinus0 } from '../test-lib/lib';
 import { DeepReadonly, Point } from '../app/types';
-import { applyOffsets, getSurroundingCells, Orientation, rotatePoints } from './game';
+import {
+  applyOffset,
+  getSurroundingCells,
+  Direction,
+  rotatePoints,
+  tryPushFromEdges,
+} from './game';
 
 describe('game models', () => {
   it('function ' + rotatePoints.name, () => {
@@ -12,8 +18,8 @@ describe('game models', () => {
             { x: 1, y: -1 },
             { x: 1, y: 2 },
           ],
-          Orientation.Left,
-          Orientation.Bottom
+          Direction.Left,
+          Direction.Bottom
         )
       )
     ).toEqual([
@@ -29,8 +35,8 @@ describe('game models', () => {
             { x: 1, y: 1 },
             { x: -2, y: 1 },
           ],
-          Orientation.Bottom,
-          Orientation.Left
+          Direction.Bottom,
+          Direction.Left
         )
       )
     ).toEqual([
@@ -46,8 +52,8 @@ describe('game models', () => {
             { x: 1, y: -1 },
             { x: 1, y: 2 },
           ],
-          Orientation.Left,
-          Orientation.Right
+          Direction.Left,
+          Direction.Right
         )
       )
     ).toEqual([
@@ -63,8 +69,8 @@ describe('game models', () => {
             { x: 1, y: -1 },
             { x: 1, y: 2 },
           ],
-          Orientation.Right,
-          Orientation.Left
+          Direction.Right,
+          Direction.Left
         )
       )
     ).toEqual([
@@ -80,8 +86,8 @@ describe('game models', () => {
             { x: 1, y: -1 },
             { x: 1, y: 2 },
           ],
-          Orientation.Top,
-          Orientation.Left
+          Direction.Top,
+          Direction.Left
         )
       )
     ).toEqual([
@@ -98,8 +104,8 @@ describe('game models', () => {
             { x: 2, y: 0 },
             { x: 3, y: 0 },
           ],
-          Orientation.Left,
-          Orientation.Top
+          Direction.Left,
+          Direction.Top
         )
       )
     ).toEqual([
@@ -116,8 +122,8 @@ describe('game models', () => {
             { x: 0, y: 1 },
             { x: 0, y: 2 },
           ],
-          Orientation.Bottom,
-          Orientation.Right
+          Direction.Bottom,
+          Direction.Right
         )
       )
     ).toEqual([
@@ -132,8 +138,8 @@ describe('game models', () => {
             { x: 0, y: 0 },
             { x: 0, y: -1 },
           ],
-          Orientation.Top,
-          Orientation.Left
+          Direction.Top,
+          Direction.Left
         )
       )
     ).toEqual([
@@ -218,9 +224,9 @@ describe('game models', () => {
     );
   });
 
-  it('function ' + applyOffsets.name, () => {
+  it('function ' + applyOffset.name, () => {
     expect(
-      applyOffsets({ x: 3, y: 4 }, [
+      applyOffset({ x: 3, y: 4 }, [
         { x: 0, y: 0 },
         { x: 0, y: -1 },
       ])
@@ -230,7 +236,7 @@ describe('game models', () => {
       { x: 3, y: 3 },
     ]);
     expect(
-      applyOffsets(
+      applyOffset(
         { x: 5, y: 2 },
         [
           { x: 0, y: 0 },
@@ -246,7 +252,7 @@ describe('game models', () => {
       { x: 5, y: 4 },
     ]);
     expect(
-      applyOffsets(
+      applyOffset(
         { x: 3, y: 7 },
         [
           { x: 0, y: 0 },
@@ -261,6 +267,72 @@ describe('game models', () => {
       { x: 4, y: 7 },
       { x: 5, y: 7 },
       { x: 6, y: 7 },
+    ]);
+  });
+
+  it('function ' + tryPushFromEdges.name, () => {
+    expect(
+      tryPushFromEdges([
+        { x: -3, y: 0 },
+        { x: -2, y: 0 },
+        { x: -1, y: 0 },
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+      ])
+    ).toEqual([
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+      { x: 2, y: 0 },
+      { x: 3, y: 0 },
+      { x: 4, y: 0 },
+    ]);
+    expect(
+      tryPushFromEdges([
+        { x: -6, y: 4 },
+        { x: -5, y: 4 },
+        { x: -4, y: 4 },
+      ])
+    ).toEqual([
+      { x: 0, y: 4 },
+      { x: 1, y: 4 },
+      { x: 2, y: 4 },
+    ]);
+    expect(
+      tryPushFromEdges([
+        { x: 16, y: 10 },
+        { x: 15, y: 10 },
+        { x: 14, y: 10 },
+      ])
+    ).toEqual([
+      { x: 9, y: 9 },
+      { x: 8, y: 9 },
+      { x: 7, y: 9 },
+    ]);
+    expect(
+      tryPushFromEdges([
+        { x: 13, y: -6 },
+        { x: 13, y: -5 },
+        { x: 13, y: -4 },
+        { x: 13, y: -3 },
+      ])
+    ).toEqual([
+      { x: 9, y: 0 },
+      { x: 9, y: 1 },
+      { x: 9, y: 2 },
+      { x: 9, y: 3 },
+    ]);
+    expect(
+      tryPushFromEdges([
+        { x: -1, y: -1 },
+        { x: 0, y: -1 },
+        { x: -1, y: 0 },
+        { x: 0, y: 0 },
+      ])
+    ).toEqual([
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 1, y: 1 },
     ]);
   });
 });

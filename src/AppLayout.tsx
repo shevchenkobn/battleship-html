@@ -23,7 +23,7 @@ function AppLayout() {
   const messages = useMemo(() => getIntlMessages(locale), [locale]);
   return (
     <IntlProvider locale={locale} messages={messages}>
-      <PreventRefresh />
+      {/*<PreventRefresh />*/}
       <LocalizeTitle />
       <div className="App">
         <DocumentTitle />
