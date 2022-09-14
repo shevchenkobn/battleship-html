@@ -48,12 +48,6 @@ export interface PlayerViewProps {
   onPlayerChange(player: Player): void;
 }
 
-// const useDialogStyles = makeStyles((theme: Theme) => ({
-//   root: {
-//     color: theme.palette.warning.main,
-//   },
-// }));
-
 export function PlayerView({
   intlPlayerName,
   showPlayerKindToggle,
@@ -93,9 +87,6 @@ export function PlayerView({
     }
   };
 
-  // const dialogClasses = useDialogStyles();
-  const theme = useTheme();
-
   const form = (
     <>
       {player.kind === PlayerKind.Human ? (
@@ -127,7 +118,7 @@ export function PlayerView({
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
-                    aria-label="toggle password visibility"
+                    aria-label="password help"
                     onClick={(event) => {
                       setAnchorHelpEl(event.currentTarget);
                     }}
@@ -176,8 +167,6 @@ export function PlayerView({
               text={'This action cannot be reverted!'}
               confirmText={<FormattedMessage id={MessageId.ConfirmAction} />}
               cancelText={<FormattedMessage id={MessageId.CancelAction} />}
-              color={'warning'}
-              // classes={{ root: dialogClasses.root }}
               onCloseAttempt={(confirmed) => {
                 if (!confirmed) {
                   setShowResetDialog(false);

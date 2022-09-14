@@ -10,18 +10,18 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, matchPath, matchRoutes, useLocation, useMatch } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { AppTitle } from '../features/meta/AppTitle';
 import { selectAppLocale, setLocale } from '../features/meta/metaSlice';
-import { getIntlPlayerName } from '../features/players/lib';
+import { getIntlPlayerName, playerKindIcons } from '../features/players/lib';
 import { selectPlayers } from '../features/players/playersSlice';
 import { Locale, getIntlMessages, MessageId, ia, computerPlayerKindMessageIds } from '../intl';
 import { PlayerIndex, PlayerKind } from '../models/player';
 import { SvgProps } from '../svg/svg-factory';
 import { FlagGb } from '../svg/flags/FlagGb';
 import { FlagUa } from '../svg/flags/FlagUa';
-import { gameRoute } from './AppRouter';
+import { routes } from './AppRouter';
 
 export const languageFlags: Record<Locale, React.ComponentType<SvgProps>> = {
   [Locale.English]: FlagGb,
@@ -40,12 +40,12 @@ export const languages = [
 ];
 
 export function AppHeader() {
-  const location = useLocation();
   const locale = useAppSelector(selectAppLocale);
   const dispatch = useAppDispatch();
   const [anchorTopRightEl, setAnchorTopRightEl] = React.useState<null | HTMLElement>(null);
   const [anchorLanguageEl, setAnchorLanguageEl] = React.useState<null | HTMLElement>(null);
   const intl = useIntl();
+  const gameRouteMatch = useMatch(routes.game.path);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorTopRightEl(event.currentTarget);
@@ -65,7 +65,7 @@ export function AppHeader() {
 
   const handleLanguageSelect = (locale: Locale) => {
     dispatch(setLocale(locale));
-    handleLanguageClose();
+    // handleLanguageClose();
   };
 
   const FlagIcon = languageFlags[locale];
@@ -86,12 +86,12 @@ export function AppHeader() {
         </Typography>
         <Box sx={{ display: 'flex', flexGrow: 1 }}>
           <Button
-            disabled={location.pathname === '/' + gameRoute.path}
+            disabled={!!gameRouteMatch}
             component={Link}
-            to={gameRoute.path}
+            to={routes.game.path}
             sx={{ my: 2, color: 'white', display: 'block' }}
           >
-            <FormattedMessage id={gameRoute.label} />
+            <FormattedMessage id={routes.game.label} />
           </Button>
         </Box>
         <IconButton
@@ -150,22 +150,25 @@ export function AppHeader() {
             vertical: 'top',
             horizontal: 'right',
           }}
-          keepMounted
           transformOrigin={{
             vertical: 'top',
             horizontal: 'right',
           }}
           open={Boolean(anchorTopRightEl)}
           onClose={handleClose}
+          onClick={handleClose}
         >
-          {players.map((p, i) => (
-            <MenuItem key={i} component={Link} to={'/player/' + i}>
-              <ListItemIcon>
-                {p.kind === PlayerKind.Human ? <PermIdentityIcon /> : <ComputerIcon />}
-              </ListItemIcon>
-              <ListItemText>{p.name}</ListItemText>
-            </MenuItem>
-          ))}
+          {players.map((p, i) => {
+            const Icon = playerKindIcons[p.kind];
+            return (
+              <MenuItem key={i} component={Link} to={routes.player.formatPath(i)}>
+                <ListItemIcon>
+                  <Icon />
+                </ListItemIcon>
+                <ListItemText>{p.name}</ListItemText>
+              </MenuItem>
+            );
+          })}
         </Menu>
       </Toolbar>
     </AppBar>

@@ -88,7 +88,7 @@ export function getSupportedLocales() {
 
 export enum MessageParameterName {
   // Index = 'index',
-  MessageId = 'index',
+  PlayerName = 'index',
 }
 
 export function getIntlMessages(locale: Locale): Messages {
@@ -104,7 +104,7 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.ComputerPlayerTypeRandom]: 'Chaotic',
         [MessageId.ComputerPlayerTypeHeuristic]: 'Lawful',
 
-        [MessageId.PlayerName]: `Player {${MessageParameterName.MessageId}, number}`,
+        [MessageId.PlayerName]: `Player {${MessageParameterName.PlayerName}, number}`,
         [MessageId.PlayerNameLabel]: 'Player Name',
         [MessageId.PlayerPasswordLabel]: 'Password',
         [MessageId.PlayerPasswordWrong]: 'Wrong password.',
@@ -145,7 +145,7 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.ComputerPlayerTypeRandom]: 'Хаотичний',
         [MessageId.ComputerPlayerTypeHeuristic]: 'Законний',
 
-        [MessageId.PlayerName]: `Гравець {${MessageParameterName.MessageId}, number}`,
+        [MessageId.PlayerName]: `Гравець {${MessageParameterName.PlayerName}, number}`,
         [MessageId.PlayerNameLabel]: "Ім'я користувача",
         [MessageId.PlayerPasswordLabel]: 'Пароль',
         [MessageId.PlayerPasswordWrong]: 'Невірний пароль.',

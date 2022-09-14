@@ -58,6 +58,8 @@ export type DeepReadonly<T> = T extends ReadonlyMarker<infer RT>
   ? DeepReadonlySet<V>
   : T extends ReadonlyArray<infer V>
   ? DeepReadonlyArray<V>
+  : T extends (...args: infer A) => infer R
+  ? (...args: A) => R
   : DeepReadonlyObject<T>;
 // : T extends Iterable<infer V>
 // ? Iterable<DeepReadonly<V>>

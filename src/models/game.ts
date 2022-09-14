@@ -62,7 +62,13 @@ export const defaultBoardSize: DeepReadonly<Point> = { x: 10, y: 10 };
 export type Board = BoardCell[][];
 
 export function createBoard(size = defaultBoardSize): Board {
-  return Array(size.x).map(() => Array(size.y).map(() => createBoardCell()));
+  return Array(size.x)
+    .fill(null)
+    .map(() =>
+      Array(size.y)
+        .fill(null)
+        .map(() => createBoardCell())
+    );
 }
 
 export enum Direction {

@@ -3,6 +3,7 @@ import { useEffect, useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch } from '../../app/hooks';
+import { routes } from '../../components/AppRouter';
 import { MessageId, MessageWithValues } from '../../intl';
 import { isValidPlayerIndex } from '../../models/player';
 import { setTitle } from '../meta/metaSlice';
@@ -12,7 +13,7 @@ import { PlayerContainer } from './PlayerContainer';
 export function PlayerPage() {
   const dispatch = useAppDispatch();
   const params = useParams();
-  const index = Number.parseInt(params.index ?? '');
+  const index = Number.parseInt(params[routes.player.paramName] ?? '');
   const isIndexValid = isValidPlayerIndex(index);
   const title: MessageWithValues = useMemo(
     () => (isIndexValid ? getIntlPlayerName(index) : { id: MessageId.PlayerUnknown }),

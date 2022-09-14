@@ -58,7 +58,7 @@ export function PasswordDialog({
           }
         }}
       >
-        <DialogContentText sx={{ pb: 1 }}>
+        <DialogContentText gutterBottom>
           <FormattedMessage id={MessageId.PlayerPasswordConfirmationDescription} />
         </DialogContentText>
         <TextField
