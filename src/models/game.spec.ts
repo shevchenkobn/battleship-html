@@ -6,9 +6,10 @@ import {
   Direction,
   rotatePoints,
   tryPushFromEdges,
+  getBoundingRectangle,
 } from './game';
 
-describe('game models', () => {
+describe('game board functions', () => {
   it('function ' + rotatePoints.name, () => {
     expect(
       normalizeMinus0(
@@ -270,6 +271,9 @@ describe('game models', () => {
     ]);
   });
 
+  /**
+   * Throwing is not tested because it is an exceptional behaviour.
+   */
   it('function ' + tryPushFromEdges.name, () => {
     expect(
       tryPushFromEdges([
@@ -334,5 +338,56 @@ describe('game models', () => {
       { x: 0, y: 1 },
       { x: 1, y: 1 },
     ]);
+  });
+
+  it('function ' + getBoundingRectangle.name, () => {
+    expect(getBoundingRectangle([{ x: 0, y: 0 }])).toEqual({
+      topLeft: { x: 0, y: 0 },
+      bottomRight: { x: 0, y: 0 },
+    });
+    expect(
+      getBoundingRectangle([
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+        { x: 2, y: 0 },
+      ])
+    ).toEqual({
+      topLeft: { x: 0, y: 0 },
+      bottomRight: { x: 2, y: 0 },
+    });
+    expect(
+      getBoundingRectangle([
+        { x: 0, y: 0 },
+        { x: 0, y: 1 },
+        { x: 0, y: 2 },
+        { x: 0, y: 3 },
+      ])
+    ).toEqual({
+      topLeft: { x: 0, y: 0 },
+      bottomRight: { x: 0, y: 3 },
+    });
+    expect(
+      getBoundingRectangle([
+        { x: 0, y: 0 },
+        { x: 1, y: 1 },
+        { x: 2, y: 2 },
+      ])
+    ).toEqual({
+      topLeft: { x: 0, y: 0 },
+      bottomRight: { x: 2, y: 2 },
+    });
+    expect(
+      getBoundingRectangle([
+        { x: -2, y: -2 },
+        { x: -3, y: -1 },
+        { x: 0, y: 0 },
+        { x: 2, y: 1 },
+        { x: 1, y: 2 },
+      ])
+    ).toEqual({
+      topLeft: { x: -3, y: -2 },
+      bottomRight: { x: 2, y: 2 },
+    });
+    expect(() => getBoundingRectangle([])).toThrow();
   });
 });

@@ -13,7 +13,7 @@ import { PlayerContainer } from './PlayerContainer';
 export function PlayerPage() {
   const dispatch = useAppDispatch();
   const params = useParams();
-  const index = Number.parseInt(params[routes.player.paramName] ?? '');
+  const index = Number.parseInt(params[routes.player.parameterName] ?? '');
   const isIndexValid = isValidPlayerIndex(index);
   const title: MessageWithValues = useMemo(
     () => (isIndexValid ? getIntlPlayerName(index) : { id: MessageId.PlayerUnknown }),

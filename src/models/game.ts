@@ -9,6 +9,7 @@ import {
   DeepReadonlyArray,
   encodePoint,
   Point,
+  subtractPoint,
   t,
 } from '../app/types';
 import { MessageId } from '../intl';
@@ -186,6 +187,32 @@ export function getSurroundingCells(
     }
   }
   return iterate(surroundingSet).map(decodePoint).toArray();
+}
+
+export interface PointsBoundingRectangle {
+  topLeft: Point;
+  bottomRight: Point;
+}
+
+export function getBoundingRectangle(points: DeepReadonly<Point[]>): PointsBoundingRectangle {
+  assert(points.length > 0, 'No points to calculate bounding rectangle!');
+  const rectangle: PointsBoundingRectangle = {
+    topLeft: { x: Number.MAX_SAFE_INTEGER, y: Number.MAX_SAFE_INTEGER },
+    bottomRight: { x: Number.MIN_SAFE_INTEGER, y: Number.MIN_SAFE_INTEGER },
+  };
+  for (const p of points) {
+    rectangle.topLeft.x = Math.min(p.x, rectangle.topLeft.x);
+    rectangle.topLeft.y = Math.min(p.y, rectangle.topLeft.y);
+    rectangle.bottomRight.x = Math.max(p.x, rectangle.bottomRight.x);
+    rectangle.bottomRight.y = Math.max(p.y, rectangle.bottomRight.y);
+  }
+  return rectangle;
+}
+
+export function normalizeBoundingRectangle(
+  rectangle: DeepReadonly<PointsBoundingRectangle>
+): Point {
+  return addPoint(subtractPoint(rectangle.bottomRight, rectangle.topLeft), { x: 1, y: 1 });
 }
 
 export interface ShipType {

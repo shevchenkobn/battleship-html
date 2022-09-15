@@ -23,13 +23,13 @@ export const routes = (() => {
     player: {
       pathPrefix: 'players',
       path: '',
-      paramName: 'index',
+      parameterName: 'index',
       formatPath(index: number) {
         return this.pathPrefix + '/' + index;
       },
       element: <PlayerPage />,
     },
   };
-  routes.player.path = routes.player.pathPrefix + '/:' + routes.player.paramName;
+  routes.player.path = routes.player.pathPrefix + '/:' + routes.player.parameterName;
   return routes as DeepReadonly<typeof routes>;
 })();

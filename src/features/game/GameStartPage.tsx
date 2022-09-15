@@ -24,7 +24,13 @@ export function GameStartPage() {
       <Button size="large" color="secondary" variant="contained">
         <FormattedMessage id={MessageId.PlayAction} />
       </Button>
-      <CellGrid dimensions={defaultBoardSize} />
+      <CellGrid
+        points={[
+          { x: -1, y: -2 },
+          { x: 0, y: -2 },
+          { x: 1, y: 0 },
+        ]}
+      />
     </Stack>
   );
 }
