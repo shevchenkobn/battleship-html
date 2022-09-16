@@ -57,12 +57,16 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - ship overengineering for possible extension (see improvements);
 - not tested everything (see comments in files for details);
 - private (non-exported) components are used to avoid too many files;
+- lint-staged is not used because the project is small and lint-staged requires regex, which is not in config;
 
 ### TODO
 - Fix "center" ship list column rendering in @media sm - md.
 - Fix vertical alignment of "vs" and "Play" button for different length of names (the names must flex-grow, but they don't :'( ).
 
 #### Basic version:
+- password to make the game quick & safe enough.
+- classic rules;
+- adaptive mobile UI;
 - implement board (with islands, each player has own), ship positioning (not straight) in an extensible way (1d array-like); make ability to continue shooting easy to implement.
 - ask about leaving if game started.
 - 10x10 board;

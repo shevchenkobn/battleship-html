@@ -4,18 +4,13 @@
   "private": true,
   "scripts": {
     "build": "node scripts/build.js",
-    "eject": "react-scripts eject",
+    "husky": "concurrently -P 'npm:lint:*(!fix) -- {@}' 'npm run test -- --watchAll=false'",
     "lint": "concurrently -P 'npm:lint:*(!fix) -- {@}'",
     "lint:es": "eslint ./src",
     "lint:style": "stylelint ./src ./public",
     "prepare": "husky install",
     "start": "node scripts/start.js",
     "test": "node scripts/test.js"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint"
-    }
   },
   "browserslist": {
     "production": [
