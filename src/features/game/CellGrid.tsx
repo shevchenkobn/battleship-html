@@ -1,6 +1,8 @@
 import { Grid, Paper, Stack, SxProps, Theme } from '@mui/material';
 import Box from '@mui/material/Box';
-import { ComponentType } from 'react';
+import React, { ComponentType } from 'react';
+import { useStyleProps } from '../../app/hooks';
+import { StyleProps } from '../../app/styles';
 import { encodePoint, Point, subtractPoint } from '../../app/types';
 import { getBoundingRectangle, normalizeBoundingRectangle } from '../../models/game';
 
@@ -16,10 +18,15 @@ export type CellGridProps = (
    * @default {cellSize}
    */
   cellSizePx?: number;
-};
+  /**
+   * @default {false}
+   */
+  noHover?: boolean;
+} & StyleProps;
 
 export function CellGrid(props: CellGridProps) {
-  const cellSize = props.cellSizePx ?? defaultCellSize;
+  const styleProps = useStyleProps(props);
+  const cellSizePx = props.cellSizePx ?? defaultCellSize;
   const points = new Set();
   let dimensions: Point;
   if ('points' in props) {
@@ -32,7 +39,12 @@ export function CellGrid(props: CellGridProps) {
     dimensions = props.dimensions;
   }
   return (
-    <Stack direction="row">
+    <Stack
+      {...styleProps}
+      direction="row"
+      maxWidth={cellSizePx * dimensions.x}
+      sx={{ overflow: 'auto', width: 'auto' }}
+    >
       {Array(dimensions.x)
         .fill(null)
         .map((_, x) => (
@@ -42,8 +54,9 @@ export function CellGrid(props: CellGridProps) {
               .map((_, y) => (
                 <Cell
                   key={'row' + y}
-                  cellSize={cellSize}
+                  cellSize={cellSizePx}
                   empty={points.size !== 0 && !points.has(encodePoint({ x, y }))}
+                  noHover={!!props.noHover}
                 />
               ))}
           </Stack>
@@ -55,13 +68,24 @@ export function CellGrid(props: CellGridProps) {
 interface CellProps {
   cellSize: number;
   empty: boolean;
+  noHover: boolean;
 }
 
-function Cell({ cellSize, empty }: CellProps) {
+function Cell({ cellSize, empty, noHover }: CellProps) {
   const sx: SxProps<Theme> = { width: cellSize, height: cellSize };
   return empty ? (
     <Box sx={{ ...sx, opacity: 0 }} />
   ) : (
-    <Paper variant="outlined" sx={{ ...sx, borderColor: 'grey.700' }} />
+    <Paper
+      variant="outlined"
+      sx={{
+        ...sx,
+        borderColor: 'grey.700',
+        ...(!noHover && {
+          cursor: 'pointer',
+          '&:hover': { border: 2, borderColor: 'secondary.light' },
+        }),
+      }}
+    />
   );
 }

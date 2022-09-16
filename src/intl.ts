@@ -42,6 +42,9 @@ export enum MessageId {
   ConfirmAction = 'action.confirm',
   ResetAction = 'action.reset',
 
+  ViewingStatus = 'status.viewing',
+  EditingStatus = 'status.editing',
+
   ShipNameCarrier = 'game.ship.carrier',
   ShipNameBattleship = 'game.ship.battleship',
   ShipNameCruiser = 'game.ship.cruiser',
@@ -129,6 +132,9 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.ConfirmAction]: 'Confirm',
         [MessageId.ResetAction]: 'Reset',
 
+        [MessageId.ViewingStatus]: 'Viewing',
+        [MessageId.EditingStatus]: 'Editing',
+
         [MessageId.ShipNameCarrier]: 'Carrier',
         [MessageId.ShipNameBattleship]: 'Battleship',
         [MessageId.ShipNameCruiser]: 'Cruiser',
@@ -169,6 +175,9 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.SaveAction]: 'Зберегти',
         [MessageId.ConfirmAction]: 'Підтвердити',
         [MessageId.ResetAction]: 'Скинути',
+
+        [MessageId.ViewingStatus]: 'Перегляд',
+        [MessageId.EditingStatus]: 'Редагування',
 
         [MessageId.ShipNameCarrier]: 'Авіаносець',
         [MessageId.ShipNameBattleship]: 'Лінкор',

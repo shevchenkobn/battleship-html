@@ -55,10 +55,12 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - search project for inlineBuild: ;
 - components: layout, page, container (logic), view (view prefix optional);
 - ship overengineering for possible extension (see improvements);
+- not tested everything (see comments in files for details);
+- private (non-exported) components are used to avoid too many files;
 
 ### TODO
-
-- 
+- Fix "center" ship list column rendering in @media sm - md.
+- Fix vertical alignment of "vs" and "Play" button for different length of names (the names must flex-grow, but they don't :'( ).
 
 #### Basic version:
 - implement board (with islands, each player has own), ship positioning (not straight) in an extensible way (1d array-like); make ability to continue shooting easy to implement.

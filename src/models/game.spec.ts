@@ -7,8 +7,14 @@ import {
   rotatePoints,
   tryPushFromEdges,
   getBoundingRectangle,
+  normalizeBoundingRectangle,
+  isOutOfBound,
 } from './game';
 
+/**
+ * Not tested:
+ * - {@link createBoardCell}, {@link createBoard}, {@link createShips}, {@link createShip}: creation helpers;
+ */
 describe('game board functions', () => {
   it('function ' + rotatePoints.name, () => {
     expect(
@@ -272,7 +278,7 @@ describe('game board functions', () => {
   });
 
   /**
-   * Throwing is not tested because it is an exceptional behaviour.
+   * Throwing is not tested because it is an unexpected behaviour.
    */
   it('function ' + tryPushFromEdges.name, () => {
     expect(
@@ -389,5 +395,31 @@ describe('game board functions', () => {
       bottomRight: { x: 2, y: 2 },
     });
     expect(() => getBoundingRectangle([])).toThrow();
+  });
+  /**
+   * Validation of the rectangle is not tested due to unlikeliness of such issue and time.
+   */
+  it('function ' + normalizeBoundingRectangle.name, () => {
+    expect(
+      normalizeBoundingRectangle({ topLeft: { x: -2, y: -1 }, bottomRight: { x: 4, y: 5 } })
+    ).toEqual({ x: 7, y: 7 });
+    expect(
+      normalizeBoundingRectangle({ topLeft: { x: 8, y: 9 }, bottomRight: { x: 12, y: 11 } })
+    ).toEqual({ x: 5, y: 3 });
+    expect(
+      normalizeBoundingRectangle({ topLeft: { x: 22, y: 22 }, bottomRight: { x: 22, y: 22 } })
+    ).toEqual({ x: 1, y: 1 });
+    expect(
+      normalizeBoundingRectangle({ topLeft: { x: 0, y: 0 }, bottomRight: { x: 1, y: 10 } })
+    ).toEqual({ x: 2, y: 11 });
+  });
+
+  it('function ' + isOutOfBound.name, () => {
+    expect(isOutOfBound({ x: 3, y: 4 }, { x: 10, y: 10 })).toEqual(false);
+    expect(isOutOfBound({ x: 3, y: 10 }, { x: 10, y: 10 })).toEqual(true);
+    expect(isOutOfBound({ x: 0, y: 4 }, { x: 10, y: 10 })).toEqual(false);
+    expect(isOutOfBound({ x: -1, y: 4 }, { x: 5, y: 5 })).toEqual(true);
+    expect(isOutOfBound({ x: 0, y: 0 }, { x: 5, y: 5 })).toEqual(false);
+    expect(isOutOfBound({ x: 0, y: 0 }, { x: 0, y: 0 })).toEqual(true);
   });
 });

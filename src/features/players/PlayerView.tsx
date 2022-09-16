@@ -5,22 +5,18 @@ import EditIcon from '@mui/icons-material/Edit';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import LockIcon from '@mui/icons-material/Lock';
 import {
-  Alert,
-  AlertTitle,
   Button,
   Card,
   CardActions,
   CardContent,
+  CardHeader,
   Chip,
   Divider,
-  makeStyles,
   Popover,
   Stack,
   TextField,
-  Theme,
   ToggleButton,
   ToggleButtonGroup,
-  useTheme,
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -146,38 +142,6 @@ export function PlayerView({
             }}
             helperText={intl.formatMessage({ id: MessageId.PlayerPasswordHelper })}
           />
-          {hasPlayerPassword(originalPlayer) && (
-            <PasswordDialog
-              correctPassword={originalPlayer.password}
-              open={showPasswordDialog}
-              onPasswordSubmit={(confirmed) => {
-                if (!confirmed) {
-                  return;
-                }
-                finishSavingChanges();
-                closeDialog();
-              }}
-              onAbortByCloseAttempt={closeDialog}
-            />
-          )}
-          {showResetDialog && (
-            <AlertDialog
-              open={showResetDialog}
-              title={'Do you really want to reset your data?'}
-              text={'This action cannot be reverted!'}
-              confirmText={<FormattedMessage id={MessageId.ConfirmAction} />}
-              cancelText={<FormattedMessage id={MessageId.CancelAction} />}
-              onCloseAttempt={(confirmed) => {
-                if (!confirmed) {
-                  setShowResetDialog(false);
-                  return;
-                }
-                const player: Player = { kind: PlayerKind.Human, name: '', password: '' };
-                setPlayer(player);
-                finishSavingChanges(player);
-              }}
-            />
-          )}
         </Stack>
       ) : (
         <></>
@@ -185,114 +149,157 @@ export function PlayerView({
     </>
   );
   return (
-    <form>
-      <Card>
-        <CardContent>
-          {showPlayerKindToggle ? (
-            <Stack spacing={2}>
-              {isReadonly ? (
-                <Chip
-                  label={intl.formatMessage({ id: playerKindMessageIds[player.kind] })}
-                  color="primary"
-                />
-              ) : (
-                <ToggleButtonGroup
-                  color="primary"
-                  value={player.kind}
-                  className="flex-grow"
-                  exclusive
-                  disabled={isReadonly}
-                  onChange={(event, value) => {
-                    if (value === player.kind) {
-                      return;
-                    }
-                    const newPlayer = when<Player, PlayerKind>(
-                      value,
-                      [
+    <>
+      <form>
+        <Card>
+          <CardHeader
+            title={
+              intl.formatMessage({
+                id: isReadonly ? MessageId.ViewingStatus : MessageId.EditingStatus,
+              }) +
+              ': ' +
+              intl.formatMessage(...ia(intlPlayerName))
+            }
+          />
+          <CardContent>
+            {showPlayerKindToggle ? (
+              <Stack spacing={2}>
+                {isReadonly ? (
+                  <Chip
+                    label={intl.formatMessage({ id: playerKindMessageIds[player.kind] })}
+                    color="primary"
+                  />
+                ) : (
+                  <ToggleButtonGroup
+                    color="primary"
+                    value={player.kind}
+                    className="flex-grow"
+                    exclusive
+                    disabled={isReadonly}
+                    onChange={(event, value) => {
+                      if (value === player.kind) {
+                        return;
+                      }
+                      const newPlayer = when<Player, PlayerKind>(
+                        value,
                         [
-                          PlayerKind.Computer,
-                          () => ({ kind: PlayerKind.Computer, type: ComputerPlayerType.Random }),
+                          [
+                            PlayerKind.Computer,
+                            () => ({ kind: PlayerKind.Computer, type: ComputerPlayerType.Random }),
+                          ],
+                          [
+                            PlayerKind.Human,
+                            () => {
+                              const human =
+                                originalPlayer.kind === PlayerKind.Human ? originalPlayer : null;
+                              return {
+                                kind: PlayerKind.Human,
+                                name: human?.name ?? '',
+                                password: human?.password ?? '',
+                              };
+                            },
+                          ],
                         ],
-                        [
-                          PlayerKind.Human,
-                          () => {
-                            const human =
-                              originalPlayer.kind === PlayerKind.Human ? originalPlayer : null;
-                            return {
-                              kind: PlayerKind.Human,
-                              name: human?.name ?? '',
-                              password: human?.password ?? '',
-                            };
-                          },
-                        ],
-                      ],
-                      noWhenDefault
-                    );
-                    setPlayer(newPlayer);
+                        noWhenDefault
+                      );
+                      setPlayer(newPlayer);
+                    }}
+                    aria-label="Player Kind"
+                  >
+                    {playerKinds.map((kind) => (
+                      <ToggleButton key={kind} value={kind} className="flex-grow">
+                        <FormattedMessage id={playerKindMessageIds[kind]} />
+                      </ToggleButton>
+                    ))}
+                  </ToggleButtonGroup>
+                )}
+                <Divider />
+                {form}
+              </Stack>
+            ) : (
+              <>{form}</>
+            )}
+          </CardContent>
+          <CardActions>
+            {isReadonly ? (
+              <Button
+                variant="outlined"
+                startIcon={<EditIcon />}
+                onClick={() => onEditingChange(true)}
+              >
+                <FormattedMessage id={MessageId.EditAction} />
+              </Button>
+            ) : (
+              <>
+                <Button
+                  color="secondary"
+                  variant="outlined"
+                  startIcon={<CancelIcon />}
+                  onClick={() => {
+                    onEditingChange(false);
+                    setPlayer(originalPlayer);
                   }}
-                  aria-label="Player Kind"
                 >
-                  {playerKinds.map((kind) => (
-                    <ToggleButton key={kind} value={kind} className="flex-grow">
-                      <FormattedMessage id={playerKindMessageIds[kind]} />
-                    </ToggleButton>
-                  ))}
-                </ToggleButtonGroup>
-              )}
-              <Divider />
-              {form}
-            </Stack>
-          ) : (
-            <>{form}</>
-          )}
-        </CardContent>
-        <CardActions>
-          {isReadonly ? (
-            <Button
-              variant="outlined"
-              startIcon={<EditIcon />}
-              onClick={() => onEditingChange(true)}
-            >
-              <FormattedMessage id={MessageId.EditAction} />
-            </Button>
-          ) : (
-            <>
-              <Button
-                color="secondary"
-                variant="outlined"
-                startIcon={<CancelIcon />}
-                onClick={() => {
-                  onEditingChange(false);
-                  setPlayer(originalPlayer);
-                }}
-              >
-                <FormattedMessage id={MessageId.CancelAction} />
-              </Button>{' '}
-              <Button
-                variant="outlined"
-                startIcon={hasPassword ? <LockIcon /> : <CheckCircleIcon />}
-                type="submit"
-                onClick={(event) => {
-                  startSavingChanges();
-                  event.preventDefault();
-                }}
-              >
-                <FormattedMessage id={MessageId.SaveAction} />
-              </Button>
-              <Button
-                variant="outlined"
-                startIcon={<DeleteIcon />}
-                onClick={(event) => {
-                  setShowResetDialog(true);
-                  event.preventDefault();
-                }}
-              >
-                <FormattedMessage id={MessageId.ResetAction} />
-              </Button>
-            </>
-          )}
-        </CardActions>
-      </Card>
-    </form>
+                  <FormattedMessage id={MessageId.CancelAction} />
+                </Button>{' '}
+                <Button
+                  variant="outlined"
+                  startIcon={hasPassword ? <LockIcon /> : <CheckCircleIcon />}
+                  type="submit"
+                  onClick={(event) => {
+                    startSavingChanges();
+                    event.preventDefault();
+                  }}
+                >
+                  <FormattedMessage id={MessageId.SaveAction} />
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<DeleteIcon />}
+                  onClick={(event) => {
+                    setShowResetDialog(true);
+                    event.preventDefault();
+                  }}
+                >
+                  <FormattedMessage id={MessageId.ResetAction} />
+                </Button>
+              </>
+            )}
+          </CardActions>
+        </Card>
+      </form>
+      {hasPlayerPassword(originalPlayer) && (
+        <PasswordDialog
+          correctPassword={originalPlayer.password}
+          open={showPasswordDialog}
+          onPasswordSubmit={(confirmed) => {
+            if (!confirmed) {
+              return;
+            }
+            finishSavingChanges();
+            closeDialog();
+          }}
+          onAbortByCloseAttempt={closeDialog}
+        />
+      )}
+      {showResetDialog && (
+        <AlertDialog
+          open={showResetDialog}
+          title={'Do you really want to reset your data?'}
+          text={'This action cannot be reverted!'}
+          confirmText={<FormattedMessage id={MessageId.ConfirmAction} />}
+          cancelText={<FormattedMessage id={MessageId.CancelAction} />}
+          onCloseAttempt={(confirmed) => {
+            if (!confirmed) {
+              setShowResetDialog(false);
+              return;
+            }
+            const player: Player = { kind: PlayerKind.Human, name: '', password: '' };
+            setPlayer(player);
+            finishSavingChanges(player);
+          }}
+        />
+      )}
+    </>
   );
 }

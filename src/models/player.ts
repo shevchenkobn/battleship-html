@@ -32,5 +32,5 @@ export function isValidPlayerIndex(index: unknown): index is PlayerIndex {
 }
 
 export function hasPassword(player: DeepReadonly<Player>): player is HumanPlayer {
-  return player.kind !== PlayerKind.Human || player.password !== '';
+  return player.kind === PlayerKind.Human && player.password !== '';
 }

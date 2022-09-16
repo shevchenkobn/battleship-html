@@ -17,6 +17,10 @@ const getTag = (node: Element) => node.localName;
 // Therefore, DOM API is used.
 /* eslint-disable testing-library/no-node-access */
 
+/**
+ * Not tested:
+ * - props {@link CellGridProps.noHover}, {@link CellGridProps.style}: just styling;
+ */
 describe('renders square board', () => {
   test('default', () => {
     testGrid({ dimensions: defaultBoardSize });

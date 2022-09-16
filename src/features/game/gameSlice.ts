@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { StoreSliceName } from '../../app/constants';
+import type { RootState } from '../../app/store';
 import { DeepReadonly, DeepReadonlyArray } from '../../app/types';
 import { MessageId } from '../../intl';
 import {
@@ -21,7 +22,7 @@ export interface PlayerState {
   score: number;
 }
 
-const shipTypes: DeepReadonly<ShipType[]> = [
+export const shipTypes: DeepReadonly<ShipType[]> = [
   {
     id: 0,
     name: MessageId.ShipNameCarrier,
@@ -97,3 +98,5 @@ const gameSlice = createSlice({
 });
 
 export default gameSlice.reducer;
+
+// export const selectShipTypes = (state: RootState) => state.game.
