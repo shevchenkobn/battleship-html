@@ -44,7 +44,7 @@ function ShipTypeList({ shipTypes, interactive, cellSizePx }: ShipTypeListProps)
       {shipTypes.map((s) => (
         // <Stack direction={{ lg: 'row', md: 'column', sm: 'row', xs: 'column' }}>
         // </Stack>
-        <Grid container justifyContent="center">
+        <Grid key={s.id} container justifyContent="center">
           <Grid item xs={12}>
             <Typography align="left" variant={shipNameVariant}>
               {s.shipCount}x<FormattedMessage id={s.name} />

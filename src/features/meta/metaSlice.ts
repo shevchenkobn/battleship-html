@@ -10,6 +10,7 @@ export interface MetaSlice {
   title: MessageWithValues | string;
   titleLocalized: boolean;
   appLocale: Locale;
+  redirectNotFound: boolean;
 }
 
 export function getDefaultTitle(projectName: string) {
@@ -36,6 +37,7 @@ const initialState: MetaSlice = {
   appTitle: formatAppBarTitle('', defaultProjectName),
   titleLocalized: false,
   appLocale: defaultLocale,
+  redirectNotFound: true,
 };
 
 export type TitleLocalizedActionPayload =

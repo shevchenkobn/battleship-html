@@ -77,6 +77,11 @@ export function noWhenDefault<V>(): V {
   throw new TypeError("Default in 'when' mustn't be reachable!");
 }
 
+/**
+ * When variable is true.
+ * @param {[caseV: boolean, (expression: (caseV: true) => V)][]} cases
+ * @returns {Optional<V>}
+ */
 export function whenT<V>(cases: [caseV: boolean, expression: (caseV: true) => V][]): Optional<V>;
 export function whenT<V>(
   cases: [caseV: boolean, expression: (caseV: true) => V][],

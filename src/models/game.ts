@@ -6,19 +6,20 @@ import {
   addPoint,
   decodePoint,
   DeepReadonly,
-  DeepReadonlyArray,
   encodePoint,
   Point,
   subtractPoint,
   t,
 } from '../app/types';
+import { PlayerState, shipCountForPlayer } from '../features/game/gameSlice';
 import { MessageId } from '../intl';
 import { PlayerIndex } from './player';
 
 export enum GameStatus {
   Starting = 'starting',
+  Configuring = 'configuring',
   Playing = 'playing',
-  Done = 'done',
+  Finished = 'finished',
 }
 
 export interface Turn {
@@ -285,4 +286,9 @@ export function createShip(shipType: DeepReadonly<ShipType>, id = 0): Ship {
     direction: defaultDirection,
     shipCells: [],
   };
+}
+
+export function hasShipsInstalled(gamePlayer: DeepReadonly<PlayerState>) {
+  // return gamePlayer.ships.length === shipCountForPlayer;
+  return gamePlayer.ships.every((s) => s.shipCells.length > 0);
 }

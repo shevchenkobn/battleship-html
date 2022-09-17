@@ -13,6 +13,9 @@ export enum MessageId {
   ProjectName = 'app.projectName',
   Language = 'app.language',
 
+  ConfigurationTitle = 'title.configuration',
+  PasswordsConfirmationTitle = 'title.passwordsConfirmation',
+
   PlayerHumanKind = 'player.kind.human',
   PlayerComputerKind = 'player.kind.computer',
 
@@ -101,6 +104,9 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.ProjectName]: defaultProjectName,
         [MessageId.Language]: 'English (UK)',
 
+        [MessageId.ConfigurationTitle]: 'Configuration',
+        [MessageId.PasswordsConfirmationTitle]: 'Passwords Confirmation',
+
         [MessageId.PlayerHumanKind]: 'Human',
         [MessageId.PlayerComputerKind]: 'Computer',
 
@@ -144,6 +150,9 @@ export function getIntlMessages(locale: Locale): Messages {
       return {
         [MessageId.ProjectName]: 'Морський Бій',
         [MessageId.Language]: 'Українська',
+
+        [MessageId.ConfigurationTitle]: 'Налаштування',
+        [MessageId.PasswordsConfirmationTitle]: 'Підтвердження паролів',
 
         [MessageId.PlayerHumanKind]: 'Людина',
         [MessageId.PlayerComputerKind]: "Комп'ютер",

@@ -62,6 +62,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 ### TODO
 - Fix "center" ship list column rendering in @media sm - md.
 - Fix vertical alignment of "vs" and "Play" button for different length of names (the names must flex-grow, but they don't :'( ).
+- Fix "Unknown child route" on change to configuration page.
 
 #### Basic version:
 - password to make the game quick & safe enough.

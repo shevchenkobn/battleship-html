@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { useAppDispatch } from '../../app/hooks';
 import { routes } from '../../components/AppRouter';
 import { MessageId, MessageWithValues } from '../../intl';
-import { isValidPlayerIndex } from '../../models/player';
+import { isValidPlayerIndex, parsePlayerIndex } from '../../models/player';
 import { setTitle } from '../meta/metaSlice';
 import { getIntlPlayerName } from './lib';
 import { PlayerContainer } from './PlayerContainer';
@@ -13,7 +13,7 @@ import { PlayerContainer } from './PlayerContainer';
 export function PlayerPage() {
   const dispatch = useAppDispatch();
   const params = useParams();
-  const index = Number.parseInt(params[routes.player.parameterName] ?? '');
+  const index = parsePlayerIndex(params[routes.player.parameterName]);
   const isIndexValid = isValidPlayerIndex(index);
   const title: MessageWithValues = useMemo(
     () => (isIndexValid ? getIntlPlayerName(index) : { id: MessageId.PlayerUnknown }),

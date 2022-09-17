@@ -1,17 +1,19 @@
 import React from 'react';
-import { Navigate, Route as ReactRoute, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { useAppSelector } from '../app/hooks';
 import { DeepReadonly } from '../app/types';
-import { GameStartPage } from '../features/game/GameStartPage';
+import { useGamePage } from '../features/game/hooks';
 import { PlayerPage } from '../features/players/PlayerPage';
 import { MessageId } from '../intl';
 
 export function AppRouter() {
+  const [Component, getSubRoutes] = useGamePage();
   return (
     <>
       <Routes>
-        <ReactRoute path={routes.game.path} element={routes.game.component} />
-        <ReactRoute path={routes.player.path} element={routes.player.element} />
-        <ReactRoute path="*" element={<Navigate to={routes.game.path} />} />
+        <Route path={routes.game.path} element={<Component />} children={getSubRoutes()} />
+        <Route path={routes.player.path} element={routes.player.element} />
+        <Route path="*" element={<Navigate to={routes.game.path} />} />
       </Routes>
     </>
   );
@@ -19,9 +21,9 @@ export function AppRouter() {
 
 export const routes = (() => {
   const routes = {
-    game: { path: 'game/start', label: MessageId.PlayAction, component: <GameStartPage /> },
+    game: { path: '/game', label: MessageId.PlayAction },
     player: {
-      pathPrefix: 'players',
+      pathPrefix: '/players',
       path: '',
       parameterName: 'index',
       formatPath(index: number) {

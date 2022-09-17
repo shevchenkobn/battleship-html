@@ -1,22 +1,23 @@
 import { Button, Stack } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import React, { useMemo } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { useAppSelector, useStyleProps } from '../../app/hooks';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router-dom';
+import { useAppDispatch, useAppSelector, useStyleProps } from '../../app/hooks';
 import { StyleProps } from '../../app/styles';
-import { DeepReadonly } from '../../app/types';
+import { routes } from '../../components/AppRouter';
 import { computerPlayerKindMessageIds, MessageId, MessageParameterName } from '../../intl';
-import { defaultBoardSize } from '../../models/game';
+import { defaultBoardSize, GameStatus } from '../../models/game';
 import { Player, PlayerKind } from '../../models/player';
 import { playerKindIcons } from '../players/lib';
 import { selectPlayers } from '../players/playersSlice';
-import { CellGrid } from './CellGrid';
-import { shipTypes } from './gameSlice';
+import { setStatus, shipTypes } from './gameSlice';
 import { useTypographyVariant } from './hooks';
 import { PlayerGame } from './PlayerGame';
 
 export function GameStartPage() {
   const players = useAppSelector(selectPlayers);
+  const dispatch = useAppDispatch();
 
   return (
     <Stack alignItems="center" justifyContent="center" spacing={1}>
@@ -27,7 +28,15 @@ export function GameStartPage() {
         </Typography>
         <PlayerName player={players[1]} index={1} />
       </Stack>
-      <Button size="large" color="secondary" variant="contained">
+      <Button
+        size="large"
+        color="secondary"
+        variant="contained"
+        component={Link}
+        to={routes.game.path}
+        replace={true}
+        onClick={() => dispatch(setStatus(GameStatus.Configuring))}
+      >
         <FormattedMessage id={MessageId.PlayAction} />
       </Button>
       <PlayerGame boardSize={defaultBoardSize} shipTypes={shipTypes} interactive={false} />
@@ -48,7 +57,7 @@ function PlayerName(props: PlayerNameProps) {
     () => (
       <FormattedMessage
         id={MessageId.PlayerName}
-        values={{ [MessageParameterName.PlayerName]: index }}
+        values={{ [MessageParameterName.PlayerName]: index + 1 }}
       />
     ),
     [index]

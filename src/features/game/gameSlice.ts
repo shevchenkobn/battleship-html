@@ -1,7 +1,7 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { StoreSliceName } from '../../app/constants';
-import type { RootState } from '../../app/store';
-import { DeepReadonly, DeepReadonlyArray } from '../../app/types';
+import { RootState } from '../../app/store';
+import { DeepReadonly } from '../../app/types';
 import { MessageId } from '../../intl';
 import {
   Board,
@@ -64,6 +64,8 @@ export const shipTypes: DeepReadonly<ShipType[]> = [
   return ship;
 });
 
+export const shipCountForPlayer = shipTypes.reduce((sum, p) => sum + p.shipCount, 0);
+
 function createPlayerState(): PlayerState {
   return {
     board: createBoard(),
@@ -76,6 +78,7 @@ function createPlayerState(): PlayerState {
 
 export interface GameSlice {
   status: GameStatus;
+  isConfigurationConfirmed?: true;
   currentPlayer: PlayerIndex;
   history: TurnHistory;
   /**
@@ -94,9 +97,28 @@ const initialState: GameSlice = {
 const gameSlice = createSlice({
   name: StoreSliceName.Game,
   initialState,
-  reducers: {},
+  reducers: {
+    setStatus(state, action: PayloadAction<Exclude<GameStatus, GameStatus.Finished>>) {
+      if (state.status === GameStatus.Playing && action.payload === GameStatus.Configuring) {
+        throw new TypeError('Cannot go back to configuration from playing!');
+      }
+      state.status = action.payload;
+    },
+    setConfigurationConfirmed(state, action: PayloadAction<boolean>) {
+      if (action.payload) {
+        state.isConfigurationConfirmed = true;
+      } else {
+        delete state.isConfigurationConfirmed;
+      }
+    },
+  },
 });
+
+export const { setStatus } = gameSlice.actions;
 
 export default gameSlice.reducer;
 
-// export const selectShipTypes = (state: RootState) => state.game.
+export const selectGameStatus = (state: RootState) => state.game.status;
+export const selectGamePlayers = (state: RootState) => state.game.players;
+export const selectGameConfigurationConfirmed = (state: RootState) =>
+  !!state.game.isConfigurationConfirmed;

@@ -1,4 +1,5 @@
 import { as, DeepReadonly } from '../app/types';
+import { routes } from '../components/AppRouter';
 
 export enum PlayerKind {
   Human = 'human',
@@ -29,6 +30,10 @@ export type PlayerIndex = 0 | 1;
 
 export function isValidPlayerIndex(index: unknown): index is PlayerIndex {
   return Number.isInteger(index) && as<number>(index) && index >= 0 && index <= 1;
+}
+
+export function parsePlayerIndex(index: any) {
+  return Number.parseInt(index);
 }
 
 export function hasPassword(player: DeepReadonly<Player>): player is HumanPlayer {
