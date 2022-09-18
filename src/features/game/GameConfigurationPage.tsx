@@ -1,16 +1,13 @@
-import CancelIcon from '@mui/icons-material/Cancel';
 import UndoIcon from '@mui/icons-material/Undo';
 import {
   Button,
   Stack,
   Step,
   StepButton,
-  StepContent,
   StepLabel,
   Stepper,
   Theme,
   useMediaQuery,
-  useTheme,
 } from '@mui/material';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -18,16 +15,15 @@ import {
   Link,
   Navigate,
   Route,
-  Routes,
   Outlet,
   useLocation,
   useMatch,
   useNavigate,
 } from 'react-router-dom';
-import theme from 'tailwindcss/defaultTheme';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { routes } from '../../app/routing';
 import { DeepReadonly } from '../../app/types';
-import { routes } from '../../components/AppRouter';
+import { AlertDialog } from '../../components/AlertDialog';
 import { MessageId, MessageParameterName, MessageWithValues } from '../../intl';
 import { GameStatus, hasShipsInstalled } from '../../models/game';
 import { parsePlayerIndex, PlayerIndex } from '../../models/player';
@@ -85,7 +81,7 @@ export function GameConfigurationPage() {
   const confirmMatch = useMatch(routes.game.path + '/' + gameRoutes.confirm.path);
   const navigate = useNavigate();
   useEffect(() => {
-    console.log('executed route hook');
+    // console.debug('executed route hook');
     if (confirmMatch) {
       if (!completedSteps[0] || !completedSteps[1]) {
         navigate(gameRoutes.player.formatPath(0));
@@ -106,51 +102,70 @@ export function GameConfigurationPage() {
     }
   }, [location, navigate, playerMatch, confirmMatch, completedSteps]);
 
-  const theme = useTheme();
-  const matchesXs = useMediaQuery<Theme>(theme.breakpoints.down('sm'));
+  const [showConfigurationResetDialog, setShowConfigurationResetDialog] = useState(false);
+  const handleConfigurationReset = () => {
+    dispatch(setStatus(GameStatus.Starting));
+    navigate(routes.game.path, { replace: true });
+  };
+
+  const matchesXs = useMediaQuery<Theme>((theme) => theme.breakpoints.down('sm'));
   return (
-    <Stack>
-      <Stack direction={{ md: 'row', sm: 'column' }} spacing={{ xs: 2 }}>
-        <Button
-          size="large"
-          color="secondary"
-          variant="contained"
-          startIcon={<UndoIcon />}
-          component={Link}
-          to={routes.game.path}
-          replace={true}
-          onClick={() => dispatch(setStatus(GameStatus.Starting))}
-        >
-          <FormattedMessage id={MessageId.ResetAction} />
-        </Button>
-        <Stepper
-          sx={{ flexGrow: 1 }}
-          nonLinear
-          activeStep={activeStep}
-          orientation={matchesXs ? 'vertical' : 'horizontal'}
-        >
-          {steps.map((message, index) => {
-            const label = <FormattedMessage {...message} />;
-            return (
-              <Step key={index} completed={completedSteps[index]}>
-                {index < 2 ? (
-                  <StepButton
-                    component={Link}
-                    to={gameRoutes.player.formatPath(index)}
-                    replace={true}
-                  >
-                    {label}
-                  </StepButton>
-                ) : (
-                  <StepLabel>{label}</StepLabel>
-                )}
-              </Step>
-            );
-          })}
-        </Stepper>
+    <>
+      <Stack>
+        <Stack direction={{ md: 'row', sm: 'column' }} spacing={{ xs: 2 }}>
+          <Button
+            size="large"
+            color="secondary"
+            variant="contained"
+            startIcon={<UndoIcon />}
+            onClick={() => setShowConfigurationResetDialog(true)}
+          >
+            <FormattedMessage id={MessageId.ResetAction} />
+          </Button>
+          <Stepper
+            sx={{ flexGrow: 1 }}
+            nonLinear
+            activeStep={activeStep}
+            orientation={matchesXs ? 'vertical' : 'horizontal'}
+          >
+            {steps.map((message, index) => {
+              const label = <FormattedMessage {...message} />;
+              return (
+                <Step key={index} completed={completedSteps[index]}>
+                  {index < 2 ? (
+                    <StepButton
+                      component={Link}
+                      to={gameRoutes.player.formatPath(index)}
+                      replace={true}
+                    >
+                      {label}
+                    </StepButton>
+                  ) : (
+                    <StepLabel>{label}</StepLabel>
+                  )}
+                </Step>
+              );
+            })}
+          </Stepper>
+        </Stack>
+        <Outlet />
       </Stack>
-      <Outlet />
-    </Stack>
+      {showConfigurationResetDialog && (
+        <AlertDialog
+          title={<FormattedMessage id={MessageId.ConfigurationResetAlert} />}
+          text={<FormattedMessage id={MessageId.UnrevertableWarning} />}
+          confirmText={<FormattedMessage id={MessageId.YesAction} />}
+          cancelText={<FormattedMessage id={MessageId.NoAction} />}
+          onCloseAttempt={(yes) => {
+            if (yes) {
+              handleConfigurationReset();
+            }
+            setShowConfigurationResetDialog(false);
+          }}
+          open={showConfigurationResetDialog}
+        />
+      )}
+    </>
   );
 }
 

@@ -1,6 +1,6 @@
 import { TypographyProps, useMediaQuery, useTheme } from '@mui/material';
 import { Breakpoint } from '@mui/system/createTheme/createBreakpoints';
-import React, { FunctionComponent } from 'react';
+import React, { useMemo } from 'react';
 import { noWhenDefault, when } from '../../app/expressions';
 import { useAppSelector } from '../../app/hooks';
 import { GameStatus } from '../../models/game';
@@ -34,12 +34,16 @@ export function useTypographyVariant(): TypographyProps['variant'] {
 
 export function useGamePage() {
   const status = useAppSelector(selectGameStatus);
-  return when<[React.ComponentType, () => JSX.Element[]], GameStatus>(
-    status,
-    [
-      [GameStatus.Starting, () => [GameStartPage, () => []]],
-      [GameStatus.Configuring, () => [GameConfigurationPage, getGameConfigurationSubRoutes]],
-    ],
-    noWhenDefault
+  return useMemo(
+    () =>
+      when<[React.ComponentType, () => JSX.Element[]], GameStatus>(
+        status,
+        [
+          [GameStatus.Starting, () => [GameStartPage, () => []]],
+          [GameStatus.Configuring, () => [GameConfigurationPage, getGameConfigurationSubRoutes]],
+        ],
+        noWhenDefault
+      ),
+    [status]
   );
 }

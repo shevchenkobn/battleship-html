@@ -1,6 +1,6 @@
-import { Grid, Paper, Stack, SxProps, Theme } from '@mui/material';
+import { Paper, Stack, SxProps, Theme } from '@mui/material';
 import Box from '@mui/material/Box';
-import React, { ComponentType } from 'react';
+import React from 'react';
 import { useStyleProps } from '../../app/hooks';
 import { StyleProps } from '../../app/styles';
 import { encodePoint, Point, subtractPoint } from '../../app/types';

@@ -3,7 +3,7 @@ import { useEffect, useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch } from '../../app/hooks';
-import { routes } from '../../components/AppRouter';
+import { routes } from '../../app/routing';
 import { MessageId, MessageWithValues } from '../../intl';
 import { isValidPlayerIndex, parsePlayerIndex } from '../../models/player';
 import { setTitle } from '../meta/metaSlice';

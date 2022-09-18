@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import assert from 'assert';
 import { Point } from '../../app/types';
 import { defaultBoardSize } from '../../models/game';

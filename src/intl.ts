@@ -12,9 +12,11 @@ export const defaultLocale = Locale.English;
 export enum MessageId {
   ProjectName = 'app.projectName',
   Language = 'app.language',
+  UnrevertableWarning = 'players.reset.text',
 
   ConfigurationTitle = 'title.configuration',
   PasswordsConfirmationTitle = 'title.passwordsConfirmation',
+  ConfigurationResetAlert = 'alert.configuration.reset',
 
   PlayerHumanKind = 'player.kind.human',
   PlayerComputerKind = 'player.kind.computer',
@@ -33,7 +35,6 @@ export enum MessageId {
   PlayerPasswordConfirmationDescription = 'players.password.confirmation.description',
 
   PlayerResetTitle = 'players.reset.title',
-  PlayerResetText = 'players.reset.text',
 
   PlayerUnknown = 'players.unknown',
   PlayerUnknownFull = 'players.unknown.full',
@@ -44,6 +45,8 @@ export enum MessageId {
   SaveAction = 'action.save',
   ConfirmAction = 'action.confirm',
   ResetAction = 'action.reset',
+  YesAction = 'action.yes',
+  NoAction = 'action.no',
 
   ViewingStatus = 'status.viewing',
   EditingStatus = 'status.editing',
@@ -93,7 +96,6 @@ export function getSupportedLocales() {
 }
 
 export enum MessageParameterName {
-  // Index = 'index',
   PlayerName = 'index',
 }
 
@@ -103,9 +105,11 @@ export function getIntlMessages(locale: Locale): Messages {
       return {
         [MessageId.ProjectName]: defaultProjectName,
         [MessageId.Language]: 'English (UK)',
+        [MessageId.UnrevertableWarning]: 'This action cannot be reverted!',
 
         [MessageId.ConfigurationTitle]: 'Configuration',
         [MessageId.PasswordsConfirmationTitle]: 'Passwords Confirmation',
+        [MessageId.ConfigurationResetAlert]: 'Are you sure you want to reset game configuration?',
 
         [MessageId.PlayerHumanKind]: 'Human',
         [MessageId.PlayerComputerKind]: 'Computer',
@@ -126,7 +130,6 @@ export function getIntlMessages(locale: Locale): Messages {
           'To confirm your action, please, enter your password.',
 
         [MessageId.PlayerResetTitle]: 'Do you really want to reset your data?',
-        [MessageId.PlayerResetText]: 'This action cannot be reverted!',
 
         [MessageId.PlayerUnknown]: "PlayerUnknown's",
         [MessageId.PlayerUnknownFull]: 'Unknown Player (wrong URL).',
@@ -137,6 +140,8 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.SaveAction]: 'Save',
         [MessageId.ConfirmAction]: 'Confirm',
         [MessageId.ResetAction]: 'Reset',
+        [MessageId.YesAction]: 'Yes',
+        [MessageId.NoAction]: 'No',
 
         [MessageId.ViewingStatus]: 'Viewing',
         [MessageId.EditingStatus]: 'Editing',
@@ -150,9 +155,11 @@ export function getIntlMessages(locale: Locale): Messages {
       return {
         [MessageId.ProjectName]: 'Морський Бій',
         [MessageId.Language]: 'Українська',
+        [MessageId.UnrevertableWarning]: 'Цю дію неможливо скасувати!',
 
         [MessageId.ConfigurationTitle]: 'Налаштування',
         [MessageId.PasswordsConfirmationTitle]: 'Підтвердження паролів',
+        [MessageId.ConfigurationResetAlert]: 'Ви впевнені, що хочете зкинути налаштування гри?',
 
         [MessageId.PlayerHumanKind]: 'Людина',
         [MessageId.PlayerComputerKind]: "Комп'ютер",
@@ -169,7 +176,6 @@ export function getIntlMessages(locale: Locale): Messages {
           'Пароль необхідний, щоб відкрити власну дошку протягом гри.',
 
         [MessageId.PlayerResetTitle]: 'Ви справді хочете скинути ваші данні?',
-        [MessageId.PlayerResetText]: 'Цю дію неможливо скасувати!',
 
         [MessageId.PlayerPasswordConfirmationTitle]: 'Підтвердження паролю',
         [MessageId.PlayerPasswordConfirmationDescription]:
@@ -184,6 +190,8 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.SaveAction]: 'Зберегти',
         [MessageId.ConfirmAction]: 'Підтвердити',
         [MessageId.ResetAction]: 'Скинути',
+        [MessageId.YesAction]: 'Так',
+        [MessageId.NoAction]: 'Ні',
 
         [MessageId.ViewingStatus]: 'Перегляд',
         [MessageId.EditingStatus]: 'Редагування',

@@ -11,9 +11,8 @@ import {
   subtractPoint,
   t,
 } from '../app/types';
-import { PlayerState, shipCountForPlayer } from '../features/game/gameSlice';
+import { PlayerState } from '../features/game/gameSlice';
 import { MessageId } from '../intl';
-import { PlayerIndex } from './player';
 
 export enum GameStatus {
   Starting = 'starting',

@@ -1,4 +1,3 @@
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import {
   Button,
   Dialog,
@@ -6,12 +5,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Popover,
   TextField,
 } from '@mui/material';
-import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
-import Typography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { MessageId } from '../../intl';

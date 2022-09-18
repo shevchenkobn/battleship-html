@@ -1,5 +1,4 @@
 import { as, DeepReadonly } from '../app/types';
-import { routes } from '../components/AppRouter';
 
 export enum PlayerKind {
   Human = 'human',

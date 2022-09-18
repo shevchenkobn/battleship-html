@@ -42,6 +42,7 @@ function ShipTypeList({ shipTypes, interactive, cellSizePx }: ShipTypeListProps)
   return (
     <Stack direction="column" spacing={2} flexWrap="wrap">
       {shipTypes.map((s) => (
+        // Has stupid spacing on row wrap at the beginning, takes too much space.
         // <Stack direction={{ lg: 'row', md: 'column', sm: 'row', xs: 'column' }}>
         // </Stack>
         <Grid key={s.id} container justifyContent="center">

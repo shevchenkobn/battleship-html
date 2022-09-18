@@ -1,7 +1,5 @@
-import ComputerIcon from '@mui/icons-material/Computer';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
-import PermIdentityIcon from '@mui/icons-material/PermIdentity';
-import { Button, Divider, ListItemIcon, ListItemText, MenuItem } from '@mui/material';
+import { Button, MenuItem, Theme, useMediaQuery } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -9,19 +7,21 @@ import Menu from '@mui/material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import React from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { Link, matchPath, matchRoutes, useLocation, useMatch } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router-dom';
+import { useAppSelector } from '../app/hooks';
+import { useNavigationLinks } from '../app/routing';
 import { AppTitle } from '../features/meta/AppTitle';
-import { selectAppLocale, setLocale } from '../features/meta/metaSlice';
-import { getIntlPlayerName, playerKindIcons } from '../features/players/lib';
-import { selectPlayers } from '../features/players/playersSlice';
-import { Locale, getIntlMessages, MessageId, ia, computerPlayerKindMessageIds } from '../intl';
-import { PlayerIndex, PlayerKind } from '../models/player';
+import { selectAppLocale } from '../features/meta/metaSlice';
+import { Locale, getIntlMessages, MessageId } from '../intl';
 import { SvgProps } from '../svg/svg-factory';
 import { FlagGb } from '../svg/flags/FlagGb';
 import { FlagUa } from '../svg/flags/FlagUa';
-import { routes } from './AppRouter';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
+import { useAppLanguageMenuItems } from './useAppLanguageMenuItems';
+import { useAppMenuItems } from './useAppMenuItems';
+import { useAppXsDrawerOpen } from './AppXsDrawer';
 
 export const languageFlags: Record<Locale, React.ComponentType<SvgProps>> = {
   [Locale.English]: FlagGb,
@@ -39,13 +39,16 @@ export const languages = [
   },
 ];
 
-export function AppHeader() {
+export interface AppHeaderProps {
+  isDrawerOpen: boolean;
+  onDrawerOpenToggle(): void;
+  onLanguageSelect(locale: Locale): void;
+}
+
+export function AppHeader({ isDrawerOpen, onDrawerOpenToggle, onLanguageSelect }: AppHeaderProps) {
   const locale = useAppSelector(selectAppLocale);
-  const dispatch = useAppDispatch();
   const [anchorTopRightEl, setAnchorTopRightEl] = React.useState<null | HTMLElement>(null);
   const [anchorLanguageEl, setAnchorLanguageEl] = React.useState<null | HTMLElement>(null);
-  const intl = useIntl();
-  const gameRouteMatch = useMatch(routes.game.path);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorTopRightEl(event.currentTarget);
@@ -63,113 +66,129 @@ export function AppHeader() {
     setAnchorLanguageEl(null);
   };
 
-  const handleLanguageSelect = (locale: Locale) => {
-    dispatch(setLocale(locale));
-    // handleLanguageClose();
-  };
-
   const FlagIcon = languageFlags[locale];
 
-  const players = useAppSelector(selectPlayers).map((p, i) => ({
-    kind: p.kind,
-    name:
-      p.kind === PlayerKind.Human
-        ? p.name || <em>{intl.formatMessage(...ia(getIntlPlayerName(i as PlayerIndex)))}</em>
-        : intl.formatMessage({ id: computerPlayerKindMessageIds[p.type] }),
-  }));
+  const isPositionFixed = useAppXsDrawerOpen(isDrawerOpen);
+  const navigationLinks = useNavigationLinks();
+  const matchesNotXs = useMediaQuery<Theme>((theme) => theme.breakpoints.up('sm'));
+  const menuItems = useAppMenuItems();
+  const languages = useAppLanguageMenuItems();
 
   return (
-    <AppBar position="static">
+    <AppBar
+      position={isPositionFixed ? 'fixed' : 'static'}
+      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+    >
       <Toolbar>
+        <IconButton
+          size="large"
+          color="inherit"
+          aria-label="open drawer"
+          onClick={() => onDrawerOpenToggle()}
+          edge="start"
+          sx={{
+            mr: 1,
+            display: {
+              xs: 'flex',
+              sm: 'none',
+            },
+          }}
+        >
+          {isDrawerOpen ? <CloseIcon /> : <MenuIcon />}
+        </IconButton>
         <Typography variant="h6" noWrap component="div" sx={{ mr: 2 }}>
           <AppTitle />
         </Typography>
-        <Box sx={{ display: 'flex', flexGrow: 1 }}>
-          <Button
-            disabled={!!gameRouteMatch}
-            component={Link}
-            to={routes.game.path}
-            sx={{ my: 2, color: 'white', display: 'block' }}
-          >
-            <FormattedMessage id={routes.game.label} />
-          </Button>
-        </Box>
-        <IconButton
-          size="small"
-          aria-label="current-language"
-          aria-controls="menu-appbar"
-          aria-haspopup="true"
-          onClick={handleLanguageMenu}
-          color="inherit"
-        >
-          <FlagIcon fontSize={'large'} />
-        </IconButton>
-        <Menu
-          id="languages-appbar"
-          sx={{ mt: '45px' }}
-          anchorEl={anchorLanguageEl}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-          keepMounted
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-          open={Boolean(anchorLanguageEl)}
-          onClose={handleLanguageClose}
-        >
-          {languages.map((item) => {
-            const Icon = languageFlags[item.locale];
-            return (
-              <MenuItem key={item.locale} onClick={() => handleLanguageSelect(item.locale)}>
-                <ListItemIcon>
-                  <Icon />
-                </ListItemIcon>
-                <ListItemText>{item.name}</ListItemText>
-              </MenuItem>
-            );
-          })}
-        </Menu>
-        <IconButton
-          size="small"
-          aria-label="account of current user"
-          aria-controls="menu-appbar"
-          aria-haspopup="true"
-          onClick={handleMenu}
-          color="inherit"
-        >
-          <PeopleOutlineIcon sx={{ fontSize: 40 }} />
-        </IconButton>
-        <Menu
-          id="players-appbar"
-          sx={{ mt: '45px' }}
-          anchorEl={anchorTopRightEl}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-          open={Boolean(anchorTopRightEl)}
-          onClose={handleClose}
-          onClick={handleClose}
-        >
-          {players.map((p, i) => {
-            const Icon = playerKindIcons[p.kind];
-            return (
-              <MenuItem key={i} component={Link} to={routes.player.formatPath(i)}>
-                <ListItemIcon>
-                  <Icon />
-                </ListItemIcon>
-                <ListItemText>{p.name}</ListItemText>
-              </MenuItem>
-            );
-          })}
-        </Menu>
+        {matchesNotXs && (
+          <>
+            <Box sx={{ display: 'flex', flexGrow: 1 }}>
+              {navigationLinks.map((link) => (
+                <Button
+                  disabled={link.isActive}
+                  startIcon={<link.Icon />}
+                  component={Link}
+                  to={link.to}
+                  key={link.to}
+                  sx={{ color: 'white', display: 'flex' }}
+                >
+                  <FormattedMessage id={link.label} />
+                </Button>
+              ))}
+            </Box>
+            <IconButton
+              size="small"
+              aria-label="current-language"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleLanguageMenu}
+              color="inherit"
+            >
+              <FlagIcon fontSize={'large'} />
+            </IconButton>
+            <Menu
+              id="languages-appbar"
+              sx={{ mt: '45px' }}
+              anchorEl={anchorLanguageEl}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={Boolean(anchorLanguageEl)}
+              onClose={handleLanguageClose}
+            >
+              {languages.map(([item, locale, isActive]) => (
+                <MenuItem
+                  key={locale}
+                  selected={isActive}
+                  onClick={() => {
+                    onLanguageSelect(locale);
+                    // handleLanguageClose();
+                  }}
+                >
+                  {item}
+                </MenuItem>
+              ))}
+            </Menu>
+
+            <IconButton
+              size="small"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleMenu}
+              color="inherit"
+            >
+              <PeopleOutlineIcon sx={{ fontSize: 40 }} />
+            </IconButton>
+            <Menu
+              id="players-appbar"
+              sx={{ mt: '45px' }}
+              anchorEl={anchorTopRightEl}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={Boolean(anchorTopRightEl)}
+              onClose={handleClose}
+              onClick={handleClose}
+            >
+              {menuItems.map(([item, linkTo, isActive]) => (
+                <MenuItem selected={isActive} key={linkTo} component={Link} to={linkTo}>
+                  {item}
+                </MenuItem>
+              ))}
+            </Menu>
+          </>
+        )}
       </Toolbar>
     </AppBar>
   );

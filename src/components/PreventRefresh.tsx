@@ -4,7 +4,6 @@ export function PreventRefresh() {
   useEffect(() => {
     let callbackExecuted = false;
     const callback = (event: BeforeUnloadEvent) => {
-      console.log('wtf prevent default?');
       if (callbackExecuted) {
         return;
       }

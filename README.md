@@ -58,6 +58,8 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - not tested everything (see comments in files for details);
 - private (non-exported) components are used to avoid too many files;
 - lint-staged is not used because the project is small and lint-staged requires regex, which is not in config;
+- style: onCallback vs handleCallback
+- active routes are marked by disabling the route.
 
 ### TODO
 - Fix "center" ship list column rendering in @media sm - md.

@@ -7,7 +7,6 @@ import {
   DialogProps,
   DialogTitle,
 } from '@mui/material';
-import { attempt } from 'lodash-es';
 import { ReactNode } from 'react';
 
 export interface AlertDialogProps extends Omit<DialogProps, 'handleClose' | 'title'> {

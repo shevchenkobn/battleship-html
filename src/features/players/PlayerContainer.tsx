@@ -17,7 +17,7 @@ export function PlayerContainer({ index, intlPlayerName }: PlayerContainerProps)
   const isComputerAllowed = index !== 0;
   const [editing, setEditing] = useState(false);
   useEffect(() => setEditing(false), [index]);
-  const playerUpdated = (player: Player) => {
+  const handlePlayerChange = (player: Player) => {
     if (!isComputerAllowed && player.kind === PlayerKind.Computer) {
       throw new TypeError('Player 1 cannot be a computer!');
     }
@@ -30,7 +30,7 @@ export function PlayerContainer({ index, intlPlayerName }: PlayerContainerProps)
       player={player}
       isReadonly={!editing}
       onEditingChange={setEditing}
-      onPlayerChange={playerUpdated}
+      onPlayerChange={handlePlayerChange}
     />
   );
 }
