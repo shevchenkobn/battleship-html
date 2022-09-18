@@ -25,7 +25,7 @@ export function PlayerPage() {
   return isIndexValid ? (
     <PlayerContainer index={index} intlPlayerName={title} />
   ) : (
-    // In this context it would make more sense to redirect to the game page, but I want to show this capability.
+    // In this context it would make more sense to redirect to the game page, but we want to show this capability.
     <Typography variant="h3" gutterBottom>
       <FormattedMessage id={MessageId.PlayerUnknownFull} />
     </Typography>

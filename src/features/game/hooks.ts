@@ -1,6 +1,7 @@
 import { TypographyProps, useMediaQuery, useTheme } from '@mui/material';
 import { Breakpoint } from '@mui/system/createTheme/createBreakpoints';
 import React, { useMemo } from 'react';
+import { secondaryColor } from '../../app/constants';
 import { noWhenDefault, when } from '../../app/expressions';
 import { useAppSelector } from '../../app/hooks';
 import { GameStatus } from '../../models/game';
@@ -45,5 +46,29 @@ export function useGamePage() {
         noWhenDefault
       ),
     [status]
+  );
+}
+
+export interface GameColors {
+  boardShip: string;
+  selectedShip: string;
+  emptyHit: string;
+  shipHit: string;
+  surroundingSunkShipWater: string;
+  hoveredLines: string;
+}
+
+export function useGameColors(): GameColors {
+  const theme = useTheme();
+  return useMemo(
+    () => ({
+      boardShip: theme.palette.success.light,
+      selectedShip: theme.palette.info.light,
+      emptyHit: theme.palette.warning.light,
+      shipHit: theme.palette.error.light,
+      surroundingSunkShipWater: theme.palette.warning.light, // or yellow[200]
+      hoveredLines: secondaryColor.A400,
+    }),
+    [theme]
   );
 }

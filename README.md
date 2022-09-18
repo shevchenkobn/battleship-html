@@ -60,6 +60,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - lint-staged is not used because the project is small and lint-staged requires regex, which is not in config;
 - style: onCallback vs handleCallback
 - active routes are marked by disabling the route.
+- Material color palette is preserved intentionally.
 
 ### TODO
 - Fix "center" ship list column rendering in @media sm - md.

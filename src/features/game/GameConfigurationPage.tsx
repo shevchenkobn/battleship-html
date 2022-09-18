@@ -112,7 +112,7 @@ export function GameConfigurationPage() {
   return (
     <>
       <Stack>
-        <Stack direction={{ md: 'row', sm: 'column' }} spacing={{ xs: 2 }}>
+        <Stack direction={{ md: 'row', sm: 'column' }} spacing={{ xs: 2 }} sx={{ mb: 3 }}>
           <Button
             size="large"
             color="secondary"
