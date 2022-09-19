@@ -19,7 +19,8 @@ const getTag = (node: Element) => node.localName;
 
 /**
  * Not tested:
- * - props {@link CellGridProps.noHover}, {@link CellGridProps.style}: just styling;
+ * - props {@link CellGridProps.cellStyles}, {@link CellGridProps.className}, {@link CellGridProps.style}, {@link CellGridProps.interaction.cellHoverStyle}: just styling;
+ * - props {@link CellGridProps.interaction.onCellHoverChange}, {@link CellGridProps.interaction.onCellClick}: TODO: is quicker to test manually.
  */
 describe('renders square board', () => {
   test('default', () => {

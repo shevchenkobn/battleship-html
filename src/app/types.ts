@@ -124,8 +124,8 @@ export function as<T>(value: any): value is T {
 export function cast<T>(value: any): asserts value is T {}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function assertUnreachable(x: never): never {
-  throw new Error("Unreachable code, it won't be thrown.");
+export function assertUnreachable(message = "Unreachable code, it won't be thrown."): never {
+  throw new Error(message);
 }
 
 export type With<K extends keyof any, T = any> = T extends Record<K, infer V>

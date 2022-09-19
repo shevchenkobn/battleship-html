@@ -161,11 +161,14 @@ describe('game board functions', () => {
     }
 
     expect(
-      getSurroundingCells([
-        { x: 1, y: 2 },
-        { x: 2, y: 2 },
-        { x: 3, y: 2 },
-      ]).sort(compareAscByXY)
+      getSurroundingCells(
+        [
+          { x: 1, y: 2 },
+          { x: 2, y: 2 },
+          { x: 3, y: 2 },
+        ],
+        { x: 10, y: 10 }
+      ).sort(compareAscByXY)
     ).toEqual(
       [
         { x: 0, y: 1 },
@@ -182,7 +185,7 @@ describe('game board functions', () => {
         { x: 4, y: 3 },
       ].sort(compareAscByXY)
     );
-    expect(getSurroundingCells([{ x: 0, y: 0 }]).sort(compareAscByXY)).toEqual(
+    expect(getSurroundingCells([{ x: 0, y: 0 }], { x: 10, y: 10 }).sort(compareAscByXY)).toEqual(
       [
         { x: 0, y: 1 },
         { x: 1, y: 0 },
@@ -190,13 +193,16 @@ describe('game board functions', () => {
       ].sort(compareAscByXY)
     );
     expect(
-      getSurroundingCells([
-        { x: 9, y: 9 },
-        { x: 9, y: 8 },
-        { x: 9, y: 7 },
-        { x: 9, y: 6 },
-        { x: 9, y: 5 },
-      ]).sort(compareAscByXY)
+      getSurroundingCells(
+        [
+          { x: 9, y: 9 },
+          { x: 9, y: 8 },
+          { x: 9, y: 7 },
+          { x: 9, y: 6 },
+          { x: 9, y: 5 },
+        ],
+        { x: 10, y: 10 }
+      ).sort(compareAscByXY)
     ).toEqual(
       [
         { x: 8, y: 8 },
@@ -209,10 +215,13 @@ describe('game board functions', () => {
       ].sort(compareAscByXY)
     );
     expect(
-      getSurroundingCells([
-        { x: 4, y: 5 },
-        { x: 5, y: 6 },
-      ]).sort(compareAscByXY)
+      getSurroundingCells(
+        [
+          { x: 4, y: 5 },
+          { x: 5, y: 6 },
+        ],
+        { x: 10, y: 10 }
+      ).sort(compareAscByXY)
     ).toEqual(
       [
         { x: 3, y: 4 },
@@ -282,13 +291,16 @@ describe('game board functions', () => {
    */
   it('function ' + tryPushFromEdges.name, () => {
     expect(
-      tryPushFromEdges([
-        { x: -3, y: 0 },
-        { x: -2, y: 0 },
-        { x: -1, y: 0 },
-        { x: 0, y: 0 },
-        { x: 1, y: 0 },
-      ])
+      tryPushFromEdges(
+        [
+          { x: -3, y: 0 },
+          { x: -2, y: 0 },
+          { x: -1, y: 0 },
+          { x: 0, y: 0 },
+          { x: 1, y: 0 },
+        ],
+        { x: 10, y: 10 }
+      )
     ).toEqual([
       { x: 0, y: 0 },
       { x: 1, y: 0 },
@@ -297,34 +309,43 @@ describe('game board functions', () => {
       { x: 4, y: 0 },
     ]);
     expect(
-      tryPushFromEdges([
-        { x: -6, y: 4 },
-        { x: -5, y: 4 },
-        { x: -4, y: 4 },
-      ])
+      tryPushFromEdges(
+        [
+          { x: -6, y: 4 },
+          { x: -5, y: 4 },
+          { x: -4, y: 4 },
+        ],
+        { x: 10, y: 10 }
+      )
     ).toEqual([
       { x: 0, y: 4 },
       { x: 1, y: 4 },
       { x: 2, y: 4 },
     ]);
     expect(
-      tryPushFromEdges([
-        { x: 16, y: 10 },
-        { x: 15, y: 10 },
-        { x: 14, y: 10 },
-      ])
+      tryPushFromEdges(
+        [
+          { x: 16, y: 10 },
+          { x: 15, y: 10 },
+          { x: 14, y: 10 },
+        ],
+        { x: 10, y: 10 }
+      )
     ).toEqual([
       { x: 9, y: 9 },
       { x: 8, y: 9 },
       { x: 7, y: 9 },
     ]);
     expect(
-      tryPushFromEdges([
-        { x: 13, y: -6 },
-        { x: 13, y: -5 },
-        { x: 13, y: -4 },
-        { x: 13, y: -3 },
-      ])
+      tryPushFromEdges(
+        [
+          { x: 13, y: -6 },
+          { x: 13, y: -5 },
+          { x: 13, y: -4 },
+          { x: 13, y: -3 },
+        ],
+        { x: 10, y: 10 }
+      )
     ).toEqual([
       { x: 9, y: 0 },
       { x: 9, y: 1 },
@@ -332,12 +353,15 @@ describe('game board functions', () => {
       { x: 9, y: 3 },
     ]);
     expect(
-      tryPushFromEdges([
-        { x: -1, y: -1 },
-        { x: 0, y: -1 },
-        { x: -1, y: 0 },
-        { x: 0, y: 0 },
-      ])
+      tryPushFromEdges(
+        [
+          { x: -1, y: -1 },
+          { x: 0, y: -1 },
+          { x: -1, y: 0 },
+          { x: 0, y: 0 },
+        ],
+        { x: 10, y: 10 }
+      )
     ).toEqual([
       { x: 0, y: 0 },
       { x: 1, y: 0 },

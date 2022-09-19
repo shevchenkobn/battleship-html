@@ -61,6 +61,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - style: onCallback vs handleCallback
 - active routes are marked by disabling the route.
 - Material color palette is preserved intentionally.
+- 2 state machines: for game & for game configuration.
 
 ### TODO
 - Fix "center" ship list column rendering in @media sm - md.

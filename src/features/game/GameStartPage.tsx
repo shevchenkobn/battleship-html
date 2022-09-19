@@ -39,7 +39,7 @@ export function GameStartPage() {
       >
         <FormattedMessage id={MessageId.PlayAction} />
       </Button>
-      <PlayerGame boardSize={defaultBoardSize} shipTypes={shipTypes} interactive={false} />
+      <PlayerGame boardSize={defaultBoardSize} shipTypes={shipTypes} />
     </Stack>
   );
 }

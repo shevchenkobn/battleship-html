@@ -83,7 +83,7 @@ export const directionOrder: ReadonlyArray<Direction> = Object.values(Direction)
 
 export const defaultDirection = directionOrder[0];
 
-export function tryPushFromEdges(points: DeepReadonly<Point[]>, boardSize = defaultBoardSize) {
+export function tryPushFromEdges(points: DeepReadonly<Point[]>, boardSize: DeepReadonly<Point>) {
   const pushOffsets = new GuardedMap<Direction, number>(
     iterate(directionOrder).map((d) => t(d, 0))
   );
@@ -163,7 +163,7 @@ export function rotatePoints(
 
 export function getSurroundingCells(
   points: DeepReadonly<Point[]>,
-  size = defaultBoardSize
+  size: DeepReadonly<Point>
 ): Point[] {
   const pointSet = iterate(points).map(encodePoint).toSet();
   const surroundingSet = new Set<string>();

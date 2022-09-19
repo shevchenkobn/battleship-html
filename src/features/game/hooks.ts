@@ -1,9 +1,12 @@
 import { TypographyProps, useMediaQuery, useTheme } from '@mui/material';
 import { Breakpoint } from '@mui/system/createTheme/createBreakpoints';
+import { iterate } from 'iterare';
 import React, { useMemo } from 'react';
 import { secondaryColor } from '../../app/constants';
 import { noWhenDefault, when } from '../../app/expressions';
 import { useAppSelector } from '../../app/hooks';
+import { GuardedMap } from '../../app/map';
+import { DeepReadonly, DeepReadonlyGuardedMap, NonOptional, t } from '../../app/types';
 import { GameStatus } from '../../models/game';
 import { GameConfigurationPage, getGameConfigurationSubRoutes } from './GameConfigurationPage';
 import { selectGameStatus } from './gameSlice';
@@ -54,7 +57,7 @@ export interface GameColors {
   selectedShip: string;
   emptyHit: string;
   shipHit: string;
-  surroundingSunkShipWater: string;
+  surroundingShipWater: string;
   hoveredLines: string;
 }
 
@@ -66,9 +69,21 @@ export function useGameColors(): GameColors {
       selectedShip: theme.palette.info.light,
       emptyHit: theme.palette.warning.light,
       shipHit: theme.palette.error.light,
-      surroundingSunkShipWater: theme.palette.warning.light, // or yellow[200]
+      surroundingShipWater: theme.palette.warning.light, // or yellow[200]
       hoveredLines: secondaryColor.A400,
     }),
     [theme]
+  );
+}
+
+export function useShipEntityMap<T extends { id: number }>(
+  shipEntities: DeepReadonly<T[]>
+): DeepReadonlyGuardedMap<number, T> {
+  return useMemo(
+    () =>
+      new GuardedMap(
+        iterate(shipEntities).map((type) => t(type.id, type as NonOptional<DeepReadonly<T>>))
+      ),
+    [shipEntities]
   );
 }
