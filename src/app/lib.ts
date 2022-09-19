@@ -1,5 +1,6 @@
-export function assert(condition: boolean, errorMessage = 'Assertion failed!') {
-  if (!condition) {
-    throw new TypeError(errorMessage);
-  }
+import { assert } from './types';
+
+export function normalizeToLimit(value: number, limit: number) {
+  assert(limit > 0, 'Value and limit must be non-negative.');
+  return value - Math.trunc(value / limit) * limit;
 }

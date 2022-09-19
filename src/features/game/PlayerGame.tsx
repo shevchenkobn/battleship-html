@@ -3,8 +3,9 @@ import Typography from '@mui/material/Typography';
 import { iterate } from 'iterare';
 import { useCallback, useMemo, useReducer, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { assert } from '../../app/lib';
+import { normalizeToLimit } from '../../app/lib';
 import {
+  assert,
   assertNotMaybe,
   assertUnreachable,
   DeepReadonly,
@@ -15,8 +16,13 @@ import {
 import {
   applyOffset,
   Board,
+  cloneShip,
   createShip,
+  defaultDirection,
+  Direction,
+  directionOrder,
   getSurroundingCells,
+  rotatePoints,
   Ship,
   ShipType,
   tryPushFromEdges,
@@ -60,6 +66,7 @@ interface ShipStateMap {
   [ShipStateKind.Adding]: {
     kind: ShipStateKind.Adding;
     shipType: ShipType;
+    direction: Direction;
     ship: ShipPlaceData | null;
   };
   [ShipStateKind.Adjusting]: {
@@ -94,6 +101,7 @@ function formatInvalidStateMessage(kind: ShipStateKind, action: ShipStateActionT
 enum ShipStateActionType {
   SelectShipForAdding = 'selectShipForAdding',
   SelectPlacedShip = 'selectPlacedShip',
+  RotateShip = 'rotateShip',
   HoverShipOnBoard = 'hoverShipOnBoard',
   PlaceShip = 'placeShip',
   RemoveShip = 'removeShip',
@@ -108,6 +116,13 @@ type ShipStateAction = DeepReadonly<
   | {
       type: ShipStateActionType.SelectPlacedShip;
       shipId: number;
+    }
+  | {
+      type: ShipStateActionType.RotateShip;
+      /**
+       * Direction index offset to be used with {@link directionOrder}.
+       */
+      directionIndexOffset: number;
     }
   | { type: ShipStateActionType.HoverShipOnBoard; position: Point | null }
   | { type: ShipStateActionType.PlaceShip; position: Point }
@@ -186,17 +201,83 @@ export function PlayerGame(props: PlayerGameProps) {
               case ShipStateActionType.SelectShipForAdding: {
                 assertKind(state, ShipStateKind.Idle);
                 const shipType = shipTypeMap.get(action.shipTypeId);
-                return { ...state, kind: ShipStateKind.Adding, shipType, ship: null };
+                return {
+                  ...state,
+                  kind: ShipStateKind.Adding,
+                  shipType,
+                  direction: defaultDirection,
+                  ship: null,
+                };
               }
               case ShipStateActionType.SelectPlacedShip: {
                 assertKind(state, ShipStateKind.Idle);
                 const ship = shipMap.get(action.shipId);
                 return { kind: ShipStateKind.Adjusting, ship, shipNewPosition: null };
               }
+              case ShipStateActionType.RotateShip: {
+                assert(
+                  state.kind === ShipStateKind.Adding || state.kind === ShipStateKind.Adjusting,
+                  formatInvalidStateMessage(state.kind, action.type)
+                );
+
+                let cells: DeepReadonly<Point[]> | undefined;
+                let direction: Direction;
+                let shipType: DeepReadonly<ShipType>;
+                switch (state.kind) {
+                  case ShipStateKind.Adding: {
+                    cells = state.ship?.cells;
+                    direction = state.direction;
+                    shipType = state.shipType;
+                    break;
+                  }
+                  case ShipStateKind.Adjusting: {
+                    cells = state.shipNewPosition?.cells;
+                    direction = state.ship.direction;
+                    shipType = shipTypeMap.get(state.ship.id);
+                    break;
+                  }
+                  default: {
+                    assertUnreachable();
+                  }
+                }
+
+                const index = directionOrder.indexOf(direction);
+                const newIndex = normalizeToLimit(
+                  index +
+                    directionOrder.length +
+                    normalizeToLimit(action.directionIndexOffset, directionOrder.length),
+                  directionOrder.length
+                );
+                if (index === newIndex) {
+                  return state;
+                }
+                const newDirection = directionOrder[newIndex];
+
+                let position: ShipPlaceData | null = null;
+                if (cells) {
+                  const cellOffsets1 = rotatePoints(shipType.cellOffsets1, direction, newDirection);
+                  position = getShipPosition(cells[0], cellOffsets1);
+                }
+
+                switch (state.kind) {
+                  case ShipStateKind.Adding: {
+                    const newState = { ...state, direction: newDirection };
+                    if (position) {
+                      newState.ship = position;
+                    }
+                    return { ...state, direction: newDirection, ship: position };
+                  }
+                  case ShipStateKind.Adjusting: {
+                    const newShip = cloneShip(state.ship);
+                    newShip.direction = newDirection;
+                    return { ...state, ship: newShip, shipNewPosition: position };
+                  }
+                }
+                break;
+              }
               case ShipStateActionType.HoverShipOnBoard: {
                 assert(
-                  board &&
-                    (isKind(state, ShipStateKind.Adding) || isKind(state, ShipStateKind.Adjusting)),
+                  isKind(state, ShipStateKind.Adding) || isKind(state, ShipStateKind.Adjusting),
                   formatInvalidStateMessage(state.kind, action.type)
                 );
                 switch (state.kind) {
@@ -223,33 +304,42 @@ export function PlayerGame(props: PlayerGameProps) {
                 break;
               }
               case ShipStateActionType.PlaceShip: {
-                let shipType;
+                let ship: Ship;
+                let newShips: Ship[];
                 switch (state.kind) {
                   case ShipStateKind.Adding: {
-                    shipType = state.shipType;
+                    assertNotMaybe(getNewShipId);
+                    ship = createShip(state.shipType, state.direction, getNewShipId());
+                    setShipCountByType({
+                      ...shipCountByType,
+                      [ship.shipTypeId]: shipCountByType[ship.shipTypeId] - 1,
+                    });
+                    newShips = [...ships, ship];
                     break;
                   }
                   case ShipStateKind.Adjusting: {
-                    shipType = shipTypeMap.get(state.ship.id);
+                    ship = cloneShip(state.ship);
+                    newShips = ships.slice();
+                    const index = ships.findIndex((s) => s.id === ship.id);
+                    assert(index >= 0, 'Unknown ship is updated!');
+                    newShips.splice(index, 1, ship);
                     break;
                   }
                   default: {
                     assertUnreachable();
                   }
                 }
-                const position = getShipPosition(action.position, shipType.cellOffsets1);
+                const position = getShipPosition(
+                  action.position,
+                  shipTypeMap.get(ship.shipTypeId).cellOffsets1
+                );
                 if (!position.canPlace) {
                   console.warn('Unexpectedly cannot place the ship, returning.');
                   return state;
                 }
 
-                assertNotMaybe(getNewShipId);
-                const ship = createShip(shipType, getNewShipId());
-                setShips([...ships, ship]);
-                setShipCountByType({
-                  ...shipCountByType,
-                  [shipType.id]: shipCountByType[shipType.id] - 1,
-                });
+                ship.shipCells = position.cells;
+                setShips(newShips);
                 updateOccupiedCells();
 
                 return createIdleState();

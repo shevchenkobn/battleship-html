@@ -1,9 +1,9 @@
 import { iterate } from 'iterare';
 import { cloneDeep } from 'lodash-es';
-import { assert } from '../app/lib';
 import { GuardedMap } from '../app/map';
 import {
   addPoint,
+  assert,
   decodePoint,
   DeepReadonly,
   encodePoint,
@@ -270,21 +270,29 @@ export function createShips(shipTypes: DeepReadonly<ShipType[]>): Ship[] {
   let id = 0;
   for (const type of shipTypes) {
     for (let i = 0; i < type.shipCount; i += 1) {
-      ships.push(createShip(type, id));
+      ships.push(createShip(type, defaultDirection, id));
       id += 1;
     }
   }
   return ships;
 }
 
-export function createShip(shipType: DeepReadonly<ShipType>, id = 0): Ship {
+export function createShip(
+  shipType: DeepReadonly<ShipType>,
+  direction = defaultDirection,
+  id = 0
+): Ship {
   return {
     id,
     status: ShipStatus.Afloat,
     shipTypeId: shipType.id,
-    direction: defaultDirection,
+    direction,
     shipCells: [],
   };
+}
+
+export function cloneShip(ship: DeepReadonly<Ship>): Ship {
+  return { ...ship, shipCells: ship.shipCells.slice() };
 }
 
 export function hasShipsInstalled(gamePlayer: DeepReadonly<PlayerState>) {

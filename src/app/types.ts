@@ -175,3 +175,9 @@ export function addPoint(point1: DeepReadonly<Point>, point2: DeepReadonly<Point
 export function subtractPoint(point1: DeepReadonly<Point>, point2: DeepReadonly<Point>) {
   return addPoint(point1, invertPoint(point2));
 }
+
+export function assert(condition: boolean, errorMessage = 'Assertion failed!') {
+  if (!condition) {
+    throw new TypeError(errorMessage);
+  }
+}
