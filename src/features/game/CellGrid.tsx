@@ -29,7 +29,7 @@ export type CellGridProps = (
    *
    * @default {null}
    */
-  interaction?: null | {
+  interaction?: {
     /**
      * @default Return value of {@link getDefaultCellHoverStyle}.
      */

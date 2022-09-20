@@ -62,6 +62,10 @@ export const defaultBoardSize: DeepReadonly<Point> = { x: 10, y: 10 };
  */
 export type Board = BoardCell[][];
 
+export function getBoardSize(board: DeepReadonly<Board>): Point {
+  return { x: board.length, y: board[0].length };
+}
+
 export function createBoard(size = defaultBoardSize): Board {
   return Array(size.x)
     .fill(null)
@@ -81,7 +85,8 @@ export enum Direction {
 
 export const directionOrder: ReadonlyArray<Direction> = Object.values(Direction);
 
-export const defaultDirection = directionOrder[0];
+export const defaultDirectionIndex = 0;
+export const defaultDirection = directionOrder[defaultDirectionIndex];
 
 export function tryPushFromEdges(points: DeepReadonly<Point[]>, boardSize: DeepReadonly<Point>) {
   const pushOffsets = new GuardedMap<Direction, number>(

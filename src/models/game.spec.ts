@@ -14,6 +14,7 @@ import {
 /**
  * Not tested:
  * - {@link createBoardCell}, {@link createBoard}, {@link createShips}, {@link createShip}: creation helpers;
+ * - {@link}
  */
 describe('game board functions', () => {
   it('function ' + rotatePoints.name, () => {

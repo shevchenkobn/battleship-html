@@ -7,7 +7,7 @@ import { noWhenDefault, when } from '../../app/expressions';
 import { useAppSelector } from '../../app/hooks';
 import { GuardedMap } from '../../app/map';
 import { DeepReadonly, DeepReadonlyGuardedMap, NonOptional, t } from '../../app/types';
-import { GameStatus } from '../../models/game';
+import { GameStatus, ShipType } from '../../models/game';
 import { GameConfigurationPage, getGameConfigurationSubRoutes } from './GameConfigurationPage';
 import { selectGameStatus } from './gameSlice';
 import { GameStartPage } from './GameStartPage';
@@ -85,5 +85,12 @@ export function useShipEntityMap<T extends { id: number }>(
         iterate(shipEntities).map((type) => t(type.id, type as NonOptional<DeepReadonly<T>>))
       ),
     [shipEntities]
+  );
+}
+
+export function useShipTypeCount(shipTypes: DeepReadonly<ShipType[]>): Record<number, number> {
+  return useMemo(
+    () => Object.fromEntries(iterate(shipTypes).map((type) => t(type.id, type.shipCount))),
+    [shipTypes]
   );
 }
