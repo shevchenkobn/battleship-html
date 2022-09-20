@@ -1,8 +1,8 @@
 import { useParams } from 'react-router-dom';
-import { useAppSelector } from '../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { parsePlayerIndex } from '../../models/player';
 import { gameRoutes } from './GameConfigurationPage';
-import { selectGamePlayers, shipTypes } from './gameSlice';
+import { addShip, removeShip, replaceShip, selectGamePlayers, shipTypes } from './gameSlice';
 import { PlayerGameConfiguration } from './PlayerGameConfiguration';
 
 export function GamePlayerConfigurationPageFragment() {
@@ -12,10 +12,22 @@ export function GamePlayerConfigurationPageFragment() {
   if (!player) {
     throw new TypeError('Invalid player indexes should have be handled by the page component!');
   }
+  const dispatch = useAppDispatch();
 
-  // return <PlayerGameConfiguration board={player.board} ships={player.ships} onShipAdded={(shipType, direction, shipCells) => } onShipReplace={} onShipRemove={} shipTypes={shipTypes} />;
-  return <>player</>;
+  return (
+    <PlayerGameConfiguration
+      board={player.board}
+      ships={player.ships}
+      shipTypes={shipTypes}
+      onShipAdd={(shipType, direction, shipCells) =>
+        dispatch(addShip({ playerIndex: index, shipType, direction, shipCells }))
+      }
+      onShipReplace={(ship) => dispatch(replaceShip({ playerIndex: index, ship }))}
+      onShipRemove={(shipId) => dispatch(removeShip({ playerIndex: index, shipId }))}
+    />
+  );
 }
+
 /*
 
  newShips = ships.slice();

@@ -1,16 +1,18 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { cloneDeep } from 'lodash-es';
 import { StoreSliceName } from '../../app/constants';
 import { RootState } from '../../app/store';
-import { DeepReadonly } from '../../app/types';
+import { assert, DeepReadonly, Point } from '../../app/types';
 import { MessageId } from '../../intl';
 import {
   Board,
+  cloneShip,
   createBoard,
-  createShips,
+  createShip,
+  Direction,
   GameStatus,
   Ship,
   ShipType,
-  TurnHistory,
 } from '../../models/game';
 import { PlayerIndex } from '../../models/player';
 
@@ -69,7 +71,7 @@ export const shipCountForPlayer = shipTypes.reduce((sum, p) => sum + p.shipCount
 function createPlayerState(): PlayerState {
   return {
     board: createBoard(),
-    ships: createShips(shipTypes),
+    ships: [],
     enemyBoard: createBoard(),
     enemyShipSunkCount: 0,
     score: 0,
@@ -78,47 +80,101 @@ function createPlayerState(): PlayerState {
 
 export interface GameSlice {
   status: GameStatus;
-  isConfigurationConfirmed?: true;
   currentPlayer: PlayerIndex;
-  history: TurnHistory;
+  // history: TurnHistory;
   /**
    * Game state for each player.
    */
   players: [PlayerState, PlayerState];
+  lastShipId: number;
 }
 
 const initialState: GameSlice = {
   status: GameStatus.Starting,
   currentPlayer: 0,
-  history: [],
+  // history: [],
   players: [createPlayerState(), createPlayerState()],
+  lastShipId: 0,
 };
+
+function assertStatus(state: DeepReadonly<GameSlice>, status: GameStatus) {
+  assert(state.status === status, `Expected status "${status}", got "${state.status}".`);
+}
+
+export interface AddShipActionPayload {
+  playerIndex: number;
+  shipType: DeepReadonly<ShipType>;
+  direction: Direction;
+  shipCells: DeepReadonly<Point[]>;
+}
+
+export interface ReplaceShipActionPayload {
+  playerIndex: number;
+  ship: DeepReadonly<Ship>;
+}
+
+export interface RemoveShipActionPayload {
+  playerIndex: number;
+  shipId: number;
+}
 
 const gameSlice = createSlice({
   name: StoreSliceName.Game,
   initialState,
   reducers: {
-    setStatus(state, action: PayloadAction<Exclude<GameStatus, GameStatus.Finished>>) {
+    setStatus(
+      state,
+      action: PayloadAction<Exclude<GameStatus, GameStatus.Finished | GameStatus.Playing>>
+    ) {
       if (state.status === GameStatus.Playing && action.payload === GameStatus.Configuring) {
         throw new TypeError('Cannot go back to configuration from playing!');
+      } else if (state.status === GameStatus.Playing) {
+        throw new TypeError('Use a separate action for starting a game!');
       }
       state.status = action.payload;
     },
-    setConfigurationConfirmed(state, action: PayloadAction<boolean>) {
-      if (action.payload) {
-        state.isConfigurationConfirmed = true;
-      } else {
-        delete state.isConfigurationConfirmed;
-      }
+    startGame(state) {
+      assertStatus(state, GameStatus.Configuring);
+      assert(
+        state.players.every((p) => p.ships.length === shipCountForPlayer),
+        'Not all ships are set for both players!'
+      );
+      // TODO: add asserts for types.
+      state.status = GameStatus.Playing;
+    },
+
+    addShip(state, action: PayloadAction<AddShipActionPayload>) {
+      assertStatus(state, GameStatus.Configuring);
+      // TODO: add asserts for checks;
+      const { playerIndex, shipType, direction, shipCells } = action.payload;
+      const ship = createShip(shipType, direction, state.lastShipId);
+      ship.shipCells = cloneDeep(shipCells) as Point[];
+      state.players[playerIndex].ships.push(ship);
+    },
+    replaceShip(state, action: PayloadAction<ReplaceShipActionPayload>) {
+      assertStatus(state, GameStatus.Configuring);
+      const { playerIndex, ship } = action.payload;
+      const ships = state.players[playerIndex].ships;
+      const index = ships.findIndex((s) => s.id === ship.id);
+      assert(index >= 0, 'Unknown ship is updated!');
+      ships[index] = cloneShip(ship);
+    },
+    removeShip(state, action: PayloadAction<RemoveShipActionPayload>) {
+      assertStatus(state, GameStatus.Configuring);
+      const { playerIndex, shipId } = action.payload;
+      const ships = state.players[playerIndex].ships.filter((s) => s.id !== shipId);
+      assert(
+        state.players[playerIndex].ships.length === ships.length,
+        'An attempt to delete an unknown ship!'
+      );
+      state.players[playerIndex].ships = ships;
     },
   },
 });
 
-export const { setStatus } = gameSlice.actions;
+export const { setStatus, startGame, addShip, replaceShip, removeShip } = gameSlice.actions;
 
 export default gameSlice.reducer;
 
 export const selectGameStatus = (state: RootState) => state.game.status;
 export const selectGamePlayers = (state: RootState) => state.game.players;
-export const selectGameConfigurationConfirmed = (state: RootState) =>
-  !!state.game.isConfigurationConfirmed;

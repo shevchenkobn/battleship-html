@@ -91,3 +91,4 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 - network scoreboard?;
 - game export (encrypt using password);
 - combine stuff in settings;
+- Make a more obscure implementation of paswords confirmation & game start

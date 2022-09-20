@@ -29,7 +29,7 @@ import { GameStatus, hasShipsInstalled } from '../../models/game';
 import { parsePlayerIndex, PlayerIndex } from '../../models/player';
 import { setTitle } from '../meta/metaSlice';
 import { GamePlayerConfigurationPageFragment } from './GamePlayerConfigurationPageFragment';
-import { selectGameConfigurationConfirmed, selectGamePlayers, setStatus } from './gameSlice';
+import { selectGamePlayers, setStatus } from './gameSlice';
 
 type StepIndex = PlayerIndex | 2;
 
@@ -63,7 +63,7 @@ export function GameConfigurationPage() {
     dispatch(setTitle({ id: MessageId.ConfigurationTitle }));
   }, [dispatch]);
 
-  const passwordsConfirmed = useAppSelector(selectGameConfigurationConfirmed);
+  const [passwordsConfirmed, setPasswordConfirmed] = useState(false);
   const gamePlayers = useAppSelector(selectGamePlayers);
 
   const completedSteps = useMemo<Record<number, boolean>>(

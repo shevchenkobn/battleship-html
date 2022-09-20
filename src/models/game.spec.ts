@@ -9,12 +9,13 @@ import {
   getBoundingRectangle,
   normalizeBoundingRectangle,
   isOutOfBound,
+  getBoardSize,
+  createBoard,
 } from './game';
 
 /**
  * Not tested:
  * - {@link createBoardCell}, {@link createBoard}, {@link createShips}, {@link createShip}: creation helpers;
- * - {@link}
  */
 describe('game board functions', () => {
   it('function ' + rotatePoints.name, () => {
@@ -26,7 +27,7 @@ describe('game board functions', () => {
             { x: 1, y: -1 },
             { x: 1, y: 2 },
           ],
-          Direction.Left,
+          Direction.Right,
           Direction.Bottom
         )
       )
@@ -44,30 +45,13 @@ describe('game board functions', () => {
             { x: -2, y: 1 },
           ],
           Direction.Bottom,
-          Direction.Left
+          Direction.Right
         )
       )
     ).toEqual([
       { x: 0, y: 0 },
       { x: 1, y: -1 },
       { x: 1, y: 2 },
-    ]);
-    expect(
-      normalizeMinus0(
-        rotatePoints(
-          [
-            { x: 0, y: 0 },
-            { x: 1, y: -1 },
-            { x: 1, y: 2 },
-          ],
-          Direction.Left,
-          Direction.Right
-        )
-      )
-    ).toEqual([
-      { x: 0, y: 0 },
-      { x: -1, y: 1 },
-      { x: -1, y: -2 },
     ]);
     expect(
       normalizeMinus0(
@@ -94,8 +78,25 @@ describe('game board functions', () => {
             { x: 1, y: -1 },
             { x: 1, y: 2 },
           ],
+          Direction.Left,
+          Direction.Right
+        )
+      )
+    ).toEqual([
+      { x: 0, y: 0 },
+      { x: -1, y: 1 },
+      { x: -1, y: -2 },
+    ]);
+    expect(
+      normalizeMinus0(
+        rotatePoints(
+          [
+            { x: 0, y: 0 },
+            { x: 1, y: -1 },
+            { x: 1, y: 2 },
+          ],
           Direction.Top,
-          Direction.Left
+          Direction.Right
         )
       )
     ).toEqual([
@@ -112,7 +113,7 @@ describe('game board functions', () => {
             { x: 2, y: 0 },
             { x: 3, y: 0 },
           ],
-          Direction.Left,
+          Direction.Right,
           Direction.Top
         )
       )
@@ -131,7 +132,7 @@ describe('game board functions', () => {
             { x: 0, y: 2 },
           ],
           Direction.Bottom,
-          Direction.Right
+          Direction.Left
         )
       )
     ).toEqual([
@@ -147,7 +148,7 @@ describe('game board functions', () => {
             { x: 0, y: -1 },
           ],
           Direction.Top,
-          Direction.Left
+          Direction.Right
         )
       )
     ).toEqual([
@@ -446,5 +447,13 @@ describe('game board functions', () => {
     expect(isOutOfBound({ x: -1, y: 4 }, { x: 5, y: 5 })).toEqual(true);
     expect(isOutOfBound({ x: 0, y: 0 }, { x: 5, y: 5 })).toEqual(false);
     expect(isOutOfBound({ x: 0, y: 0 }, { x: 0, y: 0 })).toEqual(true);
+  });
+
+  it(`function  ${getBoardSize.name}, ${createBoard.name}`, () => {
+    expect(getBoardSize(createBoard({ x: 10, y: 10 }))).toEqual({ x: 10, y: 10 });
+    expect(getBoardSize(createBoard({ x: 2, y: 3 }))).toEqual({ x: 2, y: 3 });
+    expect(getBoardSize(createBoard({ x: 3, y: 2 }))).toEqual({ x: 3, y: 2 });
+    expect(getBoardSize(createBoard({ x: 5, y: 5 }))).toEqual({ x: 5, y: 5 });
+    expect(getBoardSize(createBoard({ x: 0, y: 4 }))).toEqual({ x: 0, y: 0 });
   });
 });

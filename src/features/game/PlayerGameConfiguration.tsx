@@ -1,5 +1,8 @@
+import DeleteIcon from '@mui/icons-material/Delete';
+import UndoIcon from '@mui/icons-material/Undo';
+import { Fab, Stack } from '@mui/material';
 import { iterate } from 'iterare';
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { normalizeToLimit } from '../../app/lib';
 import { assert, assertUnreachable, DeepReadonly, encodePoint, Point, t } from '../../app/types';
 import {
@@ -21,6 +24,8 @@ import { CellStyle } from './CellGrid';
 import { useGameColors, useShipEntityMap } from './hooks';
 import { getShipTypeCountMap } from './lib';
 import { PlayerGame } from './PlayerGame';
+import RotateLeftIcon from '@mui/icons-material/RotateLeft';
+import RotateRightIcon from '@mui/icons-material/RotateRight';
 
 export interface PlayerGameConfigurationProps {
   board: DeepReadonly<Board>;
@@ -31,12 +36,12 @@ export interface PlayerGameConfigurationProps {
    * @param {Direction} direction
    * @param {Ship["shipCells"]} shipCells
    */
-  onShipAdded(
+  onShipAdd(
     shipType: DeepReadonly<ShipType>,
     direction: Direction,
     shipCells: Ship['shipCells']
   ): void;
-  onShipReplace(shipId: number, ship: Ship): void;
+  onShipReplace(ship: Ship): void;
   onShipRemove(shipId: number): void;
   shipTypes: DeepReadonly<ShipType[]>;
 }
@@ -140,7 +145,7 @@ export function PlayerGameConfiguration({
   board,
   shipTypes,
   ships,
-  onShipAdded,
+  onShipAdd,
   onShipReplace,
   onShipRemove,
 }: PlayerGameConfigurationProps) {
@@ -206,7 +211,10 @@ export function PlayerGameConfiguration({
     (state: ShipState, action: ShipStateAction): ShipState => {
       switch (action.type) {
         case ShipStateActionType.SelectShipForAdding: {
-          assertKind(state, ShipStateKind.Idle);
+          if (isKind(state, ShipStateKind.Adding) && action.shipTypeId === state.shipType.id) {
+            return createIdleState();
+          }
+          assert(shipCountByType[action.shipTypeId] > 0, 'No ship type to select!');
           const shipType = shipTypeMap.get(action.shipTypeId);
           return {
             ...state,
@@ -217,7 +225,9 @@ export function PlayerGameConfiguration({
           };
         }
         case ShipStateActionType.SelectPlacedShip: {
-          assertKind(state, ShipStateKind.Idle);
+          if (isKind(state, ShipStateKind.Adjusting) && action.shipId === state.ship.id) {
+            return createIdleState();
+          }
           const ship = shipMap.get(action.shipId);
           recalculateOccupiedCells(action.shipId);
           return { kind: ShipStateKind.Adjusting, ship, shipNewPosition: null };
@@ -337,7 +347,7 @@ export function PlayerGameConfiguration({
 
           switch (state.kind) {
             case ShipStateKind.Adding: {
-              onShipAdded(state.shipType, state.direction, position.cells);
+              onShipAdd(state.shipType, state.direction, position.cells);
               // setShipCountByType({
               //   ...shipCountByType,
               //   [state.shipType.id]: shipCountByType[state.shipType.id] - 1,
@@ -347,7 +357,7 @@ export function PlayerGameConfiguration({
             case ShipStateKind.Adjusting: {
               const ship = cloneShip(state.ship);
               ship.shipCells = position.cells;
-              onShipReplace(ship.id, ship);
+              onShipReplace(ship);
               recalculateOccupiedCells();
               break;
             }
@@ -384,10 +394,11 @@ export function PlayerGameConfiguration({
     },
     [
       getShipPosition,
-      onShipAdded,
+      onShipAdd,
       onShipRemove,
       onShipReplace,
       recalculateOccupiedCells,
+      shipCountByType,
       shipMap,
       shipTypeMap,
     ]
@@ -474,6 +485,72 @@ export function PlayerGameConfiguration({
         selectedShipTypeId: isKind(shipState, ShipStateKind.Adding)
           ? shipState.shipType.id
           : undefined,
+        beforeChildren: (
+          <Stack direction="row" spacing={1}>
+            <Fab
+              color="secondary"
+              aria-label="back"
+              disabled={
+                !isKind(shipState, ShipStateKind.Adding) &&
+                !isKind(shipState, ShipStateKind.Adjusting)
+              }
+              onClick={
+                isKind(shipState, ShipStateKind.Adding) ||
+                isKind(shipState, ShipStateKind.Adjusting)
+                  ? () => dispatch({ type: ShipStateActionType.Reset })
+                  : undefined
+              }
+            >
+              <UndoIcon />
+            </Fab>
+            <Fab
+              color="primary"
+              aria-label="rotate-counterclockwise"
+              disabled={
+                !isKind(shipState, ShipStateKind.Adding) &&
+                !isKind(shipState, ShipStateKind.Adjusting)
+              }
+              onClick={
+                isKind(shipState, ShipStateKind.Adding) ||
+                isKind(shipState, ShipStateKind.Adjusting)
+                  ? () =>
+                      dispatch({ type: ShipStateActionType.RotateShip, directionIndexOffset: -1 })
+                  : undefined
+              }
+            >
+              <RotateLeftIcon />
+            </Fab>
+            <Fab
+              color="primary"
+              aria-label="rotate-clockwise"
+              disabled={
+                !isKind(shipState, ShipStateKind.Adding) &&
+                !isKind(shipState, ShipStateKind.Adjusting)
+              }
+              onClick={
+                isKind(shipState, ShipStateKind.Adding) ||
+                isKind(shipState, ShipStateKind.Adjusting)
+                  ? () =>
+                      dispatch({ type: ShipStateActionType.RotateShip, directionIndexOffset: 1 })
+                  : undefined
+              }
+            >
+              <RotateRightIcon />
+            </Fab>
+            <Fab
+              color="primary"
+              aria-label="remove"
+              disabled={!isKind(shipState, ShipStateKind.Adjusting)}
+              onClick={
+                isKind(shipState, ShipStateKind.Adjusting)
+                  ? () => dispatch({ type: ShipStateActionType.RemoveShip })
+                  : undefined
+              }
+            >
+              <DeleteIcon />
+            </Fab>
+          </Stack>
+        ),
       }}
     />
   );

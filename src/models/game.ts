@@ -63,7 +63,7 @@ export const defaultBoardSize: DeepReadonly<Point> = { x: 10, y: 10 };
 export type Board = BoardCell[][];
 
 export function getBoardSize(board: DeepReadonly<Board>): Point {
-  return { x: board.length, y: board[0].length };
+  return board.length > 0 ? { x: board.length, y: board[0].length } : { x: 0, y: 0 };
 }
 
 export function createBoard(size = defaultBoardSize): Board {
@@ -77,9 +77,9 @@ export function createBoard(size = defaultBoardSize): Board {
 }
 
 export enum Direction {
-  Left = 'left',
-  Bottom = 'bottom',
   Right = 'right',
+  Bottom = 'bottom',
+  Left = 'left',
   Top = 'top',
 }
 
