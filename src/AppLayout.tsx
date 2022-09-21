@@ -34,7 +34,7 @@ function AppLayout() {
 
   return (
     <IntlProvider locale={locale} messages={messages}>
-      {/*<PreventRefresh />*/}
+      <PreventRefresh />
       <LocalizeTitle />
       <Box className="App">
         <DocumentTitle />

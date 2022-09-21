@@ -1,6 +1,30 @@
-# Getting Started with Create React App
+# Battleship game
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) TS template.
+This is the implementation of a classic battleship game.
+
+The board size is 10x10, each player has 5 ships:
+- one 1x5 Carrier;
+- one 1x4 Battleship;
+- two 1x3 Cruiser;
+- one 1x2 Destroyer;
+
+Each player is allowed to make only one shot per turn (it doesn't depend on how many ships you have or how many hits or misses your got).
+
+## Starting the project
+
+There is no need to clone the repository and build the project. There is a pre-built standalone HTML file (you don't need a web server).
+
+Just download [index.html](./build/index.html);
+
+## Technologies
+
+This project was developed with:
+- [Create React App](https://github.com/facebook/create-react-app) - for initial configuration;
+- [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) - for state management;
+- [React Router](https://reactrouter.com/en/6.4.0) - for routing;
+- [Material UI (MUI)](https://mui.com/) - as a component and styling library;
+- [react-intl](https://formatjs.io/docs/getting-started/installation/) - for localization;
+- other small utility libraries, which can be found in [`package.json`](./package.json);
 
 ## Available Scripts
 
