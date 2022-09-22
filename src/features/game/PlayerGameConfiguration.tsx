@@ -30,7 +30,7 @@ import {
   tryPushFromEdges,
 } from '../../models/game';
 import { CellStyle } from './CellGrid';
-import { useGameColors, useShipEntityMap } from './hooks';
+import { useGameColors, useShipMap, useShipTypeMap } from './hooks';
 import { getShipTypeCountMap } from './lib';
 import { PlayerGame } from './PlayerGame';
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
@@ -189,7 +189,7 @@ export function PlayerGameConfiguration({
 }: PlayerGameConfigurationProps) {
   const boardSize = useMemo(() => getBoardSize(board), [board]);
 
-  const shipMap = useShipEntityMap(ships);
+  const shipMap = useShipMap(ships);
   const [
     /**
      * A map of encoded ship cells to IDs.
@@ -207,11 +207,11 @@ export function PlayerGameConfiguration({
       const shipCells = new Map<string, number>();
       const cells = new Set<string>();
       for (const ship of ships) {
-        if (ship.id === excludeShipId) {
+        if (ship.shipId === excludeShipId) {
           continue;
         }
         for (const cell of iterate(ship.shipCells).map(encodePoint)) {
-          shipCells.set(cell, ship.id);
+          shipCells.set(cell, ship.shipId);
           cells.add(cell);
         }
         for (const cell of iterate(getSurroundingCells(ship.shipCells, boardSize)).map(
@@ -230,7 +230,7 @@ export function PlayerGameConfiguration({
     recalculateOccupiedCells();
   }, [recalculateOccupiedCells]);
 
-  const shipTypeMap = useShipEntityMap(shipTypes);
+  const shipTypeMap = useShipTypeMap(shipTypes);
   const shipCountByType = useMemo(() => {
     const countMap = getShipTypeCountMap(shipTypes);
     for (const ship of ships) {
@@ -268,7 +268,10 @@ export function PlayerGameConfiguration({
     (state: ShipState, action: ShipStateAction): ShipState => {
       switch (action.type) {
         case ShipStateActionType.SelectShipForAdding: {
-          if (isKind(state, ShipStateKind.Adding) && action.shipTypeId === state.shipType.id) {
+          if (
+            isKind(state, ShipStateKind.Adding) &&
+            action.shipTypeId === state.shipType.shipTypeId
+          ) {
             return createIdleState();
           }
           assert(shipCountByType[action.shipTypeId] > 0, 'No ship type to select!');
@@ -282,7 +285,7 @@ export function PlayerGameConfiguration({
           };
         }
         case ShipStateActionType.SelectPlacedShip: {
-          if (isKind(state, ShipStateKind.Adjusting) && action.shipId === state.ship.id) {
+          if (isKind(state, ShipStateKind.Adjusting) && action.shipId === state.ship.shipId) {
             return createIdleState();
           }
           const ship = shipMap.get(action.shipId);
@@ -307,7 +310,7 @@ export function PlayerGameConfiguration({
             }
             case ShipStateKind.Adjusting: {
               cells = state.shipNewPosition?.cells;
-              shipType = shipTypeMap.get(state.ship.id);
+              shipType = shipTypeMap.get(state.ship.shipTypeId);
               direction = state.ship.direction;
               break;
             }
@@ -380,12 +383,12 @@ export function PlayerGameConfiguration({
           let direction: Direction;
           switch (state.kind) {
             case ShipStateKind.Adding: {
-              shipTypeId = state.shipType.id;
+              shipTypeId = state.shipType.shipTypeId;
               direction = state.direction;
               break;
             }
             case ShipStateKind.Adjusting: {
-              shipTypeId = state.ship.id;
+              shipTypeId = state.ship.shipTypeId;
               direction = state.ship.direction;
               break;
             }
@@ -431,7 +434,7 @@ export function PlayerGameConfiguration({
         case ShipStateActionType.RemoveShip: {
           assertKind(state, ShipStateKind.Adjusting);
 
-          return { kind: ShipStateKind.Removed, shipId: state.ship.id };
+          return { kind: ShipStateKind.Removed, shipId: state.ship.shipId };
           // setShipCountByType({
           //   ...shipCountByType,
           //   [shipType.id]: shipCountByType[shipType.id] + 1,
@@ -573,7 +576,7 @@ export function PlayerGameConfiguration({
         },
         shipCountByType,
         selectedShipTypeId: isKind(shipState, ShipStateKind.Adding)
-          ? shipState.shipType.id
+          ? shipState.shipType.shipTypeId
           : undefined,
         beforeChildren: (
           <Stack direction="row" spacing={1}>

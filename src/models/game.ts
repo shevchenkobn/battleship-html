@@ -220,7 +220,7 @@ export function normalizeBoundingRectangle(
 }
 
 export interface ShipType {
-  id: number;
+  shipTypeId: number;
   name: MessageId;
   /**
    * Offsets of ship cells, except the first one (it's always `{ x: 0, y: 0 }`). One-cell chips will have it empty.
@@ -256,7 +256,7 @@ export enum ShipStatus {
 }
 
 export interface Ship {
-  id: number;
+  shipId: number;
   // playerIndex: PlayerIndex;
   status: ShipStatus;
   shipTypeId: number;
@@ -287,9 +287,9 @@ export function createShip(
   id = 0
 ): Ship {
   return {
-    id,
+    shipId: id,
     status: ShipStatus.Afloat,
-    shipTypeId: shipType.id,
+    shipTypeId: shipType.shipTypeId,
     direction,
     shipCells: [],
   };

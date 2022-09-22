@@ -8,7 +8,7 @@ import { noWhenDefault, when } from '../../app/expressions';
 import { useAppSelector } from '../../app/hooks';
 import { GuardedMap } from '../../app/map';
 import { DeepReadonly, DeepReadonlyGuardedMap, NonOptional, t } from '../../app/types';
-import { GameStatus, ShipType } from '../../models/game';
+import { GameStatus, Ship, ShipType } from '../../models/game';
 import { GameConfigurationPage, getGameConfigurationSubRoutes } from './GameConfigurationPage';
 import { selectGameStatus } from './gameSlice';
 import { GameStartPage } from './GameStartPage';
@@ -79,21 +79,27 @@ export function useGameColors(): GameColors {
   );
 }
 
-export function useShipEntityMap<T extends { id: number }>(
-  shipEntities: DeepReadonly<T[]>
-): DeepReadonlyGuardedMap<number, T> {
+export function useShipTypeMap(
+  shipEntities: DeepReadonly<ShipType[]>
+): DeepReadonlyGuardedMap<number, ShipType> {
   return useMemo(
-    () =>
-      new GuardedMap(
-        iterate(shipEntities).map((entity) => t(entity.id, entity as NonOptional<DeepReadonly<T>>))
-      ),
+    () => new GuardedMap(iterate(shipEntities).map((type) => t(type.shipTypeId, type))),
+    [shipEntities]
+  );
+}
+
+export function useShipMap(
+  shipEntities: DeepReadonly<Ship[]>
+): DeepReadonlyGuardedMap<number, Ship> {
+  return useMemo(
+    () => new GuardedMap(iterate(shipEntities).map((ship) => t(ship.shipId, ship))),
     [shipEntities]
   );
 }
 
 export function useShipTypeCount(shipTypes: DeepReadonly<ShipType[]>): Record<number, number> {
   return useMemo(
-    () => Object.fromEntries(iterate(shipTypes).map((type) => t(type.id, type.shipCount))),
+    () => Object.fromEntries(iterate(shipTypes).map((type) => t(type.shipTypeId, type.shipCount))),
     [shipTypes]
   );
 }

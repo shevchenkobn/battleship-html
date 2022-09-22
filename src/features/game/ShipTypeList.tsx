@@ -38,7 +38,7 @@ export function ShipTypeList({
       {beforeChildren}
       {shipTypes.map((s) => {
         const styles: CellGridProps['cellStyles'] =
-          s.id === selectedShipTypeId
+          s.shipTypeId === selectedShipTypeId
             ? iterate([{ x: 0, y: 0 }])
                 .concat(s.cellOffsets1)
                 .map((p) => t(encodePoint(p), { backgroundColor: colors.selectedShip }))
@@ -48,10 +48,14 @@ export function ShipTypeList({
           // Has stupid spacing on row wrap at the beginning, takes too much space.
           // <Stack direction={{ lg: 'row', md: 'column', sm: 'row', xs: 'column' }}>
           // </Stack>
-          <Grid key={s.id} container justifyContent="center">
+          <Grid key={s.shipTypeId} container justifyContent="center">
             <Grid item xs={12}>
-              <Typography align="left" variant={shipNameVariant}>
-                {shipCountByType[s.id]}x <FormattedMessage id={s.name} />
+              <Typography
+                align="left"
+                variant={shipNameVariant}
+                color={shipCountByType[s.shipTypeId] > 0 ? 'text.primary' : 'text.disabled'}
+              >
+                {shipCountByType[s.shipTypeId]}x <FormattedMessage id={s.name} />
               </Typography>
             </Grid>
             <Grid item xs={12}>
@@ -60,14 +64,14 @@ export function ShipTypeList({
                 points={[{ x: 0, y: 0 }, ...s.cellOffsets1]}
                 cellStyles={styles}
                 interaction={
-                  onShipSelected && shipCountByType[s.id] > 0
+                  onShipSelected && shipCountByType[s.shipTypeId] > 0
                     ? {
                         cellHoverStyle: {
                           cursor: 'pointer',
                         },
                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         onCellClick(cell: Point) {
-                          onShipSelected(s.id);
+                          onShipSelected(s.shipTypeId);
                         },
                       }
                     : undefined

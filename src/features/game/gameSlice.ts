@@ -26,7 +26,7 @@ export interface PlayerState {
 
 export const shipTypes: DeepReadonly<ShipType[]> = [
   {
-    id: 0,
+    shipTypeId: 0,
     name: MessageId.ShipNameCarrier,
     cellOffsets1: [
       { x: 1, y: 0 },
@@ -37,7 +37,7 @@ export const shipTypes: DeepReadonly<ShipType[]> = [
     shipCount: 1,
   },
   {
-    id: 0,
+    shipTypeId: 0,
     name: MessageId.ShipNameBattleship,
     cellOffsets1: [
       { x: 1, y: 0 },
@@ -47,7 +47,7 @@ export const shipTypes: DeepReadonly<ShipType[]> = [
     shipCount: 1,
   },
   {
-    id: 0,
+    shipTypeId: 0,
     name: MessageId.ShipNameCruiser,
     cellOffsets1: [
       { x: 1, y: 0 },
@@ -56,14 +56,14 @@ export const shipTypes: DeepReadonly<ShipType[]> = [
     shipCount: 2,
   },
   {
-    id: 0,
+    shipTypeId: 0,
     name: MessageId.ShipNameDestroyer,
     cellOffsets1: [{ x: 1, y: 0 }],
     shipCount: 1,
   },
-].map((ship, id) => {
-  ship.id = id;
-  return ship;
+].map((type, id) => {
+  type.shipTypeId = id;
+  return type;
 });
 
 export const shipCountForPlayer = shipTypes.reduce((sum, p) => sum + p.shipCount, 0);
@@ -156,15 +156,15 @@ const gameSlice = createSlice({
       assertStatus(state, GameStatus.Configuring);
       const { playerIndex, ship } = action.payload;
       const ships = state.players[playerIndex].ships;
-      const index = ships.findIndex((s) => s.id === ship.id);
+      const index = ships.findIndex((s) => s.shipId === ship.shipId);
       assert(index >= 0, 'Unknown ship is updated!');
-      console.log(index, ship, ship.id, ship.shipTypeId);
+      console.log(index, ship, ship.shipId, ship.shipTypeId);
       ships[index] = cloneShip(ship);
     },
     removeShip(state, action: PayloadAction<RemoveShipActionPayload>) {
       assertStatus(state, GameStatus.Configuring);
       const { playerIndex, shipId } = action.payload;
-      const ships = state.players[playerIndex].ships.filter((s) => s.id !== shipId);
+      const ships = state.players[playerIndex].ships.filter((s) => s.shipId !== shipId);
       assert(
         state.players[playerIndex].ships.length === ships.length + 1,
         'An attempt to delete an unknown ship!'
