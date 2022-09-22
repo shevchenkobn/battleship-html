@@ -1,4 +1,5 @@
 import { TypographyProps, useMediaQuery, useTheme } from '@mui/material';
+import { amber } from '@mui/material/colors';
 import { Breakpoint } from '@mui/system/createTheme/createBreakpoints';
 import { iterate } from 'iterare';
 import React, { useMemo } from 'react';
@@ -69,7 +70,7 @@ export function useGameColors(): GameColors {
       selectedShip: theme.palette.info.light,
       emptyHit: theme.palette.warning.light,
       shipHit: theme.palette.error.light,
-      surroundingShipWater: theme.palette.warning.light, // or yellow[200]
+      surroundingShipWater: amber[100], // or yellow[200]
       hoveredLines: secondaryColor.A400,
     }),
     [theme]

@@ -2,9 +2,18 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import UndoIcon from '@mui/icons-material/Undo';
 import { Fab, Stack } from '@mui/material';
 import { iterate } from 'iterare';
+import { cloneDeep } from 'lodash-es';
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { normalizeToLimit } from '../../app/lib';
-import { assert, assertUnreachable, DeepReadonly, encodePoint, Point, t } from '../../app/types';
+import {
+  asReadonly,
+  assert,
+  assertUnreachable,
+  DeepReadonly,
+  encodePoint,
+  Point,
+  t,
+} from '../../app/types';
 import {
   applyOffset,
   Board,
@@ -27,9 +36,11 @@ import { PlayerGame } from './PlayerGame';
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 
-export interface PlayerGameConfigurationProps {
+export interface PlayerGameConfigurationProps extends Callbacks {
   board: DeepReadonly<Board>;
   ships: DeepReadonly<Ship[]>;
+  shipTypes: DeepReadonly<ShipType[]>;
+  // onShipsUpdate(ships: Ship[]): void;
   /**
    * Data sync argument MUST be guaranteed by the component.
    * @param {DeepReadonly<ShipType>} shipType
@@ -43,7 +54,16 @@ export interface PlayerGameConfigurationProps {
   ): void;
   onShipReplace(ship: Ship): void;
   onShipRemove(shipId: number): void;
-  shipTypes: DeepReadonly<ShipType[]>;
+}
+
+interface Callbacks {
+  onShipAdd(
+    shipType: DeepReadonly<ShipType>,
+    direction: Direction,
+    shipCells: Ship['shipCells']
+  ): void;
+  onShipReplace(ship: Ship): void;
+  onShipRemove(shipId: number): void;
 }
 
 enum ShipStateKind {
@@ -58,6 +78,10 @@ enum ShipStateKind {
    * @type {ShipState.SettingShip}
    */
   Adjusting = 'adjustingShip',
+
+  Added = 'addedShip',
+  Replaced = 'replacedShip',
+  Removed = 'removedShip',
 }
 
 interface ShipPlaceData {
@@ -80,6 +104,20 @@ interface ShipStateMap {
     kind: ShipStateKind.Adjusting;
     ship: Ship;
     shipNewPosition: ShipPlaceData | null;
+  };
+  [ShipStateKind.Added]: {
+    kind: ShipStateKind.Added;
+    shipType: DeepReadonly<ShipType>;
+    direction: Direction;
+    shipCells: Ship['shipCells'];
+  };
+  [ShipStateKind.Replaced]: {
+    kind: ShipStateKind.Replaced;
+    ship: Ship;
+  };
+  [ShipStateKind.Removed]: {
+    kind: ShipStateKind.Removed;
+    shipId: number;
   };
 }
 
@@ -165,7 +203,7 @@ export function PlayerGameConfiguration({
         if (ship.id === excludeShipId) {
           continue;
         }
-        for (const cell in iterate(ship.shipCells)
+        for (const cell of iterate(ship.shipCells)
           .concat(getSurroundingCells(ship.shipCells, boardSize))
           .map(encodePoint)) {
           points.add(cell);
@@ -180,21 +218,28 @@ export function PlayerGameConfiguration({
     recalculateOccupiedCells();
   }, [recalculateOccupiedCells]);
 
-  const _shipCountByType = useMemo(() => {
+  const shipCountByType = useMemo(() => {
     const countMap = getShipTypeCountMap(shipTypes);
     for (const ship of ships) {
       countMap[ship.id] -= 1;
     }
     return countMap;
   }, [shipTypes, ships]);
-  const [shipCountByType, setShipCountByType] = useState(_shipCountByType);
-  useEffect(() => setShipCountByType(_shipCountByType), [_shipCountByType, setShipCountByType]);
+  // const [shipCountByType, setShipCountByType] = useState(_shipCountByType);
+  // useEffect(() => setShipCountByType(_shipCountByType), [_shipCountByType, setShipCountByType]);
   const shipTypeMap = useShipEntityMap(shipTypes);
 
   const getShipPosition = useCallback(
-    (position: DeepReadonly<Point>, shipCellOffsets1: DeepReadonly<Point[]>) => {
+    (
+      position: DeepReadonly<Point>,
+      shipCellOffsets1: DeepReadonly<Point[]>,
+      direction: Direction
+    ) => {
       const ship: ShipPlaceData = {
-        cells: tryPushFromEdges(applyOffset(position, shipCellOffsets1), boardSize),
+        cells: tryPushFromEdges(
+          applyOffset(position, rotatePoints(shipCellOffsets1, defaultDirection, direction)),
+          boardSize
+        ),
         canPlace: true,
       };
       for (const cell of ship.cells) {
@@ -240,15 +285,18 @@ export function PlayerGameConfiguration({
 
           let cells: DeepReadonly<Point[]> | undefined;
           let shipType: DeepReadonly<ShipType>;
+          let direction: Direction;
           switch (state.kind) {
             case ShipStateKind.Adding: {
               cells = state.ship?.cells;
               shipType = state.shipType;
+              direction = state.direction;
               break;
             }
             case ShipStateKind.Adjusting: {
               cells = state.shipNewPosition?.cells;
               shipType = shipTypeMap.get(state.ship.id);
+              direction = state.ship.direction;
               break;
             }
             default: {
@@ -256,26 +304,19 @@ export function PlayerGameConfiguration({
             }
           }
 
+          const index = directionOrder.indexOf(direction);
+          assert(index >= 0, 'Unknown direction!');
           const newIndex = normalizeToLimit(
-            defaultDirectionIndex +
+            index +
               directionOrder.length +
               normalizeToLimit(action.directionIndexOffset, directionOrder.length),
             directionOrder.length
           );
-          if (newIndex === defaultDirectionIndex) {
-            return state;
-          }
           const newDirection = directionOrder[newIndex];
 
-          let position: ShipPlaceData | null = null;
-          if (cells) {
-            const cellOffsets1 = rotatePoints(
-              shipType.cellOffsets1,
-              defaultDirection,
-              newDirection
-            );
-            position = getShipPosition(cells[0], cellOffsets1);
-          }
+          const position: ShipPlaceData | null = cells
+            ? getShipPosition(cells[0], shipType.cellOffsets1, newDirection)
+            : null;
 
           switch (state.kind) {
             case ShipStateKind.Adding: {
@@ -303,7 +344,7 @@ export function PlayerGameConfiguration({
               return {
                 ...state,
                 ship: action.position
-                  ? getShipPosition(action.position, state.shipType.cellOffsets1)
+                  ? getShipPosition(action.position, state.shipType.cellOffsets1, state.direction)
                   : null,
               };
             }
@@ -313,7 +354,8 @@ export function PlayerGameConfiguration({
                 shipNewPosition: action.position
                   ? getShipPosition(
                       action.position,
-                      shipTypeMap.get(state.ship.shipTypeId).cellOffsets1
+                      shipTypeMap.get(state.ship.shipTypeId).cellOffsets1,
+                      state.ship.direction
                     )
                   : null,
               };
@@ -323,13 +365,16 @@ export function PlayerGameConfiguration({
         }
         case ShipStateActionType.PlaceShip: {
           let shipTypeId: number;
+          let direction: Direction;
           switch (state.kind) {
             case ShipStateKind.Adding: {
               shipTypeId = state.shipType.id;
+              direction = state.direction;
               break;
             }
             case ShipStateKind.Adjusting: {
               shipTypeId = state.ship.id;
+              direction = state.ship.direction;
               break;
             }
             default: {
@@ -338,7 +383,8 @@ export function PlayerGameConfiguration({
           }
           const position = getShipPosition(
             action.position,
-            shipTypeMap.get(shipTypeId).cellOffsets1
+            shipTypeMap.get(shipTypeId).cellOffsets1,
+            direction
           );
           if (!position.canPlace) {
             console.warn('Unexpectedly cannot place the ship, returning.');
@@ -347,37 +393,37 @@ export function PlayerGameConfiguration({
 
           switch (state.kind) {
             case ShipStateKind.Adding: {
-              onShipAdd(state.shipType, state.direction, position.cells);
+              return {
+                kind: ShipStateKind.Added,
+                shipType: state.shipType,
+                direction: state.direction,
+                shipCells: position.cells,
+              };
               // setShipCountByType({
               //   ...shipCountByType,
               //   [state.shipType.id]: shipCountByType[state.shipType.id] - 1,
               // });
-              break;
             }
             case ShipStateKind.Adjusting: {
               const ship = cloneShip(state.ship);
               ship.shipCells = position.cells;
-              onShipReplace(ship);
-              recalculateOccupiedCells();
-              break;
+              return { kind: ShipStateKind.Replaced, ship };
+              // recalculateOccupiedCells();
             }
             default: {
               assertUnreachable();
             }
           }
-
-          return createIdleState();
+          break;
         }
         case ShipStateActionType.RemoveShip: {
           assertKind(state, ShipStateKind.Adjusting);
 
-          onShipRemove(state.ship.id);
+          return { kind: ShipStateKind.Removed, shipId: state.ship.id };
           // setShipCountByType({
           //   ...shipCountByType,
           //   [shipType.id]: shipCountByType[shipType.id] + 1,
           // });
-
-          return createIdleState();
         }
         case ShipStateActionType.Reset: {
           if (isKind(state, ShipStateKind.Adjusting)) {
@@ -392,27 +438,45 @@ export function PlayerGameConfiguration({
       }
       assertUnreachable();
     },
-    [
-      getShipPosition,
-      onShipAdd,
-      onShipRemove,
-      onShipReplace,
-      recalculateOccupiedCells,
-      shipCountByType,
-      shipMap,
-      shipTypeMap,
-    ]
+    [getShipPosition, recalculateOccupiedCells, shipCountByType, shipMap, shipTypeMap]
   );
   const [shipState, dispatch] = useReducer(reducer, createIdleState());
+  useEffect(() => {
+    if (
+      isKind(shipState, ShipStateKind.Added) ||
+      isKind(shipState, ShipStateKind.Replaced) ||
+      isKind(shipState, ShipStateKind.Removed)
+    ) {
+      switch (shipState.kind) {
+        case ShipStateKind.Added: {
+          onShipAdd(
+            shipState.shipType,
+            shipState.direction,
+            cloneDeep(shipState.shipCells) as Point[]
+          );
+          break;
+        }
+        case ShipStateKind.Replaced: {
+          onShipReplace(shipState.ship);
+          break;
+        }
+        case ShipStateKind.Removed: {
+          onShipRemove(shipState.shipId);
+          break;
+        }
+      }
+      dispatch({ type: ShipStateActionType.Reset });
+    }
+  }, [onShipAdd, onShipRemove, onShipReplace, shipState]);
 
   const colors = useGameColors();
   const cellStyles = useMemo(() => {
-    const cellStyles = iterate(occupiedCells)
-      .map((c) => t(c, colors.surroundingShipWater))
+    const cellStyles: Map<string, CellStyle> = iterate(occupiedCells)
+      .map((c) => t(c, getCellStyle(colors.surroundingShipWater)))
       .toMap();
     for (const ship of ships) {
       for (const cell of ship.shipCells) {
-        cellStyles.set(encodePoint(cell), colors.boardShip);
+        cellStyles.set(encodePoint(cell), getCellStyle(colors.boardShip));
       }
     }
     switch (shipState.kind) {
@@ -420,14 +484,14 @@ export function PlayerGameConfiguration({
         if (shipState.ship) {
           const color = shipState.ship.canPlace ? colors.selectedShip : colors.shipHit;
           for (const cell of shipState.ship.cells) {
-            cellStyles.set(encodePoint(cell), color);
+            cellStyles.set(encodePoint(cell), getCellStyle(color));
           }
         }
         break;
       }
       case ShipStateKind.Adjusting: {
         for (const cell of shipState.ship.shipCells) {
-          cellStyles.set(encodePoint(cell), colors.selectedShip);
+          cellStyles.set(encodePoint(cell), getCellStyle(colors.selectedShip));
         }
         break;
       }
@@ -554,4 +618,10 @@ export function PlayerGameConfiguration({
       }}
     />
   );
+}
+
+function getCellStyle(color: string) {
+  return {
+    backgroundColor: color,
+  };
 }

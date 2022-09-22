@@ -25,11 +25,11 @@ import { routes } from '../../app/routing';
 import { DeepReadonly } from '../../app/types';
 import { AlertDialog } from '../../components/AlertDialog';
 import { MessageId, MessageParameterName, MessageWithValues } from '../../intl';
-import { GameStatus, hasShipsInstalled } from '../../models/game';
+import { GameStatus } from '../../models/game';
 import { parsePlayerIndex, PlayerIndex } from '../../models/player';
 import { setTitle } from '../meta/metaSlice';
 import { GamePlayerConfigurationPageFragment } from './GamePlayerConfigurationPageFragment';
-import { selectGamePlayers, setStatus } from './gameSlice';
+import { hasShipsInstalled, selectGamePlayers, setStatus } from './gameSlice';
 
 type StepIndex = PlayerIndex | 2;
 
@@ -81,7 +81,7 @@ export function GameConfigurationPage() {
   const confirmMatch = useMatch(routes.game.path + '/' + gameRoutes.confirm.path);
   const navigate = useNavigate();
   useEffect(() => {
-    // console.debug('executed route hook');
+    // console.log('executed route hook');
     if (confirmMatch) {
       if (!completedSteps[0] || !completedSteps[1]) {
         navigate(gameRoutes.player.formatPath(0));
@@ -112,11 +112,11 @@ export function GameConfigurationPage() {
   return (
     <>
       <Stack>
-        <Stack direction={{ md: 'row', sm: 'column' }} spacing={{ xs: 2 }} sx={{ mb: 3 }}>
+        <Stack direction={{ md: 'row', sm: 'column' }} spacing={{ xs: 3 }} sx={{ mb: 3 }}>
           <Button
             size="large"
             color="secondary"
-            variant="contained"
+            variant="text"
             startIcon={<UndoIcon />}
             onClick={() => setShowConfigurationResetDialog(true)}
           >

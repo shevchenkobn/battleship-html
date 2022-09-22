@@ -51,7 +51,7 @@ export function ShipTypeList({
           <Grid key={s.id} container justifyContent="center">
             <Grid item xs={12}>
               <Typography align="left" variant={shipNameVariant}>
-                {s.shipCount}x <FormattedMessage id={s.name} />
+                {shipCountByType[s.id]}x <FormattedMessage id={s.name} />
               </Typography>
             </Grid>
             <Grid item xs={12}>

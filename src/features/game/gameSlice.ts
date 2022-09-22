@@ -169,12 +169,21 @@ const gameSlice = createSlice({
       );
       state.players[playerIndex].ships = ships;
     },
+    setShips(state, action: PayloadAction<[number, Ship[]]>) {
+      assertStatus(state, GameStatus.Configuring);
+      const [playerIndex, ships] = action.payload;
+      state.players[playerIndex].ships = ships;
+    },
   },
 });
 
-export const { setStatus, startGame, addShip, replaceShip, removeShip } = gameSlice.actions;
+export const { setStatus, startGame, addShip, replaceShip, removeShip, setShips } =
+  gameSlice.actions;
 
 export default gameSlice.reducer;
 
 export const selectGameStatus = (state: RootState) => state.game.status;
 export const selectGamePlayers = (state: RootState) => state.game.players;
+export function hasShipsInstalled(gamePlayer: DeepReadonly<PlayerState>) {
+  return gamePlayer.ships.length === shipCountForPlayer;
+}

@@ -11,7 +11,6 @@ import {
   subtractPoint,
   t,
 } from '../app/types';
-import { PlayerState } from '../features/game/gameSlice';
 import { MessageId } from '../intl';
 
 export enum GameStatus {
@@ -298,9 +297,4 @@ export function createShip(
 
 export function cloneShip(ship: DeepReadonly<Ship>): Ship {
   return { ...ship, shipCells: ship.shipCells.slice() };
-}
-
-export function hasShipsInstalled(gamePlayer: DeepReadonly<PlayerState>) {
-  // return gamePlayer.ships.length === shipCountForPlayer;
-  return gamePlayer.ships.every((s) => s.shipCells.length > 0);
 }
