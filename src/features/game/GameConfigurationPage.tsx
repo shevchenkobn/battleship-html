@@ -14,8 +14,8 @@ import { FormattedMessage } from 'react-intl';
 import {
   Link,
   Navigate,
-  Route,
   Outlet,
+  Route,
   useLocation,
   useMatch,
   useNavigate,
@@ -31,9 +31,13 @@ import { setTitle } from '../meta/metaSlice';
 import { GamePlayerConfigurationPageFragment } from './GamePlayerConfigurationPageFragment';
 import { hasShipsInstalled, selectGamePlayers, setStatus } from './gameSlice';
 
-type StepIndex = PlayerIndex | 2;
+enum StepIndex {
+  Player1 = 0,
+  Player2 = 1,
+  Confirmation = 2,
+}
 
-const steps: MessageWithValues[] = [
+const stepMessages: MessageWithValues[] = [
   { id: MessageId.PlayerName, values: { [MessageParameterName.PlayerName]: 1 } },
   { id: MessageId.PlayerName, values: { [MessageParameterName.PlayerName]: 2 } },
   { id: MessageId.PasswordsConfirmationTitle },
@@ -75,7 +79,7 @@ export function GameConfigurationPage() {
     [gamePlayers, passwordsConfirmed]
   );
 
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(StepIndex.Player1);
   const location = useLocation();
   const playerMatch = useMatch(routes.game.path + '/' + gameRoutes.player.path);
   const confirmMatch = useMatch(routes.game.path + '/' + gameRoutes.confirm.path);
@@ -83,17 +87,17 @@ export function GameConfigurationPage() {
   useEffect(() => {
     // console.log('executed route hook');
     if (confirmMatch) {
-      if (!completedSteps[0] || !completedSteps[1]) {
-        navigate(gameRoutes.player.formatPath(0));
+      if (!completedSteps[StepIndex.Player1] || !completedSteps[StepIndex.Player2]) {
+        navigate(gameRoutes.player.formatPath(StepIndex.Player1));
         return;
       }
-      setActiveStep(2);
+      setActiveStep(StepIndex.Confirmation);
     } else if (playerMatch) {
       const index = parsePlayerIndex(playerMatch.params[gameRoutes.player.parameterName]);
-      if (Number.isNaN(index) || index < 0) {
-        navigate(gameRoutes.player.formatPath(0));
-      } else if (index > 1) {
-        navigate(gameRoutes.player.formatPath(1));
+      if (Number.isNaN(index) || index < StepIndex.Player1) {
+        navigate(gameRoutes.player.formatPath(StepIndex.Player1));
+      } else if (index > StepIndex.Player1) {
+        navigate(gameRoutes.player.formatPath(StepIndex.Player2));
       } else {
         setActiveStep(index);
       }
@@ -111,7 +115,7 @@ export function GameConfigurationPage() {
   const matchesXs = useMediaQuery<Theme>((theme) => theme.breakpoints.down('sm'));
   return (
     <>
-      <Stack>
+      <Stack direction="column">
         <Stack direction={{ md: 'row', sm: 'column' }} spacing={{ xs: 3 }} sx={{ mb: 3 }}>
           <Button
             size="large"
@@ -128,11 +132,11 @@ export function GameConfigurationPage() {
             activeStep={activeStep}
             orientation={matchesXs ? 'vertical' : 'horizontal'}
           >
-            {steps.map((message, index) => {
+            {stepMessages.map((message, index) => {
               const label = <FormattedMessage {...message} />;
               return (
                 <Step key={index} completed={completedSteps[index]}>
-                  {index < 2 ? (
+                  {index < StepIndex.Confirmation ? (
                     <StepButton
                       component={Link}
                       to={gameRoutes.player.formatPath(index)}
@@ -141,7 +145,15 @@ export function GameConfigurationPage() {
                       {label}
                     </StepButton>
                   ) : (
-                    <StepLabel>{label}</StepLabel>
+                    <StepLabel>
+                      {completedSteps[StepIndex.Confirmation] ? (
+                        <StepButton component={Link} to={gameRoutes.confirm.path} replace={true}>
+                          {label}
+                        </StepButton>
+                      ) : (
+                        label
+                      )}
+                    </StepLabel>
                   )}
                 </Step>
               );
@@ -149,6 +161,36 @@ export function GameConfigurationPage() {
           </Stepper>
         </Stack>
         <Outlet />
+        <Stack sx={{ mt: 2 }} direction="row" justifyContent="space-between">
+          <Button
+            disabled={activeStep === StepIndex.Player1}
+            component={Link}
+            to={gameRoutes.player.formatPath(activeStep - 1)}
+          >
+            <FormattedMessage id={MessageId.BackAction} />
+          </Button>
+          <Button
+            disabled={
+              (activeStep === StepIndex.Player2 &&
+                (!completedSteps[StepIndex.Player1] || !completedSteps[StepIndex.Player2])) ||
+              (activeStep === StepIndex.Confirmation && !completedSteps[StepIndex.Confirmation])
+            }
+            component={Link}
+            to={
+              activeStep === StepIndex.Player1
+                ? gameRoutes.player.formatPath(activeStep + 1)
+                : gameRoutes.confirm.path
+            }
+          >
+            <FormattedMessage
+              id={
+                activeStep === StepIndex.Confirmation
+                  ? MessageId.FinishAction
+                  : MessageId.NextAction
+              }
+            />
+          </Button>
+        </Stack>
       </Stack>
       {showConfigurationResetDialog && (
         <AlertDialog

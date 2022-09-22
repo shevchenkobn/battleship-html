@@ -47,6 +47,9 @@ export enum MessageId {
   ResetAction = 'action.reset',
   YesAction = 'action.yes',
   NoAction = 'action.no',
+  BackAction = 'action.back',
+  NextAction = 'action.next',
+  FinishAction = 'action.finish',
 
   ViewingStatus = 'status.viewing',
   EditingStatus = 'status.editing',
@@ -142,6 +145,9 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.ResetAction]: 'Reset',
         [MessageId.YesAction]: 'Yes',
         [MessageId.NoAction]: 'No',
+        [MessageId.BackAction]: 'Back',
+        [MessageId.NextAction]: 'Next',
+        [MessageId.FinishAction]: 'Finish',
 
         [MessageId.ViewingStatus]: 'Viewing',
         [MessageId.EditingStatus]: 'Editing',
@@ -192,6 +198,9 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.ResetAction]: 'Скинути',
         [MessageId.YesAction]: 'Так',
         [MessageId.NoAction]: 'Ні',
+        [MessageId.BackAction]: 'Назад',
+        [MessageId.NextAction]: 'Далі',
+        [MessageId.FinishAction]: 'Завершити',
 
         [MessageId.ViewingStatus]: 'Перегляд',
         [MessageId.EditingStatus]: 'Редагування',

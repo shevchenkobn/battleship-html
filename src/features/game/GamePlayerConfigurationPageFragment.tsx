@@ -39,14 +39,3 @@ export function GamePlayerConfigurationPageFragment() {
     />
   );
 }
-
-/*
-
- newShips = ships.slice();
- const index = ships.findIndex((s) => s.id === ship.id);
- assert(index >= 0, 'Unknown ship is updated!');
- newShips.splice(index, 1, ship);
-
- const newShips = ships.filter((s) => s.id !== state.ship.id);
- assert(newShips.length === ships.length, 'An attempt to delete an unknown ship!');
- */

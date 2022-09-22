@@ -158,7 +158,6 @@ const gameSlice = createSlice({
       const ships = state.players[playerIndex].ships;
       const index = ships.findIndex((s) => s.shipId === ship.shipId);
       assert(index >= 0, 'Unknown ship is updated!');
-      console.log(index, ship, ship.shipId, ship.shipTypeId);
       ships[index] = cloneShip(ship);
     },
     removeShip(state, action: PayloadAction<RemoveShipActionPayload>) {
