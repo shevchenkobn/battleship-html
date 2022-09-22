@@ -98,7 +98,7 @@ interface ShipStateMap {
     kind: ShipStateKind.Adding;
     shipType: ShipType;
     direction: Direction;
-    ship: ShipPlaceData | null;
+    shipNewPosition: ShipPlaceData | null;
   };
   [ShipStateKind.Adjusting]: {
     kind: ShipStateKind.Adjusting;
@@ -192,25 +192,37 @@ export function PlayerGameConfiguration({
   const shipMap = useShipEntityMap(ships);
   const [
     /**
-     * A set of encoded occupied points.
+     * A map of encoded ship cells to IDs.
+     */ shipCellsToIds,
+    setShipCellsToIds,
+  ] = useState(new Map<string, number>());
+  const [
+    /**
+     * A set of encoded ship & surrounding cells.
      */ occupiedCells,
     setOccupiedCells,
   ] = useState(new Set<string>());
   const recalculateOccupiedCells = useCallback(
     (excludeShipId?: number) => {
-      const points = new Set<string>();
+      const shipCells = new Map<string, number>();
+      const cells = new Set<string>();
       for (const ship of ships) {
         if (ship.id === excludeShipId) {
           continue;
         }
-        for (const cell of iterate(ship.shipCells)
-          .concat(getSurroundingCells(ship.shipCells, boardSize))
-          .map(encodePoint)) {
-          points.add(cell);
+        for (const cell of iterate(ship.shipCells).map(encodePoint)) {
+          shipCells.set(cell, ship.id);
+          cells.add(cell);
+        }
+        for (const cell of iterate(getSurroundingCells(ship.shipCells, boardSize)).map(
+          encodePoint
+        )) {
+          cells.add(cell);
         }
       }
-      setOccupiedCells(points);
-      return points;
+      setShipCellsToIds(shipCells);
+      setOccupiedCells(cells);
+      return cells;
     },
     [boardSize, ships]
   );
@@ -218,16 +230,16 @@ export function PlayerGameConfiguration({
     recalculateOccupiedCells();
   }, [recalculateOccupiedCells]);
 
+  const shipTypeMap = useShipEntityMap(shipTypes);
   const shipCountByType = useMemo(() => {
     const countMap = getShipTypeCountMap(shipTypes);
     for (const ship of ships) {
-      countMap[ship.id] -= 1;
+      countMap[ship.shipTypeId] -= 1;
     }
     return countMap;
   }, [shipTypes, ships]);
   // const [shipCountByType, setShipCountByType] = useState(_shipCountByType);
   // useEffect(() => setShipCountByType(_shipCountByType), [_shipCountByType, setShipCountByType]);
-  const shipTypeMap = useShipEntityMap(shipTypes);
 
   const getShipPosition = useCallback(
     (
@@ -266,7 +278,7 @@ export function PlayerGameConfiguration({
             kind: ShipStateKind.Adding,
             shipType,
             direction: defaultDirection,
-            ship: null,
+            shipNewPosition: null,
           };
         }
         case ShipStateActionType.SelectPlacedShip: {
@@ -288,7 +300,7 @@ export function PlayerGameConfiguration({
           let direction: Direction;
           switch (state.kind) {
             case ShipStateKind.Adding: {
-              cells = state.ship?.cells;
+              cells = state.shipNewPosition?.cells;
               shipType = state.shipType;
               direction = state.direction;
               break;
@@ -322,9 +334,9 @@ export function PlayerGameConfiguration({
             case ShipStateKind.Adding: {
               const newState = { ...state, direction: newDirection };
               if (position) {
-                newState.ship = position;
+                newState.shipNewPosition = position;
               }
-              return { ...state, direction: newDirection, ship: position };
+              return { ...state, direction: newDirection, shipNewPosition: position };
             }
             case ShipStateKind.Adjusting: {
               const newShip = cloneShip(state.ship);
@@ -343,7 +355,7 @@ export function PlayerGameConfiguration({
             case ShipStateKind.Adding: {
               return {
                 ...state,
-                ship: action.position
+                shipNewPosition: action.position
                   ? getShipPosition(action.position, state.shipType.cellOffsets1, state.direction)
                   : null,
               };
@@ -476,24 +488,27 @@ export function PlayerGameConfiguration({
       .toMap();
     for (const ship of ships) {
       for (const cell of ship.shipCells) {
-        cellStyles.set(encodePoint(cell), getCellStyle(colors.boardShip));
+        cellStyles.set(encodePoint(cell), getCellStyle(colors.boardShip, cellHoverableStyle));
       }
     }
+    let place: DeepReadonly<ShipPlaceData> | null = null;
     switch (shipState.kind) {
       case ShipStateKind.Adding: {
-        if (shipState.ship) {
-          const color = shipState.ship.canPlace ? colors.selectedShip : colors.shipHit;
-          for (const cell of shipState.ship.cells) {
-            cellStyles.set(encodePoint(cell), getCellStyle(color));
-          }
-        }
+        place = shipState.shipNewPosition;
         break;
       }
       case ShipStateKind.Adjusting: {
         for (const cell of shipState.ship.shipCells) {
           cellStyles.set(encodePoint(cell), getCellStyle(colors.selectedShip));
         }
+        place = shipState.shipNewPosition;
         break;
+      }
+    }
+    if (place) {
+      const color = place.canPlace ? colors.placingShip : colors.shipHit;
+      for (const cell of place.cells) {
+        cellStyles.set(encodePoint(cell), getCellStyle(color));
       }
     }
     return cellStyles;
@@ -503,7 +518,9 @@ export function PlayerGameConfiguration({
     occupiedCells,
     shipState.kind,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    (shipState as any).ship,
+    (shipState as ShipStateMap[ShipStateKind.Adjusting])?.ship?.shipCells,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    (shipState as ShipStateMap[ShipStateKind.Adding]).shipNewPosition,
     colors.surroundingShipWater,
     colors.boardShip,
     colors.selectedShip,
@@ -511,32 +528,41 @@ export function PlayerGameConfiguration({
     ships,
   ]);
 
+  const boardCommonCellStyle: CellStyle | undefined =
+    (isKind(shipState, ShipStateKind.Adding) || isKind(shipState, ShipStateKind.Adjusting)) &&
+    (shipState.shipNewPosition && !shipState.shipNewPosition.canPlace
+      ? { cursor: 'not-allowed' }
+      : cellHoverableStyle);
   return (
     <PlayerGame
       boardSize={boardSize}
       shipTypes={shipTypes}
-      boardCommonCellStyle={
-        (isKind(shipState, ShipStateKind.Adding) || isKind(shipState, ShipStateKind.Adjusting)) &&
-        cellHoverableStyle
-      }
+      boardCommonCellStyle={boardCommonCellStyle}
       boardStyle={{ className: 'm-auto' }}
       boardCellStyles={cellStyles}
       boardInteraction={
-        ships.length > 0
+        isKind(shipState, ShipStateKind.Adding) || isKind(shipState, ShipStateKind.Adjusting)
           ? {
-              cellHoverStyle: cellHoverableStyle,
-            }
-          : isKind(shipState, ShipStateKind.Adding) || isKind(shipState, ShipStateKind.Adjusting)
-          ? {
-              cellHoverStyle: cellHoverableStyle,
+              cellHoverStyle: {},
               onCellHoverChange(cell: Point, isHovering: boolean) {
                 dispatch({
                   type: ShipStateActionType.HoverShipOnBoard,
                   position: isHovering ? cell : null,
                 });
               },
-              onCellClick(cell: Point) {
+              onCellClick(cell) {
                 dispatch({ type: ShipStateActionType.PlaceShip, position: cell });
+              },
+            }
+          : ships.length > 0
+          ? {
+              cellHoverStyle: {},
+              onCellClick(cell: Point) {
+                const shipId = shipCellsToIds.get(encodePoint(cell));
+                // noinspection SuspiciousTypeOfGuard
+                if (typeof shipId === 'number') {
+                  dispatch({ type: ShipStateActionType.SelectPlacedShip, shipId });
+                }
               },
             }
           : undefined
@@ -620,8 +646,9 @@ export function PlayerGameConfiguration({
   );
 }
 
-function getCellStyle(color: string) {
+function getCellStyle(color: string, baseStyle: CellStyle = {}): CellStyle {
   return {
+    ...baseStyle,
     backgroundColor: color,
   };
 }

@@ -56,6 +56,7 @@ export function useGamePage() {
 export interface GameColors {
   boardShip: string;
   selectedShip: string;
+  placingShip: string;
   emptyHit: string;
   shipHit: string;
   surroundingShipWater: string;
@@ -68,9 +69,10 @@ export function useGameColors(): GameColors {
     () => ({
       boardShip: theme.palette.success.light,
       selectedShip: theme.palette.info.light,
+      placingShip: theme.palette.secondary.light,
       emptyHit: theme.palette.warning.light,
       shipHit: theme.palette.error.light,
-      surroundingShipWater: amber[100], // or yellow[200]
+      surroundingShipWater: amber[100],
       hoveredLines: secondaryColor.A400,
     }),
     [theme]
@@ -83,7 +85,7 @@ export function useShipEntityMap<T extends { id: number }>(
   return useMemo(
     () =>
       new GuardedMap(
-        iterate(shipEntities).map((type) => t(type.id, type as NonOptional<DeepReadonly<T>>))
+        iterate(shipEntities).map((entity) => t(entity.id, entity as NonOptional<DeepReadonly<T>>))
       ),
     [shipEntities]
   );

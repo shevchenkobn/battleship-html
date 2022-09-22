@@ -148,6 +148,7 @@ const gameSlice = createSlice({
       // TODO: add asserts for checks;
       const { playerIndex, shipType, direction, shipCells } = action.payload;
       const ship = createShip(shipType, direction, state.lastShipId);
+      state.lastShipId += 1;
       ship.shipCells = cloneDeep(shipCells) as Point[];
       state.players[playerIndex].ships.push(ship);
     },
@@ -157,6 +158,7 @@ const gameSlice = createSlice({
       const ships = state.players[playerIndex].ships;
       const index = ships.findIndex((s) => s.id === ship.id);
       assert(index >= 0, 'Unknown ship is updated!');
+      console.log(index, ship, ship.id, ship.shipTypeId);
       ships[index] = cloneShip(ship);
     },
     removeShip(state, action: PayloadAction<RemoveShipActionPayload>) {
@@ -164,21 +166,20 @@ const gameSlice = createSlice({
       const { playerIndex, shipId } = action.payload;
       const ships = state.players[playerIndex].ships.filter((s) => s.id !== shipId);
       assert(
-        state.players[playerIndex].ships.length === ships.length,
+        state.players[playerIndex].ships.length === ships.length + 1,
         'An attempt to delete an unknown ship!'
       );
       state.players[playerIndex].ships = ships;
     },
-    setShips(state, action: PayloadAction<[number, Ship[]]>) {
-      assertStatus(state, GameStatus.Configuring);
-      const [playerIndex, ships] = action.payload;
-      state.players[playerIndex].ships = ships;
-    },
+    // setShips(state, action: PayloadAction<[number, Ship[]]>) {
+    //   assertStatus(state, GameStatus.Configuring);
+    //   const [playerIndex, ships] = action.payload;
+    //   state.players[playerIndex].ships = ships;
+    // },
   },
 });
 
-export const { setStatus, startGame, addShip, replaceShip, removeShip, setShips } =
-  gameSlice.actions;
+export const { setStatus, startGame, addShip, replaceShip, removeShip } = gameSlice.actions;
 
 export default gameSlice.reducer;
 

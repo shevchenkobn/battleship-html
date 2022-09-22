@@ -35,7 +35,7 @@ export type CellGridProps = (
      */
     cellHoverStyle?: CellStyle;
     onCellHoverChange?(cell: Point, isHovering: boolean): void;
-    onCellClick?(cell: Point): void;
+    onCellClick?(cell: Point, event: React.MouseEvent<HTMLDivElement>): void;
   };
 } & StyleProps;
 
@@ -110,8 +110,8 @@ export function CellGrid(props: CellGridProps) {
                         }),
                       onCellClick:
                         interaction.onCellClick &&
-                        (() => {
-                          interaction.onCellClick?.({ x, y });
+                        ((event) => {
+                          interaction.onCellClick?.({ x, y }, event);
                         }),
                     }
                   : null;
@@ -137,7 +137,7 @@ interface CellProps {
   interaction: null | {
     hoverStyle: CellStyle;
     onCellHoverChange?(isHovering: boolean): void;
-    onCellClick?(): void;
+    onCellClick?(event: React.MouseEvent<HTMLDivElement>): void;
   };
   style?: CellStyle;
 }
@@ -167,7 +167,10 @@ function Cell({ cellSize, empty, interaction, style }: CellProps) {
         undefined
       }
       onClick={
-        (interaction && interaction.onCellClick && (() => interaction.onCellClick?.())) || undefined
+        (interaction &&
+          interaction.onCellClick &&
+          ((event: React.MouseEvent<HTMLDivElement>) => interaction.onCellClick?.(event))) ||
+        undefined
       }
     />
   );
