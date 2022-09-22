@@ -16,14 +16,14 @@ export interface PasswordDialogProps {
   correctPassword: string;
   open: boolean;
   onPasswordSubmit(confirmed: boolean): void;
-  onAbortByCloseAttempt(): void;
+  onAbortByClose(): void;
 }
 
 export function PasswordDialog({
   correctPassword,
   open,
   onPasswordSubmit,
-  onAbortByCloseAttempt,
+  onAbortByClose,
 }: PasswordDialogProps) {
   const [password, setPassword] = useState('');
   useEffect(() => {
@@ -41,7 +41,7 @@ export function PasswordDialog({
   };
 
   return (
-    <Dialog open={open} onClose={onAbortByCloseAttempt}>
+    <Dialog open={open} onClose={onAbortByClose}>
       <DialogTitle className="flex flex-wrap flex-items-center">
         <LockIcon sx={{ mr: 1 }} />{' '}
         <FormattedMessage id={MessageId.PlayerPasswordConfirmationTitle} />
@@ -71,7 +71,7 @@ export function PasswordDialog({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onAbortByCloseAttempt}>
+        <Button onClick={onAbortByClose}>
           <FormattedMessage id={MessageId.CancelAction} />
         </Button>
         <Button onClick={submitPassword}>

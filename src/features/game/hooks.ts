@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { TypographyProps, useMediaQuery, useTheme } from '@mui/material';
 import { amber } from '@mui/material/colors';
 import { Breakpoint } from '@mui/system/createTheme/createBreakpoints';
@@ -7,9 +8,10 @@ import { secondaryColor } from '../../app/constants';
 import { noWhenDefault, when } from '../../app/expressions';
 import { useAppSelector } from '../../app/hooks';
 import { GuardedMap } from '../../app/map';
-import { DeepReadonly, DeepReadonlyGuardedMap, NonOptional, t } from '../../app/types';
+import { DeepReadonly, DeepReadonlyGuardedMap, t } from '../../app/types';
 import { GameStatus, Ship, ShipType } from '../../models/game';
 import { GameConfigurationPage, getGameConfigurationSubRoutes } from './GameConfigurationPage';
+import { GamePlayPage } from './GamePlayPage';
 import { selectGameStatus } from './gameSlice';
 import { GameStartPage } from './GameStartPage';
 
@@ -46,6 +48,7 @@ export function useGamePage() {
         [
           [GameStatus.Starting, () => [GameStartPage, () => []]],
           [GameStatus.Configuring, () => [GameConfigurationPage, getGameConfigurationSubRoutes]],
+          [GameStatus.Playing, () => [GamePlayPage, () => []]],
         ],
         noWhenDefault
       ),

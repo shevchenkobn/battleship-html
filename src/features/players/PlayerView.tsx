@@ -91,7 +91,7 @@ export function PlayerView({
             id="player-name"
             value={player.name}
             onChange={(event) => {
-              setPlayer({ ...player, name: String(event.currentTarget.value) });
+              setPlayer({ ...player, name: String(event.currentTarget.value).trim() });
             }}
             label={intl.formatMessage({ id: MessageId.PlayerNameLabel })}
             className="flex-grow"
@@ -279,7 +279,7 @@ export function PlayerView({
             finishSavingChanges();
             closeDialog();
           }}
-          onAbortByCloseAttempt={closeDialog}
+          onAbortByClose={closeDialog}
         />
       )}
       {showResetDialog && (

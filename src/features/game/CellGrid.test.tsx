@@ -83,7 +83,7 @@ function testGrid(props: CellGridProps, forceSize?: Point) {
   const { container } = render(<CellGrid {...props} />);
 
   const cellSizePx = (props.cellSizePx ?? defaultCellSize) + 'px';
-  // We prefer not to reuse bounding rectangle algorithm, but it reduces the compehensiveness of the test.
+  // We prefer not to reuse bounding rectangle algorithm, but it reduces the comprehensiveness of the test.
   const dimensions = forceSize ?? ('dimensions' in props ? props.dimensions : null);
   assert(dimensions, 'Dimension must be provided either as a prop or 2nd argument!');
   const grid = container.children[0];

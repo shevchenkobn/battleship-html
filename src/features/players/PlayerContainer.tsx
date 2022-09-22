@@ -14,7 +14,7 @@ export function PlayerContainer({ index, intlPlayerName }: PlayerContainerProps)
   const player = useAppSelector(selectPlayers)[index];
   const dispatch = useAppDispatch();
 
-  const isComputerAllowed = index !== 0;
+  const isComputerAllowed = false; //index !== 0;
   const [editing, setEditing] = useState(false);
   useEffect(() => setEditing(false), [index]);
   const handlePlayerChange = (player: Player) => {

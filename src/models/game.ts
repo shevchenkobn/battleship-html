@@ -22,7 +22,7 @@ export enum GameStatus {
 
 export interface Turn {
   /**
-   * Cell shoots during turn in ascending order for each {@link PlayerIndex}.
+   * Cell shots during turn in ascending order for each {@link PlayerIndex}.
    */
   cells: [Point[], Point[]];
 }

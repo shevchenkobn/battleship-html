@@ -9,11 +9,11 @@ import {
 } from '../../intl';
 import { PlayerIndex, PlayerKind } from '../../models/player';
 
-export function getIntlPlayerName(index: PlayerIndex): MessageWithValues {
+export function getIntlPlayerName(index: number): MessageWithValues {
   return { id: MessageId.PlayerName, values: getIntlPlayerNameValues(index) };
 }
 
-export function getIntlPlayerNameValues(index: PlayerIndex): MessagePrimitiveValues {
+export function getIntlPlayerNameValues(index: number): MessagePrimitiveValues {
   return { [MessageParameterName.PlayerName]: index + 1 };
 }
 

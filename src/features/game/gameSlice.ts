@@ -170,11 +170,6 @@ const gameSlice = createSlice({
       );
       state.players[playerIndex].ships = ships;
     },
-    // setShips(state, action: PayloadAction<[number, Ship[]]>) {
-    //   assertStatus(state, GameStatus.Configuring);
-    //   const [playerIndex, ships] = action.payload;
-    //   state.players[playerIndex].ships = ships;
-    // },
   },
 });
 

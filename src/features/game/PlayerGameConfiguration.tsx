@@ -1,25 +1,18 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import UndoIcon from '@mui/icons-material/Undo';
-import { Fab, Stack } from '@mui/material';
+import { Fab, Stack, Tooltip } from '@mui/material';
 import { iterate } from 'iterare';
 import { cloneDeep } from 'lodash-es';
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { normalizeToLimit } from '../../app/lib';
-import {
-  asReadonly,
-  assert,
-  assertUnreachable,
-  DeepReadonly,
-  encodePoint,
-  Point,
-  t,
-} from '../../app/types';
+import { assert, assertUnreachable, DeepReadonly, encodePoint, Point, t } from '../../app/types';
+import { MessageId } from '../../intl';
 import {
   applyOffset,
   Board,
   cloneShip,
   defaultDirection,
-  defaultDirectionIndex,
   Direction,
   directionOrder,
   getBoardSize,
@@ -37,10 +30,13 @@ import RotateLeftIcon from '@mui/icons-material/RotateLeft';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 
 export interface PlayerGameConfigurationProps extends Callbacks {
+  /**
+   * An optional value to force rerender.
+   */
+  id?: any;
   board: DeepReadonly<Board>;
   ships: DeepReadonly<Ship[]>;
   shipTypes: DeepReadonly<ShipType[]>;
-  // onShipsUpdate(ships: Ship[]): void;
   /**
    * Data sync argument MUST be guaranteed by the component.
    * @param {DeepReadonly<ShipType>} shipType
@@ -180,6 +176,7 @@ const cellHoverableStyle: CellStyle = {
 };
 
 export function PlayerGameConfiguration({
+  id,
   board,
   shipTypes,
   ships,
@@ -483,6 +480,9 @@ export function PlayerGameConfiguration({
       dispatch({ type: ShipStateActionType.Reset });
     }
   }, [onShipAdd, onShipRemove, onShipReplace, shipState]);
+  useEffect(() => {
+    dispatch({ type: ShipStateActionType.Reset });
+  }, [id]);
 
   const colors = useGameColors();
   const cellStyles = useMemo(() => {
@@ -525,17 +525,21 @@ export function PlayerGameConfiguration({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     (shipState as ShipStateMap[ShipStateKind.Adding]).shipNewPosition,
     colors.surroundingShipWater,
+    colors.placingShip,
     colors.boardShip,
     colors.selectedShip,
     colors.shipHit,
     ships,
   ]);
 
-  const boardCommonCellStyle: CellStyle | undefined =
-    (isKind(shipState, ShipStateKind.Adding) || isKind(shipState, ShipStateKind.Adjusting)) &&
-    (shipState.shipNewPosition && !shipState.shipNewPosition.canPlace
-      ? { cursor: 'not-allowed' }
-      : cellHoverableStyle);
+  const boardCommonCellStyle: CellStyle | undefined = useMemo(
+    () =>
+      (isKind(shipState, ShipStateKind.Adding) || isKind(shipState, ShipStateKind.Adjusting)) &&
+      (shipState.shipNewPosition && !shipState.shipNewPosition.canPlace
+        ? { cursor: 'not-allowed' }
+        : cellHoverableStyle),
+    [shipState]
+  );
   return (
     <PlayerGame
       boardSize={boardSize}
@@ -580,68 +584,90 @@ export function PlayerGameConfiguration({
           : undefined,
         beforeChildren: (
           <Stack direction="row" spacing={1}>
-            <Fab
-              color="secondary"
-              aria-label="back"
-              disabled={
-                !isKind(shipState, ShipStateKind.Adding) &&
-                !isKind(shipState, ShipStateKind.Adjusting)
-              }
-              onClick={
-                isKind(shipState, ShipStateKind.Adding) ||
-                isKind(shipState, ShipStateKind.Adjusting)
-                  ? () => dispatch({ type: ShipStateActionType.Reset })
-                  : undefined
-              }
-            >
-              <UndoIcon />
-            </Fab>
-            <Fab
-              color="primary"
-              aria-label="rotate-counterclockwise"
-              disabled={
-                !isKind(shipState, ShipStateKind.Adding) &&
-                !isKind(shipState, ShipStateKind.Adjusting)
-              }
-              onClick={
-                isKind(shipState, ShipStateKind.Adding) ||
-                isKind(shipState, ShipStateKind.Adjusting)
-                  ? () =>
-                      dispatch({ type: ShipStateActionType.RotateShip, directionIndexOffset: -1 })
-                  : undefined
-              }
-            >
-              <RotateLeftIcon />
-            </Fab>
-            <Fab
-              color="primary"
-              aria-label="rotate-clockwise"
-              disabled={
-                !isKind(shipState, ShipStateKind.Adding) &&
-                !isKind(shipState, ShipStateKind.Adjusting)
-              }
-              onClick={
-                isKind(shipState, ShipStateKind.Adding) ||
-                isKind(shipState, ShipStateKind.Adjusting)
-                  ? () =>
-                      dispatch({ type: ShipStateActionType.RotateShip, directionIndexOffset: 1 })
-                  : undefined
-              }
-            >
-              <RotateRightIcon />
-            </Fab>
-            <Fab
-              color="primary"
-              aria-label="remove"
-              disabled={!isKind(shipState, ShipStateKind.Adjusting)}
-              onClick={
-                isKind(shipState, ShipStateKind.Adjusting)
-                  ? () => dispatch({ type: ShipStateActionType.RemoveShip })
-                  : undefined
-              }
-            >
-              <DeleteIcon />
-            </Fab>
+            <Tooltip title={<FormattedMessage id={MessageId.CancelAction} />}>
+              <span>
+                <Fab
+                  color="secondary"
+                  aria-label="back"
+                  disabled={
+                    !isKind(shipState, ShipStateKind.Adding) &&
+                    !isKind(shipState, ShipStateKind.Adjusting)
+                  }
+                  onClick={
+                    isKind(shipState, ShipStateKind.Adding) ||
+                    isKind(shipState, ShipStateKind.Adjusting)
+                      ? () => dispatch({ type: ShipStateActionType.Reset })
+                      : undefined
+                  }
+                >
+                  <UndoIcon />
+                </Fab>
+              </span>
+            </Tooltip>
+            <Tooltip title={<FormattedMessage id={MessageId.RotateCounterClockwiseAction} />}>
+              <span>
+                <Fab
+                  color="primary"
+                  aria-label="rotate-counterclockwise"
+                  disabled={
+                    !isKind(shipState, ShipStateKind.Adding) &&
+                    !isKind(shipState, ShipStateKind.Adjusting)
+                  }
+                  onClick={
+                    isKind(shipState, ShipStateKind.Adding) ||
+                    isKind(shipState, ShipStateKind.Adjusting)
+                      ? () =>
+                          dispatch({
+                            type: ShipStateActionType.RotateShip,
+                            directionIndexOffset: -1,
+                          })
+                      : undefined
+                  }
+                >
+                  <RotateLeftIcon />
+                </Fab>
+              </span>
+            </Tooltip>
+            <Tooltip title={<FormattedMessage id={MessageId.RotateClockwiseAction} />}>
+              <span>
+                <Fab
+                  color="primary"
+                  aria-label="rotate-clockwise"
+                  disabled={
+                    !isKind(shipState, ShipStateKind.Adding) &&
+                    !isKind(shipState, ShipStateKind.Adjusting)
+                  }
+                  onClick={
+                    isKind(shipState, ShipStateKind.Adding) ||
+                    isKind(shipState, ShipStateKind.Adjusting)
+                      ? () =>
+                          dispatch({
+                            type: ShipStateActionType.RotateShip,
+                            directionIndexOffset: 1,
+                          })
+                      : undefined
+                  }
+                >
+                  <RotateRightIcon />
+                </Fab>
+              </span>
+            </Tooltip>
+            <Tooltip title={<FormattedMessage id={MessageId.RemoveAction} />}>
+              <span>
+                <Fab
+                  color="primary"
+                  aria-label="remove"
+                  disabled={!isKind(shipState, ShipStateKind.Adjusting)}
+                  onClick={
+                    isKind(shipState, ShipStateKind.Adjusting)
+                      ? () => dispatch({ type: ShipStateActionType.RemoveShip })
+                      : undefined
+                  }
+                >
+                  <DeleteIcon />
+                </Fab>
+              </span>
+            </Tooltip>
           </Stack>
         ),
       }}

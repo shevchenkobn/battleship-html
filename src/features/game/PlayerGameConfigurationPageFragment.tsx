@@ -6,7 +6,7 @@ import { gameRoutes } from './GameConfigurationPage';
 import { addShip, removeShip, replaceShip, selectGamePlayers, shipTypes } from './gameSlice';
 import { PlayerGameConfiguration, PlayerGameConfigurationProps } from './PlayerGameConfiguration';
 
-export function GamePlayerConfigurationPageFragment() {
+export function PlayerGameConfigurationPageFragment() {
   const params = useParams();
   const index = parsePlayerIndex(params[gameRoutes.player.parameterName]);
   const player = useAppSelector(selectGamePlayers)[index];
@@ -30,6 +30,7 @@ export function GamePlayerConfigurationPageFragment() {
 
   return (
     <PlayerGameConfiguration
+      id={index}
       board={player.board}
       ships={player.ships}
       shipTypes={shipTypes}

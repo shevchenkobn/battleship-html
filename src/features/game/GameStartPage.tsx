@@ -32,9 +32,6 @@ export function GameStartPage() {
         size="large"
         color="secondary"
         variant="contained"
-        component={Link}
-        to={routes.game.path}
-        replace={true}
         onClick={() => dispatch(setStatus(GameStatus.Configuring))}
       >
         <FormattedMessage id={MessageId.PlayAction} />

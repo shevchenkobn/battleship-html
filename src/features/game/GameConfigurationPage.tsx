@@ -1,6 +1,7 @@
 import UndoIcon from '@mui/icons-material/Undo';
 import {
   Button,
+  ButtonProps,
   Stack,
   Step,
   StepButton,
@@ -9,6 +10,7 @@ import {
   Theme,
   useMediaQuery,
 } from '@mui/material';
+import { noop } from 'lodash-es';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import {
@@ -22,14 +24,22 @@ import {
 } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { routes } from '../../app/routing';
-import { DeepReadonly } from '../../app/types';
+import { DeepReadonly, t } from '../../app/types';
 import { AlertDialog } from '../../components/AlertDialog';
 import { MessageId, MessageParameterName, MessageWithValues } from '../../intl';
 import { GameStatus } from '../../models/game';
-import { parsePlayerIndex, PlayerIndex } from '../../models/player';
+import { parsePlayerIndex } from '../../models/player';
 import { setTitle } from '../meta/metaSlice';
-import { GamePlayerConfigurationPageFragment } from './GamePlayerConfigurationPageFragment';
-import { hasShipsInstalled, selectGamePlayers, setStatus } from './gameSlice';
+import { PasswordsConfirmationContainer } from '../players/PasswordsConfirmationContainer';
+import { selectPasswordsConfirmed } from '../players/playersSlice';
+import { PlayerGameConfigurationPageFragment } from './PlayerGameConfigurationPageFragment';
+import {
+  hasShipsInstalled,
+  PlayerState,
+  selectGamePlayers,
+  setStatus,
+  startGame,
+} from './gameSlice';
 
 enum StepIndex {
   Player1 = 0,
@@ -67,7 +77,7 @@ export function GameConfigurationPage() {
     dispatch(setTitle({ id: MessageId.ConfigurationTitle }));
   }, [dispatch]);
 
-  const [passwordsConfirmed, setPasswordConfirmed] = useState(false);
+  const passwordsConfirmed = useAppSelector(selectPasswordsConfirmed);
   const gamePlayers = useAppSelector(selectGamePlayers);
 
   const completedSteps = useMemo<Record<number, boolean>>(
@@ -96,7 +106,7 @@ export function GameConfigurationPage() {
       const index = parsePlayerIndex(playerMatch.params[gameRoutes.player.parameterName]);
       if (Number.isNaN(index) || index < StepIndex.Player1) {
         navigate(gameRoutes.player.formatPath(StepIndex.Player1));
-      } else if (index > StepIndex.Player1) {
+      } else if (index > StepIndex.Player2) {
         navigate(gameRoutes.player.formatPath(StepIndex.Player2));
       } else {
         setActiveStep(index);
@@ -113,6 +123,20 @@ export function GameConfigurationPage() {
   };
 
   const matchesXs = useMediaQuery<Theme>((theme) => theme.breakpoints.down('sm'));
+  const startGameProps = completedSteps[StepIndex.Confirmation]
+    ? {
+        onClick() {
+          dispatch(startGame());
+        },
+      }
+    : {
+        component: Link,
+        to:
+          activeStep === StepIndex.Player1
+            ? gameRoutes.player.formatPath(activeStep + 1)
+            : gameRoutes.confirm.path,
+        replace: true,
+      };
   return (
     <>
       <Stack direction="column">
@@ -144,16 +168,12 @@ export function GameConfigurationPage() {
                     >
                       {label}
                     </StepButton>
+                  ) : completedSteps[StepIndex.Player1] && completedSteps[StepIndex.Player2] ? (
+                    <StepButton component={Link} to={gameRoutes.confirm.path} replace={true}>
+                      {label}
+                    </StepButton>
                   ) : (
-                    <StepLabel>
-                      {completedSteps[StepIndex.Confirmation] ? (
-                        <StepButton component={Link} to={gameRoutes.confirm.path} replace={true}>
-                          {label}
-                        </StepButton>
-                      ) : (
-                        label
-                      )}
-                    </StepLabel>
+                    <StepLabel>{label}</StepLabel>
                   )}
                 </Step>
               );
@@ -166,6 +186,7 @@ export function GameConfigurationPage() {
             disabled={activeStep === StepIndex.Player1}
             component={Link}
             to={gameRoutes.player.formatPath(activeStep - 1)}
+            replace={true}
           >
             <FormattedMessage id={MessageId.BackAction} />
           </Button>
@@ -175,17 +196,15 @@ export function GameConfigurationPage() {
                 (!completedSteps[StepIndex.Player1] || !completedSteps[StepIndex.Player2])) ||
               (activeStep === StepIndex.Confirmation && !completedSteps[StepIndex.Confirmation])
             }
-            component={Link}
-            to={
-              activeStep === StepIndex.Player1
-                ? gameRoutes.player.formatPath(activeStep + 1)
-                : gameRoutes.confirm.path
-            }
+            {...startGameProps}
+            variant={completedSteps[StepIndex.Confirmation] ? 'contained' : 'text'}
+            color={completedSteps[StepIndex.Confirmation] ? 'secondary' : 'primary'}
+            size={completedSteps[StepIndex.Confirmation] ? 'large' : 'medium'}
           >
             <FormattedMessage
               id={
                 activeStep === StepIndex.Confirmation
-                  ? MessageId.FinishAction
+                  ? MessageId.StartGameAction
                   : MessageId.NextAction
               }
             />
@@ -216,9 +235,13 @@ export function getGameConfigurationSubRoutes() {
     <Route
       key={gameRoutes.player.path}
       path={gameRoutes.player.path}
-      element={<GamePlayerConfigurationPageFragment />}
+      element={<PlayerGameConfigurationPageFragment />}
     />,
-    <Route key={gameRoutes.player.path} path={gameRoutes.confirm.path} element={<>confirm</>} />,
+    <Route
+      key={gameRoutes.player.path}
+      path={gameRoutes.confirm.path}
+      element={<PasswordsConfirmationContainer />}
+    />,
     <Route key="/" index element={<Navigate to={gameRoutes.player.formatPath(0)} />} />,
     <Route key="*" element={<Navigate to={gameRoutes.player.formatPath(0)} />} />,
   ];
