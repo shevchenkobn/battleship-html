@@ -220,7 +220,16 @@ export function PlayerView({
               <>{form}</>
             )}
           </CardContent>
-          <CardActions>
+          <CardActions
+            sx={{
+              flexDirection: { xs: 'column', sm: 'inherit' },
+              alignItems: { xs: 'stretch', sm: 'inherit' },
+              '> :not(:first-of-type)': {
+                ml: { xs: 0, sm: 1 },
+                mt: { xs: 1, sm: 0 },
+              },
+            }}
+          >
             {isReadonly ? (
               <Button
                 variant="outlined"
