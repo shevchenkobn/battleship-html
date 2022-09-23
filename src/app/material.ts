@@ -3,7 +3,7 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import { createTheme } from '@mui/material/styles';
-import { primaryColor, secondaryColor } from './app/constants';
+import { primaryColor, secondaryColor } from './constants';
 
 /**
  * The default yet enhanced theme is used.

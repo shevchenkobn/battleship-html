@@ -25,7 +25,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { noWhenDefault, when } from '../../app/expressions';
 import { AlertDialog } from '../../components/AlertDialog';
-import { ia, MessageId, MessageWithValues, playerKindMessageIds } from '../../intl';
+import { ia, MessageId, MessageWithValues, playerKindMessageIds } from '../../app/intl';
 import {
   ComputerPlayerType,
   hasPassword as hasPlayerPassword,

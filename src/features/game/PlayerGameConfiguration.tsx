@@ -7,7 +7,7 @@ import React, { useCallback, useEffect, useMemo, useReducer, useState } from 're
 import { FormattedMessage } from 'react-intl';
 import { normalizeToLimit } from '../../app/lib';
 import { assert, assertUnreachable, DeepReadonly, encodePoint, Point, t } from '../../app/types';
-import { MessageId } from '../../intl';
+import { MessageId } from '../../app/intl';
 import {
   applyOffset,
   Board,

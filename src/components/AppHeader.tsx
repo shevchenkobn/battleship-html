@@ -13,7 +13,7 @@ import { useAppSelector } from '../app/hooks';
 import { useNavigationLinks } from '../app/routing';
 import { AppTitle } from '../features/meta/AppTitle';
 import { selectAppLocale } from '../features/meta/metaSlice';
-import { Locale, getIntlMessages, MessageId } from '../intl';
+import { Locale, getIntlMessages, MessageId } from '../app/intl';
 import { SvgProps } from '../svg/svg-factory';
 import { FlagGb } from '../svg/flags/FlagGb';
 import { FlagUa } from '../svg/flags/FlagUa';

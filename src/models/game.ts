@@ -11,7 +11,7 @@ import {
   subtractPoint,
   t,
 } from '../app/types';
-import { MessageId } from '../intl';
+import { MessageId } from '../app/intl';
 
 export enum GameStatus {
   Starting = 'starting',

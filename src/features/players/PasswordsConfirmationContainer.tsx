@@ -1,13 +1,11 @@
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import { Popover, Stack, TextField } from '@mui/material';
+import { Stack, TextField } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
-import Typography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { assert, DeepReadonly } from '../../app/types';
-import { computerPlayerKindMessageIds, ia, MessageId, playerKindMessageIds } from '../../intl';
+import { DeepReadonly } from '../../app/types';
+import { computerPlayerKindMessageIds, MessageId, playerKindMessageIds } from '../../app/intl';
 import { Player, PlayerKind } from '../../models/player';
 import { getIntlPlayerName } from './lib';
 import { confirmPasswords, selectPlayers } from './playersSlice';

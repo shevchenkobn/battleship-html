@@ -6,7 +6,7 @@ import { useAppSelector } from '../app/hooks';
 import { routes } from '../app/routing';
 import { getIntlPlayerName, playerKindIcons } from '../features/players/lib';
 import { selectPlayers } from '../features/players/playersSlice';
-import { computerPlayerKindMessageIds, ia } from '../intl';
+import { computerPlayerKindMessageIds, ia } from '../app/intl';
 import { parsePlayerIndex, PlayerIndex, PlayerKind } from '../models/player';
 
 export function useAppMenuItems(): [element: JSX.Element, url: string, isActive: boolean][] {

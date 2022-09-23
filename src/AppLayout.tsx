@@ -11,7 +11,7 @@ import { DocumentTitle } from './features/meta/DocumentTitle';
 import Container from '@mui/material/Container';
 import { LocalizeTitle } from './features/meta/LocalizeTitle';
 import { selectAppLocale, setLocale } from './features/meta/metaSlice';
-import { getSupportedSystemLocale, getIntlMessages, Locale } from './intl';
+import { getSupportedSystemLocale, getIntlMessages, Locale } from './app/intl';
 import './AppLayout.scss';
 
 function AppLayout() {

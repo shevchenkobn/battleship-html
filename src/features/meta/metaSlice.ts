@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { defaultProjectName, StoreSliceName } from '../../app/constants';
 import { RootState } from '../../app/store';
-import { defaultLocale, Locale, MessageWithValues } from '../../intl';
+import { defaultLocale, Locale, MessageWithValues } from '../../app/intl';
 
 export interface MetaSlice {
   projectName: string;

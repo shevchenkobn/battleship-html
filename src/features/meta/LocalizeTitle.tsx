@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { ia, MessageId } from '../../intl';
+import { ia, MessageId } from '../../app/intl';
 import { selectAppLocale, selectTitle, setTitleLocalized, updateTitles } from './metaSlice';
 
 export function LocalizeTitle() {

@@ -2,7 +2,7 @@ import { ListItemIcon, ListItemText } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useAppSelector } from '../app/hooks';
 import { selectAppLocale } from '../features/meta/metaSlice';
-import { Locale } from '../intl';
+import { Locale } from '../app/intl';
 import { languageFlags, languages } from './AppHeader';
 
 export function useAppLanguageMenuItems(): [

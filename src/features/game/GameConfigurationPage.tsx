@@ -1,7 +1,6 @@
 import UndoIcon from '@mui/icons-material/Undo';
 import {
   Button,
-  ButtonProps,
   Stack,
   Step,
   StepButton,
@@ -10,7 +9,6 @@ import {
   Theme,
   useMediaQuery,
 } from '@mui/material';
-import { noop } from 'lodash-es';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import {
@@ -24,22 +22,16 @@ import {
 } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { routes } from '../../app/routing';
-import { DeepReadonly, t } from '../../app/types';
+import { DeepReadonly } from '../../app/types';
 import { AlertDialog } from '../../components/AlertDialog';
-import { MessageId, MessageParameterName, MessageWithValues } from '../../intl';
+import { MessageId, MessageParameterName, MessageWithValues } from '../../app/intl';
 import { GameStatus } from '../../models/game';
 import { parsePlayerIndex } from '../../models/player';
 import { setTitle } from '../meta/metaSlice';
 import { PasswordsConfirmationContainer } from '../players/PasswordsConfirmationContainer';
 import { selectPasswordsConfirmed } from '../players/playersSlice';
 import { PlayerGameConfigurationPageFragment } from './PlayerGameConfigurationPageFragment';
-import {
-  hasShipsInstalled,
-  PlayerState,
-  selectGamePlayers,
-  setStatus,
-  startGame,
-} from './gameSlice';
+import { hasShipsInstalled, selectGamePlayers, setStatus, startGame } from './gameSlice';
 
 enum StepIndex {
   Player1 = 0,

@@ -14,7 +14,7 @@ import Drawer from '@mui/material/Drawer';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router-dom';
 import { useNavigationLinks } from '../app/routing';
-import { Locale } from '../intl';
+import { Locale } from '../app/intl';
 import { useAppLanguageMenuItems } from './useAppLanguageMenuItems';
 import { useAppMenuItems } from './useAppMenuItems';
 

@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { store } from './app/store';
 import AppLayout from './AppLayout';
-import { createAppTheme } from './material';
+import { createAppTheme } from './app/material';
 import reportWebVitals from './reportWebVitals';
 import './index.scss';
 

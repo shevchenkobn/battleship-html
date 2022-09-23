@@ -1,6 +1,6 @@
 import { PrimitiveType } from 'intl-messageformat';
-import { defaultProjectName } from './app/constants';
-import { ComputerPlayerType, PlayerKind } from './models/player';
+import { defaultProjectName } from './constants';
+import { ComputerPlayerType, PlayerKind } from '../models/player';
 
 export enum Locale {
   English = 'en',
@@ -53,6 +53,7 @@ export enum MessageId {
   RotateClockwiseAction = 'action.rotateClockwise',
   RotateCounterClockwiseAction = 'action.rotateCounterClockwise',
   RemoveAction = 'action.remove',
+  ShowMyBoardAction = 'action.showMyBoard',
 
   ViewingStatus = 'status.viewing',
   EditingStatus = 'status.editing',
@@ -154,6 +155,7 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.RotateClockwiseAction]: 'Rotate Clockwise',
         [MessageId.RotateCounterClockwiseAction]: 'Rotate Counter-Clockwise',
         [MessageId.RemoveAction]: 'Remove',
+        [MessageId.ShowMyBoardAction]: 'Show My Board',
 
         [MessageId.ViewingStatus]: 'Viewing',
         [MessageId.EditingStatus]: 'Editing',
@@ -210,6 +212,7 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.RotateClockwiseAction]: 'Повернути за годинниковою стрілкою',
         [MessageId.RotateCounterClockwiseAction]: 'Повернути проти годинникової стрілки',
         [MessageId.RemoveAction]: 'Прибрати',
+        [MessageId.ShowMyBoardAction]: 'Показати мою дошку',
 
         [MessageId.ViewingStatus]: 'Перегляд',
         [MessageId.EditingStatus]: 'Редагування',

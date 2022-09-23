@@ -2,7 +2,7 @@ import { SvgIcon } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useMatch } from 'react-router-dom';
 import { PlayerPage } from '../features/players/PlayerPage';
-import { MessageId } from '../intl';
+import { MessageId } from './intl';
 import { DeepReadonly } from './types';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 

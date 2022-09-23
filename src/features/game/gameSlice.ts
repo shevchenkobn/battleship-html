@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash-es';
 import { StoreSliceName } from '../../app/constants';
 import { RootState } from '../../app/store';
 import { assert, DeepReadonly, Point } from '../../app/types';
-import { MessageId } from '../../intl';
+import { MessageId } from '../../app/intl';
 import {
   Board,
   cloneShip,

@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { MessageId } from '../../intl';
+import { MessageId } from '../../app/intl';
 import LockIcon from '@mui/icons-material/Lock';
 
 export interface PasswordDialogProps {

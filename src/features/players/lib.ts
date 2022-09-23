@@ -6,7 +6,7 @@ import {
   MessageParameterName,
   MessagePrimitiveValues,
   MessageWithValues,
-} from '../../intl';
+} from '../../app/intl';
 import { PlayerIndex, PlayerKind } from '../../models/player';
 
 export function getIntlPlayerName(index: number): MessageWithValues {

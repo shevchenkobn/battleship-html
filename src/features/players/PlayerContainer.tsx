@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { MessageWithValues } from '../../intl';
+import { MessageWithValues } from '../../app/intl';
 import { Player, PlayerKind } from '../../models/player';
 import { PlayerProps } from './lib';
 import { selectPlayers, updatePlayer } from './playersSlice';

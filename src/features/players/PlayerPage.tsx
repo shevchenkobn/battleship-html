@@ -4,7 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch } from '../../app/hooks';
 import { routes } from '../../app/routing';
-import { MessageId, MessageWithValues } from '../../intl';
+import { MessageId, MessageWithValues } from '../../app/intl';
 import { isValidPlayerIndex, parsePlayerIndex } from '../../models/player';
 import { setTitle } from '../meta/metaSlice';
 import { getIntlPlayerName } from './lib';

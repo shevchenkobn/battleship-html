@@ -163,7 +163,7 @@ The files, not mentioned above, are used for build and development process.
 
 The project uses 2 state machines:
 - Game page state machine for changing the rendered component depending on state of the game: 'Starting', 'Configuring', 'Playing', 'Finished';
-- Game configuration state machine for putting the ships on the board. The states are 'Adding Ship', 'Adjusting Ship', 'Idle';
+- Game configuration state machine for putting the ships on the board. The states are main states 'Adding Ship', 'Adjusting Ship', 'Idle' and auxiliary (for updating the Redux store) 'Added Ship', 'Replaced Ship', 'Removed Ship';
 
 ### Code Style
 
@@ -196,7 +196,8 @@ The models and partially the Redux store and components are implemented to simpl
 ### Technical Debt Control
 - All known issues, implementation and tests flaws are documented either as comments in the code or as notes and TODOs in this file;
 - FIXMEs in code comments stand for issues, which have a known solution, that wasn't used due different reasons explained there;
-- TODOs in this [README.md](./README.md) file stand for issues, which might have or have not a solution right now and could be revisited in the future.
+- TODOs in this [README.md](./README.md) file stand for issues, which might have or have not a solution right now and could be revisited in the future;
+- Debug comments, which are safe to remove, are marked using DBG.
 
 ### Notes
 
