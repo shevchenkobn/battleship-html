@@ -189,10 +189,12 @@ _Container_ and _View_ components might not have a suffix in their name, but the
 
 **The project intentionally overengineered** and violates KISS principle to enable possible game rule variations. I would avoid certain complicated solutions used in this project in other projects, because it would make maintaining real projects more complicated.
 
-The models and partially the Redux store and components are implemented to simplify:
+The models, views and the Redux store are implemented to simplify:
 - enabling use of non-rectangular boards or boards with islands;
 - adding not straight (e.g. non-linear) or non-rectangular ships;
 - easily enabling players to continue shooting until a miss (a variation popular in Ukraine) i.e. if player hits a ship, they can continue shooting until the first miss.
+
+According to initial analysis, the only things that need to be updated is [tryPushFromEdges()](./src/models/game.ts#L107).
 
 ### Technical Debt Control
 - All known issues, implementation and tests flaws are documented either as comments in the code or as notes and TODOs in this file;

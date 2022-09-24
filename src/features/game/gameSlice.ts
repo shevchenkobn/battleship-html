@@ -1,26 +1,32 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { cloneDeep } from 'lodash-es';
 import { StoreSliceName } from '../../app/constants';
-import { RootState } from '../../app/store';
-import { assert, DeepReadonly, Point } from '../../app/types';
 import { MessageId } from '../../app/intl';
+import { RootState } from '../../app/store';
+import { arePointsEqual, assert, DeepReadonly, Point } from '../../app/types';
 import {
   Board,
+  BoardCell,
+  BoardCellStatus,
   cloneShip,
   createBoard,
   createShip,
   Direction,
   GameStatus,
+  HitBoardCell,
   Ship,
   ShipType,
+  TurnHistory,
 } from '../../models/game';
-import { PlayerIndex } from '../../models/player';
+import { getOtherPlayerIndex, PlayerIndex } from '../../models/player';
+
+const hitsPerBonusPoint = 5;
 
 export interface PlayerState {
   board: Board;
   ships: Ship[];
   enemyBoard: Board;
-  enemyShipSunkCount: number;
+  enemySunkShips: Ship[];
   score: number;
 }
 
@@ -73,7 +79,7 @@ function createPlayerState(): PlayerState {
     board: createBoard(),
     ships: [],
     enemyBoard: createBoard(),
-    enemyShipSunkCount: 0,
+    enemySunkShips: [],
     score: 0,
   };
 }
@@ -81,7 +87,7 @@ function createPlayerState(): PlayerState {
 export interface GameSlice {
   status: GameStatus;
   currentPlayer: PlayerIndex;
-  // history: TurnHistory;
+  history: TurnHistory;
   /**
    * Game state for each player.
    */
@@ -92,7 +98,7 @@ export interface GameSlice {
 const initialState: GameSlice = {
   status: GameStatus.Starting,
   currentPlayer: 0,
-  // history: [],
+  history: [],
   players: [createPlayerState(), createPlayerState()],
   lastShipId: 0,
 };
@@ -141,6 +147,7 @@ const gameSlice = createSlice({
       );
       // TODO: add asserts for types.
       state.status = GameStatus.Playing;
+      state.currentPlayer = 0;
     },
 
     addShip(state, action: PayloadAction<AddShipActionPayload>) {
@@ -170,10 +177,96 @@ const gameSlice = createSlice({
       );
       state.players[playerIndex].ships = ships;
     },
+
+    shoot(state, action: PayloadAction<DeepReadonly<Point>>) {
+      assertStatus(state, GameStatus.Playing);
+
+      const p = action.payload;
+      const index = state.currentPlayer;
+      const player = state.players[state.currentPlayer];
+      const enemyIndex = getOtherPlayerIndex(state.currentPlayer);
+      const enemyPlayer = state.players[enemyIndex];
+      const shotCell = player.enemyBoard[p.x][p.y];
+
+      switch (shotCell.status) {
+        case BoardCellStatus.Hit:
+        case BoardCellStatus.NoShip: {
+          throw new Error(
+            `Cell ${JSON.stringify(p)} is already hit by player ${state.currentPlayer}!`
+          );
+        }
+        case BoardCellStatus.Untouched: {
+          shotCell.status = BoardCellStatus.NoShip;
+          for (const ship of enemyPlayer.ships) {
+            if (ship.shipCells.some((c) => arePointsEqual(c, p))) {
+              const hitCell = shotCell as BoardCell as HitBoardCell;
+              hitCell.status = BoardCellStatus.Hit;
+              hitCell.shipId = ship.shipId;
+              break;
+            }
+          }
+          break;
+        }
+      }
+
+      const cell = shotCell as BoardCell;
+      if (cell.status === BoardCellStatus.Hit) {
+        const ship = enemyPlayer.ships.find((s) => s.shipId === cell.shipId);
+        if (!ship) {
+          throw new TypeError(`Unknown ship id#${cell.shipId} was shot by player ${index}.`);
+        }
+        let isShipSunk = true;
+        for (const c of ship.shipCells) {
+          if (player.enemyBoard[c.x][c.y].status !== BoardCellStatus.Hit) {
+            isShipSunk = false;
+            break;
+          }
+        }
+        if (isShipSunk) {
+          player.score += ship.shipCells.length;
+          player.enemySunkShips.push(ship);
+        }
+
+        let comboCount = 0;
+        for (let i = state.history.length - 1; i >= 0; i -= 1) {
+          const shots = state.history[i].cells[index];
+          for (let j = shots.length - 1; j >= 0; j -= 1) {
+            const shot = shots[j];
+            if (player.enemyBoard[shot.x][shot.y].status === BoardCellStatus.Hit) {
+              comboCount += 1;
+            } else {
+              break;
+            }
+          }
+        }
+        player.score += Math.trunc(comboCount / hitsPerBonusPoint) + 1;
+      }
+
+      state.history[state.history.length - 1].cells[index].push(p);
+
+      if (player.enemySunkShips.length === enemyPlayer.ships.length) {
+        state.status = GameStatus.Finished;
+      } else if (cell.status === BoardCellStatus.NoShip) {
+        this.finishPlayerTurn(state);
+      }
+    },
+    finishPlayerTurn(state) {
+      assertStatus(state, GameStatus.Playing);
+      const nextIndex = getOtherPlayerIndex(state.currentPlayer);
+      assert(
+        state.history[state.history.length - 1].cells[state.currentPlayer].length > 0,
+        `No hits for player ${state.currentPlayer} on turn ${state.history.length - 1}`
+      );
+      if (nextIndex === 0) {
+        state.history.push({ cells: [[], []] });
+      }
+      state.currentPlayer = nextIndex;
+    },
   },
 });
 
-export const { setStatus, startGame, addShip, replaceShip, removeShip } = gameSlice.actions;
+export const { setStatus, startGame, addShip, replaceShip, removeShip, shoot, finishPlayerTurn } =
+  gameSlice.actions;
 
 export default gameSlice.reducer;
 

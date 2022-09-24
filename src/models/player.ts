@@ -35,6 +35,10 @@ export function parsePlayerIndex(index: any) {
   return Number.parseInt(index);
 }
 
+export function getOtherPlayerIndex(index: PlayerIndex) {
+  return index === 0 ? 1 : 0;
+}
+
 export function hasPassword(player: DeepReadonly<Player>): player is HumanPlayer {
   return player.kind === PlayerKind.Human && player.password !== '';
 }

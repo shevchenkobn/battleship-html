@@ -44,10 +44,17 @@ export enum BoardCellStatus {
   NoShip = 'no-ship',
 }
 
-export interface BoardCell {
-  shipId: number | null;
-  status: BoardCellStatus;
+export interface HitBoardCell {
+  shipId: number;
+  status: BoardCellStatus.Hit;
 }
+
+export interface NotHitBoardCell {
+  shipId: null;
+  status: Exclude<BoardCellStatus, BoardCellStatus.Hit>;
+}
+
+export type BoardCell = HitBoardCell | NotHitBoardCell;
 
 export function createBoardCell(): BoardCell {
   return {

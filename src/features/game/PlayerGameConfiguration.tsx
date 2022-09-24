@@ -37,7 +37,7 @@ import {
 import { CellStyle } from './CellGrid';
 import { useGameColors, useShipMap, useShipTypeMap } from './hooks';
 import { getShipTypeCountMap } from './lib';
-import { PlayerGame } from './PlayerGame';
+import { PlayerGameView } from './PlayerGameView';
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 
@@ -579,7 +579,7 @@ const Component = (props: PlayerGameConfigurationProps) => {
     [shipState]
   );
   return (
-    <PlayerGame
+    <PlayerGameView
       boardSize={boardSize}
       shipTypes={shipTypes}
       boardCommonCellStyle={boardCommonCellStyle}
