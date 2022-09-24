@@ -1,4 +1,5 @@
 import Decimal from 'decimal.js';
+import { iterate } from 'iterare';
 import { ReadonlyDate } from 'readonly-date';
 import { GuardedMap, ReadonlyGuardedMap } from './map';
 
@@ -151,6 +152,10 @@ export interface Point {
   y: number;
 }
 
+export function arePointsEqual(point1: DeepReadonly<Point>, point2: DeepReadonly<Point>) {
+  return point1.x === point2.x && point1.y === point2.y;
+}
+
 export function encodePoint(point: DeepReadonly<Point>) {
   return point.x + ',' + point.y;
 }
@@ -180,4 +185,22 @@ export function assert(condition: boolean, errorMessage = 'Assertion failed!') {
   if (!condition) {
     throw new TypeError(errorMessage);
   }
+}
+export function arraysUnorderedEqual<T>(
+  array1: ReadonlyArray<T>,
+  array2: ReadonlyArray<T>,
+  elementEqual: (arr1Elem: T, arr2Elem: T) => boolean = (a, b) => a === b
+) {
+  const foundIndexes = new Set<number>();
+  return (
+    array1.length === array2.length &&
+    iterate(array1).every((el1) => {
+      const index = array2.findIndex((el2, i) => !foundIndexes.has(i) && elementEqual(el1, el2));
+      if (index < 0) {
+        return false;
+      }
+      foundIndexes.add(index);
+      return true;
+    })
+  );
 }

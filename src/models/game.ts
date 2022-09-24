@@ -3,6 +3,8 @@ import { cloneDeep } from 'lodash-es';
 import { GuardedMap } from '../app/map';
 import {
   addPoint,
+  arePointsEqual,
+  arraysUnorderedEqual,
   assert,
   decodePoint,
   DeepReadonly,
@@ -54,6 +56,10 @@ export function createBoardCell(): BoardCell {
   };
 }
 
+export function areBoardCellsEqual(cell1: DeepReadonly<BoardCell>, cell2: DeepReadonly<BoardCell>) {
+  return cell1.shipId === cell2.shipId && cell1.status === cell2.status;
+}
+
 export const defaultBoardSize: DeepReadonly<Point> = { x: 10, y: 10 };
 
 /**
@@ -73,6 +79,17 @@ export function createBoard(size = defaultBoardSize): Board {
         .fill(null)
         .map(() => createBoardCell())
     );
+}
+
+export function areBoardsEqual(board1: DeepReadonly<Board>, board2: DeepReadonly<Board>) {
+  let boardsEqual = false;
+  for (let x = 0; x < board1.length; x += 1) {
+    boardsEqual ||= board1[x].every((cell, y) => areBoardCellsEqual(board1[x][y], board2[x][y]));
+    if (!boardsEqual) {
+      break;
+    }
+  }
+  return boardsEqual;
 }
 
 export enum Direction {
@@ -234,6 +251,17 @@ export interface ShipType {
   shipCount: number;
 }
 
+export function areShipTypesEqual(type1: DeepReadonly<ShipType>, type2: DeepReadonly<ShipType>) {
+  const offsets1 = iterate(type1.cellOffsets1).map(encodePoint).toSet();
+  const offsets2 = iterate(type2.cellOffsets1).map(encodePoint).toSet();
+  return (
+    type1.shipTypeId === type2.shipTypeId &&
+    type1.name === type2.name &&
+    iterate(offsets1).every((p) => offsets2.has(p)) &&
+    type1.shipCount === type2.shipCount
+  );
+}
+
 export function applyOffset(
   offset: DeepReadonly<Point>,
   points: DeepReadonly<Point[]>,
@@ -293,6 +321,16 @@ export function createShip(
     direction,
     shipCells: [],
   };
+}
+
+export function areShipsEqual(ship1: DeepReadonly<Ship>, ship2: DeepReadonly<Ship>) {
+  return (
+    ship1.shipId === ship2.shipId &&
+    ship1.status === ship2.status &&
+    ship1.shipTypeId === ship2.shipTypeId &&
+    ship1.direction === ship2.direction &&
+    arraysUnorderedEqual(ship1.shipCells, ship2.shipCells, arePointsEqual)
+  );
 }
 
 export function cloneShip(ship: DeepReadonly<Ship>): Ship {

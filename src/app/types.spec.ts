@@ -1,6 +1,17 @@
 import { normalizeMinus0 } from '../test-lib/lib';
-import { addPoint, decodePoint, encodePoint, invertPoint, subtractPoint } from './types';
+import {
+  addPoint,
+  arraysUnorderedEqual,
+  decodePoint,
+  encodePoint,
+  invertPoint,
+  subtractPoint,
+} from './types';
 
+/**
+ * Not tested:
+ * - {@link arePointsEqual}: TODO:
+ */
 describe('Point', () => {
   it('function ' + invertPoint.name, () => {
     expect(normalizeMinus0(invertPoint({ x: 0, y: 0 }))).toEqual({ x: 0, y: 0 });
@@ -40,5 +51,81 @@ describe('Point', () => {
     expect(subtractPoint({ x: 3, y: 4 }, { x: 2, y: -1 })).toEqual({ x: 1, y: 5 });
     expect(subtractPoint({ x: -3, y: -4 }, { x: 2, y: -1 })).toEqual({ x: -5, y: -3 });
     expect(subtractPoint({ x: 3, y: 4 }, { x: -2, y: -1 })).toEqual({ x: 5, y: 5 });
+  });
+});
+
+describe('util functions', () => {
+  it('function ' + arraysUnorderedEqual.name, () => {
+    expect(arraysUnorderedEqual([], [])).toEqual(true);
+    expect(arraysUnorderedEqual<any>([], [], (a, b) => a.v === b.v)).toEqual(true);
+
+    expect(arraysUnorderedEqual([1], [1, 2])).toEqual(false);
+    expect(arraysUnorderedEqual([1, 2, 3, 4], [1, 2, 3, 4])).toEqual(true);
+    expect(arraysUnorderedEqual([1, 2, 3, 4], [4, 1, 2, 3])).toEqual(true);
+    expect(arraysUnorderedEqual([1, 5, 3, 4], [4, 1, 2, 3])).toEqual(false);
+    expect(arraysUnorderedEqual([1, 1, 1, 3], [3, 3, 3, 1])).toEqual(false);
+    expect(arraysUnorderedEqual([1, 6, 7, 3], [3, 3, 3, 1])).toEqual(false);
+    expect(arraysUnorderedEqual([1, 3, 3, 4], [4, 1, 2, 3])).toEqual(false);
+    expect(arraysUnorderedEqual([false, true, false], [true, false, false])).toEqual(true);
+    expect(arraysUnorderedEqual([false, false, false], [false, false, false])).toEqual(true);
+    expect(
+      arraysUnorderedEqual(
+        [undefined, undefined, undefined, undefined],
+        [undefined, undefined, undefined, undefined]
+      )
+    ).toEqual(true);
+    expect(
+      arraysUnorderedEqual([undefined, null, null, undefined], [null, undefined, undefined, null])
+    ).toEqual(true);
+
+    expect(
+      arraysUnorderedEqual(
+        [{ v: 42 }, { v: 'asdf' }, { v: false }],
+        [{ v: 42 }, { v: 'asdf' }, { v: false }],
+        (a, b) => a.v === b.v
+      )
+    ).toEqual(true);
+    expect(
+      arraysUnorderedEqual(
+        [{ v: false }, { v: 'asdf' }, { v: 42 }, { v: null }],
+        [{ v: 42 }, { v: 'asdf' }, { v: null }, { v: false }],
+        (a, b) => a.v === b.v
+      )
+    ).toEqual(true);
+    expect(
+      arraysUnorderedEqual(
+        [{ v: false }, { v: 'asdf' }, { v: 42 }],
+        [{ v: 42 }, { v: 'asdf' }],
+        (a, b) => a.v === b.v
+      )
+    ).toEqual(false);
+    expect(
+      arraysUnorderedEqual(
+        [{ v: false }, { v: 42 }],
+        [{ v: 42 }, { v: 'asdf' }, { v: false }],
+        (a, b) => a.v === b.v
+      )
+    ).toEqual(false);
+    expect(
+      arraysUnorderedEqual(
+        [{ v: false }, { v: 'nought' }, { v: 42 }, { v: null }],
+        [{ v: 42 }, { v: 'asdf' }, { v: null }, { v: false }],
+        (a, b) => a.v === b.v
+      )
+    ).toEqual(false);
+    expect(
+      arraysUnorderedEqual(
+        [{ v: 42 }, { v: 'asdf' }, { v: 42 }, { v: 42 }],
+        [{ v: 'asdf' }, { v: 42 }, { v: 'asdf' }, { v: 'asdf' }],
+        (a, b) => a.v === b.v
+      )
+    ).toEqual(false);
+    expect(
+      arraysUnorderedEqual(
+        [{ v: 42 }, { v: 'asdf' }, { v: 42 }, { v: 42 }],
+        [{ v: 'asdf' }, { v: 42 }, { v: 'asdf' }, { v: false }],
+        (a, b) => a.v === b.v
+      )
+    ).toEqual(false);
   });
 });

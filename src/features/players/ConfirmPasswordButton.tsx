@@ -50,8 +50,10 @@ export function ConfirmPasswordButton({
           correctPassword={playerPassword}
           open={showDialog}
           onPasswordSubmit={(confirmed) => {
-            onPasswordConfirmAttempt(confirmed);
-            closeDialog();
+            if (confirmed) {
+              onPasswordConfirmAttempt(confirmed);
+              closeDialog();
+            }
           }}
           onAbortByClose={closeDialog}
         />

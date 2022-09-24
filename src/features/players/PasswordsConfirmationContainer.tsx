@@ -71,7 +71,6 @@ export function PasswordsConfirmationContainer() {
                         : 'inherit'
                     }
                     type="submit"
-                    // disabled={passwordsConfirmed[index] && !passwordsInvalid[index]}
                     aria-label="password confirm"
                     onClick={(event) => {
                       if (player.kind !== PlayerKind.Human) {

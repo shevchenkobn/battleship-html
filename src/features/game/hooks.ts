@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { TypographyProps, useMediaQuery, useTheme } from '@mui/material';
 import { amber } from '@mui/material/colors';
 import { Breakpoint } from '@mui/system/createTheme/createBreakpoints';

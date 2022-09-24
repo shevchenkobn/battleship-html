@@ -6,10 +6,21 @@ import { cloneDeep } from 'lodash-es';
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { normalizeToLimit } from '../../app/lib';
-import { assert, assertUnreachable, DeepReadonly, encodePoint, Point, t } from '../../app/types';
+import {
+  arraysUnorderedEqual,
+  assert,
+  assertUnreachable,
+  DeepReadonly,
+  encodePoint,
+  Point,
+  t,
+} from '../../app/types';
 import { MessageId } from '../../app/intl';
 import {
   applyOffset,
+  areBoardsEqual,
+  areShipsEqual,
+  areShipTypesEqual,
   Board,
   cloneShip,
   defaultDirection,
@@ -175,15 +186,32 @@ const cellHoverableStyle: CellStyle = {
   cursor: 'pointer',
 };
 
-export function PlayerGameConfiguration({
-  id,
-  board,
-  shipTypes,
-  ships,
-  onShipAdd,
-  onShipReplace,
-  onShipRemove,
-}: PlayerGameConfigurationProps) {
+(window as any).states = new Set();
+
+function arePropsEqual(
+  lastProps: DeepReadonly<PlayerGameConfigurationProps>,
+  props: DeepReadonly<PlayerGameConfigurationProps>
+) {
+  return (
+    lastProps.id === props.id &&
+    areBoardsEqual(lastProps.board, props.board) &&
+    arraysUnorderedEqual(lastProps.shipTypes, props.shipTypes, areShipTypesEqual) &&
+    arraysUnorderedEqual(lastProps.ships, props.ships, areShipsEqual) &&
+    lastProps.onShipAdd === props.onShipAdd &&
+    lastProps.onShipReplace === props.onShipReplace &&
+    lastProps.onShipRemove === props.onShipRemove
+  );
+}
+
+export function PlayerGameConfiguration(props: PlayerGameConfigurationProps) {
+  const { id, board, shipTypes, ships, onShipAdd, onShipReplace, onShipRemove } = props;
+
+  const [_lastProps, _setLastProps] = useState(props);
+  const propsChanged = !arePropsEqual(_lastProps, props);
+  if (propsChanged) {
+    _setLastProps(props);
+  }
+
   const boardSize = useMemo(() => getBoardSize(board), [board]);
 
   const shipMap = useShipMap(ships);
@@ -263,6 +291,14 @@ export function PlayerGameConfiguration({
   );
   const reducer = useCallback(
     (state: ShipState, action: ShipStateAction): ShipState => {
+      /**
+       * It is required because useReducer can be called more than once: https://github.com/facebook/react/issues/16295
+       * My reducer is pure, but since it has an external side effect - callback from props.
+       * So, pure reducer and side effect, which depends on this reducer causes infinite rendering: https://reactjs.org/docs/error-decoder.html/?invariant=185
+       */
+      if (propsChanged) {
+        return createIdleState();
+      }
       switch (action.type) {
         case ShipStateActionType.SelectShipForAdding: {
           if (
@@ -450,7 +486,7 @@ export function PlayerGameConfiguration({
       }
       assertUnreachable();
     },
-    [getShipPosition, recalculateOccupiedCells, shipCountByType, shipMap, shipTypeMap]
+    [getShipPosition, propsChanged, recalculateOccupiedCells, shipCountByType, shipMap, shipTypeMap]
   );
   const [shipState, dispatch] = useReducer(reducer, createIdleState());
   useEffect(() => {
@@ -459,6 +495,7 @@ export function PlayerGameConfiguration({
       isKind(shipState, ShipStateKind.Replaced) ||
       isKind(shipState, ShipStateKind.Removed)
     ) {
+      (window as any).states.add(shipState);
       switch (shipState.kind) {
         case ShipStateKind.Added: {
           onShipAdd(

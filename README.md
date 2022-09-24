@@ -116,7 +116,8 @@ Runs `npm run lint` and `npm run test -- --watchAll=false` in parallel.
 
 The hook is run on all files rather than git-staged files only ([`lint-staged`](https://www.npmjs.com/package/lint-staged) is not used) because:
 - the project is small, so the hook doesn't take much time;
-- it is more reliable.
+- it is more reliable;
+- `lint-staged` can abuse `git stash` by adding tens of entries.
 
 ### `npm run prepare`
 
@@ -149,7 +150,7 @@ The project groups entities (e.g. interfaces, classes, functions) into files by 
 
 The project uses a **feature-based** project structure:
 - [/src/features/*](./src/features) - features of the app. Each feature contains a Redux Toolkit slice and several components of this feature. Component files might contain non-exported (private) components. It can also contain other helpers files;
-- [/src/app](./src/app) - place for final Redux store initializing, global utilities and helpers;
+- [/src/app](./src/app) - place for final Redux store initializing, styles, localisation, global utilities and helpers;
 - [/src/models](./src/models) - interfaces and files to work with them. The files are grouped semantically (i.e. everything related to the feature in one place), not one entity (e.g. interface, class, function, enum) per one file;
 - [/src/app](./src/svg) - non-Material SVG loaders;
 - [/src/app](./src/test-lib) - place to store utilities for testing;
@@ -195,9 +196,10 @@ The models and partially the Redux store and components are implemented to simpl
 
 ### Technical Debt Control
 - All known issues, implementation and tests flaws are documented either as comments in the code or as notes and TODOs in this file;
-- FIXMEs in code comments stand for issues, which have a known solution, that wasn't used due different reasons explained there;
+- FIXMEs in code comments stand for issues, which have a known solution, that wasn't used due different reasons explained in the comment. It has a higher priority than TODOs;
 - TODOs in this [README.md](./README.md) file stand for issues, which might have or have not a solution right now and could be revisited in the future;
-- Debug comments, which are safe to remove, are marked using DBG.
+- Remove all unneeded logs (e.g. `console.log`);
+- Most of the comments must be removed. Making sure that during debug you mark all comments with `dbg`, so that it is easier and safe to remove, even if it wasn't removed initially. Other comments might contain alternative implementation.
 
 ### Notes
 

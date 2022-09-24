@@ -29,10 +29,10 @@ export const shipTypes: DeepReadonly<ShipType[]> = [
     shipTypeId: 0,
     name: MessageId.ShipNameCarrier,
     cellOffsets1: [
+      { x: -1, y: 0 },
+      { x: -2, y: 0 },
       { x: 1, y: 0 },
       { x: 2, y: 0 },
-      { x: 3, y: 0 },
-      { x: 4, y: 0 },
     ],
     shipCount: 1,
   },
@@ -40,9 +40,9 @@ export const shipTypes: DeepReadonly<ShipType[]> = [
     shipTypeId: 0,
     name: MessageId.ShipNameBattleship,
     cellOffsets1: [
+      { x: -1, y: 0 },
       { x: 1, y: 0 },
       { x: 2, y: 0 },
-      { x: 3, y: 0 },
     ],
     shipCount: 1,
   },
@@ -50,8 +50,8 @@ export const shipTypes: DeepReadonly<ShipType[]> = [
     shipTypeId: 0,
     name: MessageId.ShipNameCruiser,
     cellOffsets1: [
+      { x: -1, y: 0 },
       { x: 1, y: 0 },
-      { x: 2, y: 0 },
     ],
     shipCount: 2,
   },
