@@ -33,7 +33,7 @@ export class MacrotaskSingleton {
   private callback: Nullable<() => void> = null;
   private timeout = -1;
 
-  setCallback(callback: () => void) {
+  scheduleRun(callback: () => void) {
     if (!this.callback) {
       this.timeout = window.setTimeout(() => {
         if (!this.callback) {

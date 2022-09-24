@@ -16,6 +16,7 @@ import {
   t,
 } from '../../app/types';
 import { MessageId } from '../../app/intl';
+import { withRerenderErrorBoundary } from '../../components/withRerenderErrorBoundary';
 import {
   applyOffset,
   areBoardsEqual,
@@ -203,7 +204,7 @@ function arePropsEqual(
   );
 }
 
-export function PlayerGameConfiguration(props: PlayerGameConfigurationProps) {
+const Component = (props: PlayerGameConfigurationProps) => {
   const { id, board, shipTypes, ships, onShipAdd, onShipReplace, onShipRemove } = props;
 
   const [_lastProps, _setLastProps] = useState(props);
@@ -710,7 +711,12 @@ export function PlayerGameConfiguration(props: PlayerGameConfigurationProps) {
       }}
     />
   );
-}
+};
+/**
+ * Catches errors "Maximum update depth exceeded." and "Minified React error #185" thanks to React on mobile for no good reason 🤔
+ * @type {React.ComponentClass<PlayerGameConfigurationProps> | React.FunctionComponent<PlayerGameConfigurationProps>}
+ */
+export const PlayerGameConfiguration = withRerenderErrorBoundary(Component);
 
 function getCellStyle(color: string, baseStyle: CellStyle = {}): CellStyle {
   return {
