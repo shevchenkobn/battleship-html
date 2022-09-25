@@ -4,6 +4,7 @@ export enum StoreSliceName {
   Players = 'players',
   Meta = 'meta',
   Game = 'game',
+  Scoreboard = 'scoreboard',
 }
 
 export const defaultProjectName = 'BattleShip';
@@ -20,3 +21,11 @@ export const primaryColor = blue;
  * See comment for {@link primaryColor}.
  */
 export const secondaryColor = purple;
+
+export enum LocalStorageKeys {
+  /**
+   * The key is obscure, because all HTML files opened by `file:///` protocol (from local file system) share same {@link window.localStorage}.
+   * @type {LocalStorageKeys.Scoreboard}
+   */
+  Scoreboard = '__1664102005390.battleship.scoreboard',
+}

@@ -138,6 +138,12 @@ const gameSlice = createSlice({
         throw new TypeError('Use a separate action for starting a game!');
       }
       state.status = action.payload;
+      if (state.status === GameStatus.Starting) {
+        state.currentPlayer = 0;
+        state.history = [];
+        state.players = [createPlayerState(), createPlayerState()];
+        state.lastShipId = 0;
+      }
     },
     startGame(state) {
       assertStatus(state, GameStatus.Configuring);
@@ -209,6 +215,8 @@ const gameSlice = createSlice({
         }
       }
 
+      state.history[state.history.length - 1].cells[index].push(p);
+
       const cell = shotCell as BoardCell;
       if (cell.status === BoardCellStatus.Hit) {
         const ship = enemyPlayer.ships.find((s) => s.shipId === cell.shipId);
@@ -223,8 +231,8 @@ const gameSlice = createSlice({
           }
         }
         if (isShipSunk) {
-          player.score += ship.shipCells.length;
           player.enemySunkShips.push(ship);
+          player.score += ship.shipCells.length;
         }
 
         let comboCount = 0;
@@ -241,8 +249,6 @@ const gameSlice = createSlice({
         }
         player.score += Math.trunc(comboCount / hitsPerBonusPoint) + 1;
       }
-
-      state.history[state.history.length - 1].cells[index].push(p);
 
       if (player.enemySunkShips.length === enemyPlayer.ships.length) {
         state.status = GameStatus.Finished;

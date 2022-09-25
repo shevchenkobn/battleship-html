@@ -157,7 +157,7 @@ export function AppHeader({ isDrawerOpen, onDrawerOpenToggle, onLanguageSelect }
 
             <IconButton
               size="small"
-              aria-label="account of current user"
+              aria-label="accounts of players"
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleMenu}
