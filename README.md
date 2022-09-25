@@ -48,6 +48,10 @@ To improve the player experience during the game, each player can set an optiona
 
 The password allows to minimise the probability of enemy seeing the ship arrangement.
 
+### Multiple Games
+
+It is possible to start multiple games on different tabs and all of them will share the scoreboard (using `localStorage`).
+
 ## Available Scripts
 
 In the project directory, you can run:
@@ -159,6 +163,10 @@ The project uses a **feature-based** project structure:
 - [/public/*](./public) - HTML template to be used during building the project and static files to be included by the HTML template directly.
 
 The files, not mentioned above, are used for build and development process.
+
+### Models
+
+The models used in the project are not entirely normalised to achieve the optimal trade-off between one source of truth and quick access of the required data.
 
 ### State Machines
 

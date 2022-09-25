@@ -249,20 +249,21 @@ const gameSlice = createSlice({
         }
         player.score += Math.trunc(comboCount / hitsPerBonusPoint) + 1;
       }
-
-      if (player.enemySunkShips.length === enemyPlayer.ships.length) {
-        state.status = GameStatus.Finished;
-      } else if (cell.status === BoardCellStatus.NoShip) {
-        this.finishPlayerTurn(state);
-      }
     },
     finishPlayerTurn(state) {
       assertStatus(state, GameStatus.Playing);
-      const nextIndex = getOtherPlayerIndex(state.currentPlayer);
       assert(
         state.history[state.history.length - 1].cells[state.currentPlayer].length > 0,
         `No hits for player ${state.currentPlayer} on turn ${state.history.length - 1}`
       );
+      const nextIndex = getOtherPlayerIndex(state.currentPlayer);
+      if (
+        state.players[state.currentPlayer].enemySunkShips.length ===
+        state.players[nextIndex].ships.length
+      ) {
+        state.status = GameStatus.Finished;
+        return;
+      }
       if (nextIndex === 0) {
         state.history.push({ cells: [[], []] });
       }

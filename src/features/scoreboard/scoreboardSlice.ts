@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { LocalStorageKeys, StoreSliceName } from '../../app/constants';
 import { GuardedMap } from '../../app/map';
-import { as, DeepReadonly, t } from '../../app/types';
-import { PlayerIndex } from '../../models/player';
+import { as, DeepReadonly } from '../../app/types';
+import { Player, PlayerIndex, PlayerKind } from '../../models/player';
 
 export interface ScoreboardEntry {
   playerName: string;
@@ -41,7 +41,7 @@ const initialState: ScoreboardSlice = {
 };
 
 export interface PlayerScore {
-  name: string;
+  player: Player;
   scores: number;
 }
 
@@ -58,25 +58,8 @@ const scoreboardSlice = createSlice({
       reconcileWithSavedStore(state);
       const result = action.payload;
 
-      const updated = t(false, false);
-      entries: for (const entry of state.list) {
-        for (let i = 0; i < updated.length; i += 1) {
-          if (updated[i]) {
-            continue;
-          }
-          if (result.players[i].name === entry.playerName) {
-            if (i === result.winner) {
-              entry.gamesWon += 1;
-            } else {
-              entry.gamesLost += 1;
-            }
-            entry.totalScore += result.players[i].scores;
-            updated[i] = true;
-            if (updated.every((v) => v)) {
-              break entries;
-            }
-          }
-        }
+      for (let i = 0; i < result.players.length; i += 1) {
+        trySavePlayerResult(result.players[i], i === result.winner, state.list);
       }
 
       saveScoreboard(state);
@@ -93,6 +76,36 @@ const scoreboardSlice = createSlice({
 export const { addGameResult, clearScoreboard } = scoreboardSlice.actions;
 
 export default scoreboardSlice.reducer;
+
+function trySavePlayerResult(score: PlayerScore, isWinner: boolean, list: ScoreboardEntry[]) {
+  if (score.player.kind === PlayerKind.Computer) {
+    return null;
+  }
+  let updated = false;
+  for (const entry of list) {
+    if (score.player.name === entry.playerName) {
+      if (isWinner) {
+        entry.gamesWon += 1;
+      } else {
+        entry.gamesLost += 1;
+      }
+      entry.totalScore += score.scores;
+      updated = true;
+      break;
+    }
+  }
+  if (!updated) {
+    const entry = {
+      playerName: score.player.name,
+      gamesWon: 0,
+      gamesLost: 0,
+      totalScore: score.scores,
+    };
+    entry[isWinner ? 'gamesWon' : 'gamesLost'] = 1;
+    list.push(entry);
+    return entry;
+  }
+}
 
 /**
  * There is a more robust solution - [redux-persist](https://www.npmjs.com/package/redux-persist), but for better control I use own solution.
