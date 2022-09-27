@@ -18,7 +18,7 @@ export function GameStartPage() {
     <Stack alignItems="center" justifyContent="center" spacing={1}>
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 1, sm: 2, md: 4 }}>
         <PlayerName player={players[0]} index={0} />
-        <Typography variant="h3" sx={{ lineHeight: 'inherit' }}>
+        <Typography align="center" variant="h3" sx={{ lineHeight: 'inherit' }}>
           vs
         </Typography>
         <PlayerName player={players[1]} index={1} />

@@ -31,7 +31,7 @@ export function PlayerGameView({
 }: PlayerGameViewProps) {
   const cellSizePx = useCellSizePx();
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={{ xs: 1, sm: 2 }}>
       <Grid item lg={6} md={7} xs={12}>
         <CellGrid
           {...boardStyle}

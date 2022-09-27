@@ -75,7 +75,7 @@ export function useGameColors(): GameColors {
       emptyHit: theme.palette.warning.light,
       shipHit: theme.palette.error.light,
       surroundingShipWater: amber[100],
-      hoveredLines: secondaryColor.A400,
+      hoveredLines: secondaryColor[100],
     }),
     [theme]
   );

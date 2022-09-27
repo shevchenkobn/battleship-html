@@ -150,8 +150,8 @@ function Cell({ cellSize, empty, interaction, style }: CellProps) {
     <Paper
       variant="outlined"
       sx={{
-        ...sx,
         borderColor: 'grey.700',
+        ...sx,
         ...(interaction && interaction.hoverStyle),
       }}
       onMouseEnter={

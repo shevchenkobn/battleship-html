@@ -1,0 +1,9 @@
+.GameTurn {
+  &-header {
+    margin-bottom: 0.8rem;
+
+    & > *:not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
+  }
+}

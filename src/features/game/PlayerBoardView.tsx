@@ -12,7 +12,7 @@ import {
   ShipType,
   TurnHistory,
 } from '../../models/game';
-import { PlayerIndex } from '../../models/player';
+import { getOtherPlayerIndex, PlayerIndex } from '../../models/player';
 import { CellStyle } from './CellGrid';
 import { useGameColors } from './hooks';
 import { getCellStyle, getShipTypeCountMap } from './lib';
@@ -20,7 +20,9 @@ import { PlayerGameView } from './PlayerGameView';
 
 export interface PlayerBoardViewProps {
   ships: Ship[];
+  sunkShips: Ship[];
   board: Board;
+  enemyBoard: Board;
   shipTypes: ShipType[];
   turnHistory: TurnHistory;
   playerIndex: PlayerIndex;
@@ -28,6 +30,7 @@ export interface PlayerBoardViewProps {
 
 export function PlayerBoardView({
   ships,
+  sunkShips,
   board,
   shipTypes,
   turnHistory,
@@ -35,18 +38,12 @@ export function PlayerBoardView({
 }: DeepReadonly<PlayerBoardViewProps>) {
   const shipCountByType = useMemo(() => {
     const countMap = getShipTypeCountMap(shipTypes);
-    for (const ship of ships) {
+    for (const ship of sunkShips) {
       countMap[ship.shipTypeId] -= 1;
     }
     return countMap;
-  }, [shipTypes, ships]);
+  }, [shipTypes, sunkShips]);
 
-  const [
-    /**
-     * A set of surrounding cells.
-     */ surroundingSunkShipCells,
-    setSurroundingSunkShipCells,
-  ] = useState(new Set<string>());
   const [
     /**
      * A set of ship cells.
@@ -56,7 +53,6 @@ export function PlayerBoardView({
   const recalculateTouchedCells = useCallback(
     (excludeShipId?: number) => {
       const shipCells = new Set<string>();
-      const surroundingCells = new Set<string>();
       for (const ship of ships) {
         if (ship.shipId === excludeShipId) {
           continue;
@@ -64,13 +60,7 @@ export function PlayerBoardView({
         for (const cell of iterate(ship.shipCells).map(encodePoint)) {
           shipCells.add(cell);
         }
-        for (const cell of iterate(getSurroundingCells(ship.shipCells, defaultBoardSize)).map(
-          encodePoint
-        )) {
-          surroundingCells.add(cell);
-        }
       }
-      setSurroundingSunkShipCells(surroundingCells);
       setShipCells(shipCells);
     },
     [ships]
@@ -81,12 +71,12 @@ export function PlayerBoardView({
 
   const colors = useGameColors();
   const cellStyles = useMemo(() => {
-    const cellStyles: Map<string, CellStyle> = iterate(surroundingSunkShipCells)
-      .map((c) => t(c, getCellStyle(colors.surroundingShipWater)))
-      .concat(iterate(shipCells).map((c) => t(c, getCellStyle(colors.boardShip))))
+    const cellStyles: Map<string, CellStyle> = iterate(shipCells)
+      .map((c) => t(c, getCellStyle(colors.boardShip)))
       .toMap();
+    const enemyIndex = getOtherPlayerIndex(playerIndex);
     for (const p of iterate(turnHistory)
-      .map((t) => t.cells[playerIndex])
+      .map((t) => t.cells[enemyIndex])
       .flatten()) {
       const style = getStyleRef(cellStyles, p);
       switch (board[p.x][p.y].status) {
@@ -107,11 +97,9 @@ export function PlayerBoardView({
     colors.boardShip,
     colors.emptyHit,
     colors.shipHit,
-    colors.surroundingShipWater,
     board,
     playerIndex,
     shipCells,
-    surroundingSunkShipCells,
     turnHistory,
   ]);
   return (
