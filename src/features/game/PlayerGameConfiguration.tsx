@@ -36,7 +36,7 @@ import {
 } from '../../models/game';
 import { CellStyle } from './CellGrid';
 import { useGameColors, useShipMap, useShipTypeMap } from './hooks';
-import { getShipTypeCountMap } from './lib';
+import { getCellStyle, getShipTypeCountMap } from './lib';
 import { PlayerGameView } from './PlayerGameView';
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
@@ -717,10 +717,3 @@ const Component = (props: PlayerGameConfigurationProps) => {
  * @type {React.ComponentClass<PlayerGameConfigurationProps> | React.FunctionComponent<PlayerGameConfigurationProps>}
  */
 export const PlayerGameConfiguration = withRerenderErrorBoundary(Component);
-
-function getCellStyle(color: string, baseStyle: CellStyle = {}): CellStyle {
-  return {
-    ...baseStyle,
-    backgroundColor: color,
-  };
-}

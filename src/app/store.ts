@@ -2,6 +2,7 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import metaReducer from '../features/meta/metaSlice';
 import playersReducer from '../features/players/playersSlice';
 import gameReducer from '../features/game/gameSlice';
+import scoreboardReducer from '../features/scoreboard/scoreboardSlice';
 import { StoreSliceName } from './constants';
 
 export const store = configureStore({
@@ -9,6 +10,7 @@ export const store = configureStore({
     [StoreSliceName.Meta]: metaReducer,
     [StoreSliceName.Players]: playersReducer,
     [StoreSliceName.Game]: gameReducer,
+    [StoreSliceName.Scoreboard]: scoreboardReducer,
   },
 });
 

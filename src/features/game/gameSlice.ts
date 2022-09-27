@@ -153,6 +153,7 @@ const gameSlice = createSlice({
       );
       // TODO: add asserts for types.
       state.status = GameStatus.Playing;
+      state.history.push({ cells: [[], []] });
       state.currentPlayer = 0;
     },
 
@@ -279,6 +280,9 @@ export default gameSlice.reducer;
 
 export const selectGameStatus = (state: RootState) => state.game.status;
 export const selectGamePlayers = (state: RootState) => state.game.players;
+export const selectCurrentPlayer = (state: RootState) => state.game.currentPlayer;
+export const selectTurnHistory = (state: RootState) => state.game.history;
+
 export function hasShipsInstalled(gamePlayer: DeepReadonly<PlayerState>) {
   return gamePlayer.ships.length === shipCountForPlayer;
 }

@@ -54,10 +54,7 @@ const metaSlice = createSlice({
   initialState,
   reducers: {
     setTitle(state, action: PayloadAction<MessageWithValues | string>) {
-      if (
-        (state.titleLocalized && typeof action.payload === 'string') ||
-        (!state.titleLocalized && typeof action.payload !== 'string')
-      ) {
+      if (!state.titleLocalized && typeof action.payload !== 'string') {
         throw new TypeError(
           'Unexpected title format: string for unlocalized or message with values.'
         );
