@@ -10,6 +10,7 @@ import { GuardedMap } from '../../app/map';
 import { DeepReadonly, DeepReadonlyGuardedMap, t } from '../../app/types';
 import { GameStatus, Ship, ShipType } from '../../models/game';
 import { GameConfigurationPage, getGameConfigurationSubRoutes } from './GameConfigurationPage';
+import { GameFinishedPage } from './GameFinishedPage';
 import { GamePlayPage } from './GamePlayPage';
 import { selectGameStatus } from './gameSlice';
 import { GameStartPage } from './GameStartPage';
@@ -48,6 +49,7 @@ export function useGamePage() {
           [GameStatus.Starting, () => [GameStartPage, () => []]],
           [GameStatus.Configuring, () => [GameConfigurationPage, getGameConfigurationSubRoutes]],
           [GameStatus.Playing, () => [GamePlayPage, () => []]],
+          [GameStatus.Finished, () => [GameFinishedPage, () => []]],
         ],
         noWhenDefault
       ),
@@ -99,9 +101,9 @@ export function useShipMap(
   );
 }
 
-export function useShipTypeCount(shipTypes: DeepReadonly<ShipType[]>): Record<number, number> {
-  return useMemo(
-    () => Object.fromEntries(iterate(shipTypes).map((type) => t(type.shipTypeId, type.shipCount))),
-    [shipTypes]
-  );
+export function useAssertGameStatus(status: GameStatus) {
+  const gameStatus = useAppSelector(selectGameStatus);
+  if (gameStatus !== status) {
+    throw new TypeError(`Unexpected non-playing game status - ${gameStatus}, expected ${status}`);
+  }
 }

@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { MessageId } from '../../app/intl';
 import { defaultBoardSize, GameStatus } from '../../models/game';
 import { selectPlayers } from '../players/playersSlice';
-import { setStatus, shipTypes } from './gameSlice';
+import { setGameStatus, shipTypes } from './gameSlice';
 import { PlayerGameView } from './PlayerGameView';
 import { PlayerName } from './PlayerName';
 
@@ -27,7 +27,7 @@ export function GameStartPage() {
         size="large"
         color="secondary"
         variant="contained"
-        onClick={() => dispatch(setStatus(GameStatus.Configuring))}
+        onClick={() => dispatch(setGameStatus(GameStatus.Configuring))}
       >
         <FormattedMessage id={MessageId.PlayAction} />
       </Button>

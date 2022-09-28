@@ -27,12 +27,13 @@ import { DeepReadonly } from '../../app/types';
 import { AlertDialog } from '../../components/AlertDialog';
 import { MessageId, MessageParameterName, MessageWithValues } from '../../app/intl';
 import { GameStatus } from '../../models/game';
-import { parsePlayerIndex } from '../../models/player';
+import { parsePlayerIndex, PlayerKind } from '../../models/player';
 import { setTitle } from '../meta/metaSlice';
 import { PasswordsConfirmationContainer } from '../players/PasswordsConfirmationContainer';
-import { selectPasswordsConfirmed } from '../players/playersSlice';
+import { confirmPasswords, selectPasswordsConfirmed, selectPlayers } from '../players/playersSlice';
+import { useAssertGameStatus } from './hooks';
 import { PlayerGameConfigurationPageFragment } from './PlayerGameConfigurationPageFragment';
-import { hasShipsInstalled, selectGamePlayers, setStatus, startGame } from './gameSlice';
+import { hasShipsInstalled, selectGamePlayers, setGameStatus, startGame } from './gameSlice';
 
 enum StepIndex {
   Player1 = 0,
@@ -68,7 +69,13 @@ export function GameConfigurationPage() {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(setTitle({ id: MessageId.ConfigurationTitle }));
+    return () => {
+      dispatch(confirmPasswords(false));
+      setNamesSameDialogOpen(false);
+    };
   }, [dispatch]);
+
+  useAssertGameStatus(GameStatus.Configuring);
 
   const passwordsConfirmed = useAppSelector(selectPasswordsConfirmed);
   const gamePlayers = useAppSelector(selectGamePlayers);
@@ -111,17 +118,31 @@ export function GameConfigurationPage() {
 
   const [showConfigurationResetDialog, setShowConfigurationResetDialog] = useState(false);
   const handleConfigurationReset = () => {
-    dispatch(setStatus(GameStatus.Starting));
+    dispatch(setGameStatus(GameStatus.Starting));
     navigate(routes.game.path, { replace: true });
+  };
+
+  const players = useAppSelector(selectPlayers);
+  const arePlayerNamesSame =
+    (players[0].kind !== PlayerKind.Human && players[1].kind !== PlayerKind.Human) ||
+    (players[0].kind === PlayerKind.Human &&
+      players[1].kind === PlayerKind.Human &&
+      players[0].name === players[1].name);
+  const [namesSameDialogOpen, setNamesSameDialogOpen] = useState(false);
+
+  const handleStartGame = () => {
+    dispatch(startGame());
   };
 
   const matchesXs = useMediaQuery<Theme>((theme) => theme.breakpoints.down('sm'));
   const startGameProps =
     activeStep === StepIndex.Confirmation && completedSteps[StepIndex.Confirmation]
       ? {
-          onClick() {
-            dispatch(startGame());
-          },
+          onClick: arePlayerNamesSame
+            ? () => {
+                setNamesSameDialogOpen(true);
+              }
+            : handleStartGame,
         }
       : {
           component: Link,
@@ -237,6 +258,21 @@ export function GameConfigurationPage() {
             setShowConfigurationResetDialog(false);
           }}
           open={showConfigurationResetDialog}
+        />
+      )}
+      {arePlayerNamesSame && namesSameDialogOpen && (
+        <AlertDialog
+          title={<FormattedMessage id={MessageId.ContinueSameNameQuestion} />}
+          text={<FormattedMessage id={MessageId.ContinueSameNameDescriptionQuestion} />}
+          confirmText={<FormattedMessage id={MessageId.YesAction} />}
+          cancelText={<FormattedMessage id={MessageId.NoAction} />}
+          onCloseAttempt={(yes) => {
+            if (yes) {
+              handleStartGame();
+            }
+            setNamesSameDialogOpen(false);
+          }}
+          open={namesSameDialogOpen}
         />
       )}
     </>

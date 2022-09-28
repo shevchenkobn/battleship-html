@@ -42,7 +42,7 @@ const initialState: ScoreboardSlice = {
 
 export interface PlayerScore {
   player: Player;
-  scores: number;
+  score: number;
 }
 
 export interface AddGameResultActionPayload {
@@ -89,7 +89,7 @@ function trySavePlayerResult(score: PlayerScore, isWinner: boolean, list: Scoreb
       } else {
         entry.gamesLost += 1;
       }
-      entry.totalScore += score.scores;
+      entry.totalScore += score.score;
       updated = true;
       break;
     }
@@ -99,7 +99,7 @@ function trySavePlayerResult(score: PlayerScore, isWinner: boolean, list: Scoreb
       playerName: score.player.name,
       gamesWon: 0,
       gamesLost: 0,
-      totalScore: score.scores,
+      totalScore: score.score,
     };
     entry[isWinner ? 'gamesWon' : 'gamesLost'] = 1;
     list.push(entry);

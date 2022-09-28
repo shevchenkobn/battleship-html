@@ -223,13 +223,18 @@ According to initial analysis, the only things that need to be updated is [tryPu
 - This project didn't need a custom React context, but React Contexts can be used to share state between components or other global features such as authentication;
 
 ## TODO
-- scoreboard (localstorage);
-- simple AI (no probabilistic heuristics to shoot an unknown cell);
 - Fix "center" ship list column rendering in @media sm - md.
 - Fix vertical alignment of "vs" and "Play" button for different length of player names (the names must flex-grow, but they don't :'( ).
 - Fix "Unknown child route" on change to configuration page.
 
 ## Improvements:
+- AI: simple (named 'Chaotic') and heuristic ('Lawful'). Heuristic AI selects next turn based on gathered statistics and most likely places of ships. It requires:
+  - implement AI as a "pure" class (deterministic by parameters, memoises last turns, like `useMemo`);
+  - update passwords confirmation;
+  - prohibit editing player type during the game (add a flag to `players` store slice);
+  - update [GamePlayPage](./src/features/game/GamePlayPage.tsx#L41) to use `isShooting = false`, automatically mark the computer shot and disable "Show own board";
+  - use tooltip over AI names to explain if it is random or heuristic.
+- Create scoreboard for AI;
 - Add game timer;
 - Add game turn history;
 - Add localised letter-number coordinates to the board;

@@ -15,10 +15,12 @@ export enum MessageId {
   UnrevertableWarning = 'players.reset.text',
 
   ConfigurationTitle = 'title.configuration',
+  ScoreboardTitle = 'title.scoreboard',
   PasswordsConfirmationTitle = 'title.passwordsConfirmation',
-  SunkTitle = 'title.sunk',
-  OwnBoardTitle = 'title.board',
   ConfigurationResetAlert = 'alert.configuration.reset',
+
+  ContinueSameNameQuestion = 'title.warn.sameName',
+  ContinueSameNameDescriptionQuestion = 'title.sub.warn.sameName',
 
   PlayerHumanKind = 'player.kind.human',
   PlayerComputerKind = 'player.kind.computer',
@@ -53,6 +55,7 @@ export enum MessageId {
   BackAction = 'action.back',
   NextAction = 'action.next',
   StartGameAction = 'action.startGame',
+  NewGameAction = 'action.newGame',
   FinishTurnAction = 'action.finishTurn',
   RotateClockwiseAction = 'action.rotateClockwise',
   RotateCounterClockwiseAction = 'action.rotateCounterClockwise',
@@ -64,6 +67,12 @@ export enum MessageId {
 
   Score = 'game.score',
   Turn = 'game.turn',
+  SunkTitle = 'game.sunk',
+  OwnBoardTitle = 'game.board',
+  GameWinner = 'game.winner',
+  GameWins = 'game.wins',
+  GameLoser = 'game.loser',
+  GameDefeats = 'game.defeats',
   ShipNameCarrier = 'game.ship.carrier',
   ShipNameBattleship = 'game.ship.battleship',
   ShipNameCruiser = 'game.ship.cruiser',
@@ -121,10 +130,14 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.UnrevertableWarning]: 'This action cannot be reverted!',
 
         [MessageId.ConfigurationTitle]: 'Configuration',
+        [MessageId.ScoreboardTitle]: 'Scoreboard',
         [MessageId.PasswordsConfirmationTitle]: 'Passwords Confirmation',
-        [MessageId.SunkTitle]: 'Sunk',
-        [MessageId.OwnBoardTitle]: 'Own Board',
         [MessageId.ConfigurationResetAlert]: 'Are you sure you want to reset game configuration?',
+
+        [MessageId.ContinueSameNameQuestion]:
+          'Do you want to start game with same name for both players?',
+        [MessageId.ContinueSameNameDescriptionQuestion]:
+          'Both player will have their score saved under the same name in the scoreboard.',
 
         [MessageId.PlayerHumanKind]: 'Human',
         [MessageId.PlayerComputerKind]: 'Computer',
@@ -161,6 +174,7 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.BackAction]: 'Back',
         [MessageId.NextAction]: 'Next',
         [MessageId.StartGameAction]: 'Start Game!',
+        [MessageId.NewGameAction]: 'Start New Game',
         [MessageId.FinishTurnAction]: 'Finish Turn',
         [MessageId.RotateClockwiseAction]: 'Rotate Clockwise',
         [MessageId.RotateCounterClockwiseAction]: 'Rotate Counter-Clockwise',
@@ -172,6 +186,12 @@ export function getIntlMessages(locale: Locale): Messages {
 
         [MessageId.Score]: 'Score',
         [MessageId.Turn]: 'Turn',
+        [MessageId.SunkTitle]: 'Sunk',
+        [MessageId.OwnBoardTitle]: 'Own Board',
+        [MessageId.GameWinner]: 'Winner',
+        [MessageId.GameWins]: 'Wins',
+        [MessageId.GameLoser]: 'Loser',
+        [MessageId.GameDefeats]: 'Defeats',
         [MessageId.ShipNameCarrier]: 'Carrier',
         [MessageId.ShipNameBattleship]: 'Battleship',
         [MessageId.ShipNameCruiser]: 'Cruiser',
@@ -184,10 +204,13 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.UnrevertableWarning]: 'Цю дію неможливо скасувати!',
 
         [MessageId.ConfigurationTitle]: 'Налаштування',
+        [MessageId.ScoreboardTitle]: 'Таблиця результатів',
         [MessageId.PasswordsConfirmationTitle]: 'Підтвердження паролів',
-        [MessageId.SunkTitle]: 'Потоплено',
-        [MessageId.OwnBoardTitle]: 'Власна дошка',
         [MessageId.ConfigurationResetAlert]: 'Ви впевнені, що хочете зкинути налаштування гри?',
+
+        [MessageId.ContinueSameNameQuestion]: "Продовжити з однаковим ім'ям для обох гравців?",
+        [MessageId.ContinueSameNameDescriptionQuestion]:
+          "Рахунок для обох графвців буде збережено під одним ім'ям у таблицю результатів.",
 
         [MessageId.PlayerHumanKind]: 'Людина',
         [MessageId.PlayerComputerKind]: "Комп'ютер",
@@ -224,6 +247,7 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.BackAction]: 'Назад',
         [MessageId.NextAction]: 'Далі',
         [MessageId.StartGameAction]: 'Почати гру!',
+        [MessageId.NewGameAction]: 'Почати нову гру',
         [MessageId.FinishTurnAction]: 'Завершити хід',
         [MessageId.RotateClockwiseAction]: 'Повернути за годинниковою стрілкою',
         [MessageId.RotateCounterClockwiseAction]: 'Повернути проти годинникової стрілки',
@@ -235,6 +259,12 @@ export function getIntlMessages(locale: Locale): Messages {
 
         [MessageId.Score]: 'Рахунок',
         [MessageId.Turn]: 'Хід',
+        [MessageId.SunkTitle]: 'Потоплено',
+        [MessageId.OwnBoardTitle]: 'Власна дошка',
+        [MessageId.GameWinner]: 'Переможець',
+        [MessageId.GameWins]: 'Перемоги',
+        [MessageId.GameLoser]: 'Програвший',
+        [MessageId.GameDefeats]: 'Поразки',
         [MessageId.ShipNameCarrier]: 'Авіаносець',
         [MessageId.ShipNameBattleship]: 'Лінкор',
         [MessageId.ShipNameCruiser]: 'Крейсер',

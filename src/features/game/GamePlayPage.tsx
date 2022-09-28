@@ -1,3 +1,4 @@
+import CloseIcon from '@mui/icons-material/Close';
 import { Button, Dialog, Slide, Stack } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Container from '@mui/material/Container';
@@ -19,14 +20,13 @@ import {
   finishPlayerTurn,
   selectCurrentPlayer,
   selectGamePlayers,
-  selectGameStatus,
   selectTurnHistory,
   shipTypes,
   shoot,
 } from './gameSlice';
 import { GameTurn } from './GameTurn';
+import { useAssertGameStatus } from './hooks';
 import { PlayerBoardView } from './PlayerBoardView';
-import CloseIcon from '@mui/icons-material/Close';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -44,10 +44,7 @@ export function GamePlayPage() {
     dispatch(setTitle(''));
   }, [dispatch]);
 
-  const gameStatus = useAppSelector(selectGameStatus);
-  if (gameStatus !== GameStatus.Playing) {
-    throw new TypeError('Unexpected non-playing game status - ' + gameStatus);
-  }
+  useAssertGameStatus(GameStatus.Playing);
   const index = useAppSelector(selectCurrentPlayer);
   const gamePlayers = useAppSelector(selectGamePlayers);
   const gamePlayer = gamePlayers[index];

@@ -126,7 +126,7 @@ const gameSlice = createSlice({
   name: StoreSliceName.Game,
   initialState,
   reducers: {
-    setStatus(
+    setGameStatus(
       state,
       action: PayloadAction<Exclude<GameStatus, GameStatus.Finished | GameStatus.Playing>>
     ) {
@@ -271,8 +271,15 @@ const gameSlice = createSlice({
   },
 });
 
-export const { setStatus, startGame, addShip, replaceShip, removeShip, shoot, finishPlayerTurn } =
-  gameSlice.actions;
+export const {
+  setGameStatus,
+  startGame,
+  addShip,
+  replaceShip,
+  removeShip,
+  shoot,
+  finishPlayerTurn,
+} = gameSlice.actions;
 
 export default gameSlice.reducer;
 
