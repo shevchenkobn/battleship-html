@@ -1,10 +1,11 @@
 import { Button, Stack } from '@mui/material';
 import Typography from '@mui/material/Typography';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { MessageId } from '../../app/intl';
 import { defaultBoardSize, GameStatus } from '../../models/game';
+import { setTitle } from '../meta/metaSlice';
 import { selectPlayers } from '../players/playersSlice';
 import { setGameStatus, shipTypes } from './gameSlice';
 import { PlayerGameView } from './PlayerGameView';
@@ -13,6 +14,10 @@ import { PlayerName } from './PlayerName';
 export function GameStartPage() {
   const players = useAppSelector(selectPlayers);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setTitle(''));
+  }, [dispatch]);
 
   return (
     <Stack alignItems="center" justifyContent="center" spacing={1}>

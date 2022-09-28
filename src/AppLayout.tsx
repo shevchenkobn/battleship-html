@@ -13,6 +13,7 @@ import { LocalizeTitle } from './features/meta/LocalizeTitle';
 import { selectAppLocale, setLocale } from './features/meta/metaSlice';
 import { getSupportedSystemLocale, getIntlMessages, Locale } from './app/intl';
 import './AppLayout.scss';
+import { UpdateScoreboard } from './features/scoreboard/UpdateScoreboard';
 
 function AppLayout() {
   const locale = useAppSelector(selectAppLocale);
@@ -36,6 +37,7 @@ function AppLayout() {
     <IntlProvider locale={locale} messages={messages}>
       <PreventRefresh />
       <LocalizeTitle />
+      <UpdateScoreboard />
       <Box className="App">
         <DocumentTitle />
         <AppHeader

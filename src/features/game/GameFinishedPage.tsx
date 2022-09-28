@@ -8,9 +8,9 @@ import { MessageId } from '../../app/intl';
 import { routes } from '../../app/routing';
 import { GameStatus } from '../../models/game';
 import { getOtherPlayerIndex } from '../../models/player';
+import { setTitle } from '../meta/metaSlice';
 import { selectPlayers } from '../players/playersSlice';
-import { addGameResult, AddGameResultActionPayload } from '../scoreboard/scoreboardSlice';
-import { selectCurrentPlayer, selectGamePlayers, setGameStatus } from './gameSlice';
+import { selectCurrentPlayer, setGameStatus } from './gameSlice';
 import { useAssertGameStatus, useTypographyVariant } from './hooks';
 import { PlayerName } from './PlayerName';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -21,20 +21,11 @@ export function GameFinishedPage() {
   const index = useAppSelector(selectCurrentPlayer);
   const enemyIndex = getOtherPlayerIndex(index);
   const players = useAppSelector(selectPlayers);
-  const gamePlayers = useAppSelector(selectGamePlayers);
 
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(
-      addGameResult({
-        winner: index,
-        players: gamePlayers.map((g, i) => ({
-          player: players[i],
-          score: g.score,
-        })) as AddGameResultActionPayload['players'],
-      })
-    );
-  }, [dispatch, gamePlayers, index, players]);
+    dispatch(setTitle(''));
+  }, [dispatch]);
 
   const typographyVariant = useTypographyVariant();
 

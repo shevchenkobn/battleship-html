@@ -83,6 +83,7 @@ function createPlayerState(): PlayerState {
 }
 
 export interface GameSlice {
+  gameId: number;
   status: GameStatus;
   currentPlayer: PlayerIndex;
   history: TurnHistory;
@@ -94,6 +95,7 @@ export interface GameSlice {
 }
 
 const initialState: GameSlice = {
+  gameId: 0,
   status: GameStatus.Starting,
   currentPlayer: 0,
   history: [],
@@ -137,6 +139,7 @@ const gameSlice = createSlice({
       }
       state.status = action.payload;
       if (state.status === GameStatus.Starting) {
+        state.gameId += 1;
         state.currentPlayer = 0;
         state.history = [];
         state.players = [createPlayerState(), createPlayerState()];
@@ -284,6 +287,7 @@ export const {
 export default gameSlice.reducer;
 
 export const selectGameStatus = (state: RootState) => state.game.status;
+export const selectGameId = (state: RootState) => state.game.gameId;
 export const selectGamePlayers = (state: RootState) => state.game.players;
 export const selectCurrentPlayer = (state: RootState) => state.game.currentPlayer;
 export const selectTurnHistory = (state: RootState) => state.game.history;
