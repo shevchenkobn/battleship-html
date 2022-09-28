@@ -14,6 +14,7 @@ import {
   t,
 } from '../app/types';
 import { MessageId } from '../app/intl';
+import { PlayerIndex } from './player';
 
 export enum GameStatus {
   Starting = 'starting',
@@ -33,6 +34,27 @@ export interface Turn {
  * Turn history sorted in ascending order.
  */
 export type TurnHistory = Turn[];
+
+export interface PlayerTurn {
+  /**
+   * Cell shots during turn in ascending order.
+   */
+  cells: Point[];
+}
+
+/**
+ * Turn history sorted in ascending order.
+ */
+export type PlayerTurnHistory = PlayerTurn[];
+
+export function getPlayerTurns<H extends DeepReadonly<TurnHistory>>(
+  turnHistory: H,
+  index: PlayerIndex
+) {
+  return iterate(turnHistory)
+    .map((t) => ({ cells: t.cells[index] }))
+    .toArray();
+}
 
 export enum BoardCellStatus {
   Untouched = 'untouched',

@@ -4,7 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { MessageId } from '../../app/intl';
-import { parsePlayerIndex } from '../../models/player';
+import { getOtherPlayerIndex, parsePlayerIndex } from '../../models/player';
 import { ConfirmPasswordButton } from '../players/ConfirmPasswordButton';
 import { gameRoutes } from './GameConfigurationPage';
 import { addShip, removeShip, replaceShip, selectGamePlayers, shipTypes } from './gameSlice';
@@ -13,7 +13,8 @@ import { PlayerGameConfiguration, PlayerGameConfigurationProps } from './PlayerG
 export function PlayerGameConfigurationPageFragment() {
   const params = useParams();
   const index = parsePlayerIndex(params[gameRoutes.player.parameterName]);
-  const player = useAppSelector(selectGamePlayers)[index];
+  const players = useAppSelector(selectGamePlayers);
+  const player = players[index];
   if (!player) {
     throw new TypeError('Invalid player indexes should have be handled by the page component!');
   }
@@ -41,10 +42,12 @@ export function PlayerGameConfigurationPageFragment() {
     [dispatch, index]
   );
 
+  const enemyIndex = getOtherPlayerIndex(index);
+
   return lastIndex === index && unlocked ? (
     <PlayerGameConfiguration
       id={index}
-      board={player.board}
+      board={players[enemyIndex].enemyBoard}
       ships={player.ships}
       shipTypes={shipTypes}
       onShipAdd={handleShipAdd}

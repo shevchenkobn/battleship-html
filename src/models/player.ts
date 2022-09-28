@@ -32,7 +32,7 @@ export function isValidPlayerIndex(index: unknown): index is PlayerIndex {
 }
 
 export function parsePlayerIndex(index: any) {
-  return Number.parseInt(index);
+  return Number.parseInt(index) as PlayerIndex;
 }
 
 export function getOtherPlayerIndex(index: PlayerIndex) {

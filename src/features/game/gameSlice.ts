@@ -23,7 +23,6 @@ import { getOtherPlayerIndex, PlayerIndex } from '../../models/player';
 const hitsPerBonusPoint = 5;
 
 export interface PlayerState {
-  board: Board;
   ships: Ship[];
   enemyBoard: Board;
   enemySunkShips: Ship[];
@@ -76,7 +75,6 @@ export const shipCountForPlayer = shipTypes.reduce((sum, p) => sum + p.shipCount
 
 function createPlayerState(): PlayerState {
   return {
-    board: createBoard(),
     ships: [],
     enemyBoard: createBoard(),
     enemySunkShips: [],

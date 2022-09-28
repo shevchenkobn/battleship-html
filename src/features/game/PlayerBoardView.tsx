@@ -1,18 +1,16 @@
 import { Theme } from '@mui/material';
 import { SystemCssProperties } from '@mui/system/styleFunctionSx/styleFunctionSx';
 import { iterate } from 'iterare';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { DeepReadonly, encodePoint, Point, t } from '../../app/types';
 import {
   Board,
   BoardCellStatus,
   defaultBoardSize,
-  getSurroundingCells,
+  PlayerTurnHistory,
   Ship,
   ShipType,
-  TurnHistory,
 } from '../../models/game';
-import { getOtherPlayerIndex, PlayerIndex } from '../../models/player';
 import { CellStyle } from './CellGrid';
 import { useGameColors } from './hooks';
 import { getCellStyle, getShipTypeCountMap } from './lib';
@@ -22,10 +20,8 @@ export interface PlayerBoardViewProps {
   ships: Ship[];
   sunkShips: Ship[];
   board: Board;
-  enemyBoard: Board;
   shipTypes: ShipType[];
-  turnHistory: TurnHistory;
-  playerIndex: PlayerIndex;
+  enemyTurns: PlayerTurnHistory;
 }
 
 export function PlayerBoardView({
@@ -33,8 +29,7 @@ export function PlayerBoardView({
   sunkShips,
   board,
   shipTypes,
-  turnHistory,
-  playerIndex,
+  enemyTurns,
 }: DeepReadonly<PlayerBoardViewProps>) {
   const shipCountByType = useMemo(() => {
     const countMap = getShipTypeCountMap(shipTypes);
@@ -44,39 +39,15 @@ export function PlayerBoardView({
     return countMap;
   }, [shipTypes, sunkShips]);
 
-  const [
-    /**
-     * A set of ship cells.
-     */ shipCells,
-    setShipCells,
-  ] = useState(new Set<string>());
-  const recalculateTouchedCells = useCallback(
-    (excludeShipId?: number) => {
-      const shipCells = new Set<string>();
-      for (const ship of ships) {
-        if (ship.shipId === excludeShipId) {
-          continue;
-        }
-        for (const cell of iterate(ship.shipCells).map(encodePoint)) {
-          shipCells.add(cell);
-        }
-      }
-      setShipCells(shipCells);
-    },
-    [ships]
-  );
-  useEffect(() => {
-    recalculateTouchedCells();
-  }, [recalculateTouchedCells]);
-
   const colors = useGameColors();
   const cellStyles = useMemo(() => {
-    const cellStyles: Map<string, CellStyle> = iterate(shipCells)
-      .map((c) => t(c, getCellStyle(colors.boardShip)))
+    const cellStyles: Map<string, CellStyle> = iterate(ships)
+      .map((s) => s.shipCells)
+      .flatten()
+      .map((c) => t(encodePoint(c), getCellStyle(colors.boardShip)))
       .toMap();
-    const enemyIndex = getOtherPlayerIndex(playerIndex);
-    for (const p of iterate(turnHistory)
-      .map((t) => t.cells[enemyIndex])
+    for (const p of iterate(enemyTurns)
+      .map((turn) => turn.cells)
       .flatten()) {
       const style = getStyleRef(cellStyles, p);
       switch (board[p.x][p.y].status) {
@@ -93,15 +64,7 @@ export function PlayerBoardView({
       }
     }
     return cellStyles;
-  }, [
-    colors.boardShip,
-    colors.emptyHit,
-    colors.shipHit,
-    board,
-    playerIndex,
-    shipCells,
-    turnHistory,
-  ]);
+  }, [ships, colors.boardShip, colors.emptyHit, colors.shipHit, enemyTurns, board]);
   return (
     <PlayerGameView
       boardSize={defaultBoardSize}

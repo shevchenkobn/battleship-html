@@ -9,6 +9,7 @@ import {
   Theme,
   useMediaQuery,
 } from '@mui/material';
+import Typography from '@mui/material/Typography';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import {
@@ -115,20 +116,21 @@ export function GameConfigurationPage() {
   };
 
   const matchesXs = useMediaQuery<Theme>((theme) => theme.breakpoints.down('sm'));
-  const startGameProps = completedSteps[StepIndex.Confirmation]
-    ? {
-        onClick() {
-          dispatch(startGame());
-        },
-      }
-    : {
-        component: Link,
-        to:
-          activeStep === StepIndex.Player1
-            ? gameRoutes.player.formatPath(activeStep + 1)
-            : gameRoutes.confirm.path,
-        replace: true,
-      };
+  const startGameProps =
+    activeStep === StepIndex.Confirmation && completedSteps[StepIndex.Confirmation]
+      ? {
+          onClick() {
+            dispatch(startGame());
+          },
+        }
+      : {
+          component: Link,
+          to:
+            activeStep === StepIndex.Player1
+              ? gameRoutes.player.formatPath(activeStep + 1)
+              : gameRoutes.confirm.path,
+          replace: true,
+        };
   return (
     <>
       <Stack direction="column">
@@ -149,7 +151,14 @@ export function GameConfigurationPage() {
             orientation={matchesXs ? 'vertical' : 'horizontal'}
           >
             {stepMessages.map((message, index) => {
-              const label = <FormattedMessage {...message} />;
+              const label =
+                index === activeStep ? (
+                  <Typography variant="overline">
+                    <FormattedMessage {...message} />
+                  </Typography>
+                ) : (
+                  <FormattedMessage {...message} />
+                );
               return (
                 <Step key={index} completed={completedSteps[index]}>
                   {index < StepIndex.Confirmation ? (
@@ -189,9 +198,21 @@ export function GameConfigurationPage() {
               (activeStep === StepIndex.Confirmation && !completedSteps[StepIndex.Confirmation])
             }
             {...startGameProps}
-            variant={completedSteps[StepIndex.Confirmation] ? 'contained' : 'text'}
-            color={completedSteps[StepIndex.Confirmation] ? 'secondary' : 'primary'}
-            size={completedSteps[StepIndex.Confirmation] ? 'large' : 'medium'}
+            variant={
+              activeStep === StepIndex.Confirmation && completedSteps[StepIndex.Confirmation]
+                ? 'contained'
+                : 'text'
+            }
+            color={
+              activeStep === StepIndex.Confirmation && completedSteps[StepIndex.Confirmation]
+                ? 'secondary'
+                : 'primary'
+            }
+            size={
+              activeStep === StepIndex.Confirmation && completedSteps[StepIndex.Confirmation]
+                ? 'large'
+                : 'medium'
+            }
           >
             <FormattedMessage
               id={

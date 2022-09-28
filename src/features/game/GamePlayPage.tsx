@@ -5,12 +5,12 @@ import IconButton from '@mui/material/IconButton';
 import Toolbar from '@mui/material/Toolbar';
 import { TransitionProps } from '@mui/material/transitions';
 import Typography from '@mui/material/Typography';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { MessageId } from '../../app/intl';
 import { assertNotMaybe } from '../../app/types';
-import { GameStatus } from '../../models/game';
+import { GameStatus, getPlayerTurns } from '../../models/game';
 import { getOtherPlayerIndex } from '../../models/player';
 import { setTitle } from '../meta/metaSlice';
 import { ConfirmPasswordButton } from '../players/ConfirmPasswordButton';
@@ -34,6 +34,7 @@ const Transition = React.forwardRef(function Transition(
   },
   ref: React.Ref<unknown>
 ) {
+  // noinspection RequiredAttributes
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
@@ -53,11 +54,19 @@ export function GamePlayPage() {
   const turnHistory = useAppSelector(selectTurnHistory);
   const players = useAppSelector(selectPlayers);
   const player = players[index];
+
   const hasShot = turnHistory[turnHistory.length - 1].cells[index].length > 0;
+  const enemyIndex = getOtherPlayerIndex(index);
 
   const [openOwnBoard, setOpenOwnBoard] = useState(false);
   useEffect(() => setOpenOwnBoard(false), [index]);
   const handleBoardDialogClose = () => setOpenOwnBoard(false);
+
+  const playerHistory = useMemo(() => getPlayerTurns(turnHistory, index), [turnHistory, index]);
+  const enemyHistory = useMemo(
+    () => getPlayerTurns(turnHistory, enemyIndex),
+    [turnHistory, enemyIndex]
+  );
 
   return (
     <>
@@ -69,7 +78,7 @@ export function GamePlayPage() {
           enemyBoard={gamePlayer.enemyBoard}
           enemySunkShips={gamePlayer.enemySunkShips}
           score={gamePlayer.score}
-          turnHistory={turnHistory}
+          playerTurns={playerHistory}
           isShooting={!hasShot}
           confirmText={
             <FormattedMessage id={hasShot ? MessageId.FinishTurnAction : MessageId.ConfirmAction} />
@@ -116,11 +125,10 @@ export function GamePlayPage() {
         <Container sx={{ pt: 2, pb: 4, overflow: 'auto' }}>
           <PlayerBoardView
             ships={gamePlayer.ships}
-            sunkShips={gamePlayers[getOtherPlayerIndex(index)].enemySunkShips}
-            board={gamePlayer.board}
+            sunkShips={gamePlayers[enemyIndex].enemySunkShips}
+            board={gamePlayers[enemyIndex].enemyBoard}
             shipTypes={shipTypes}
-            turnHistory={turnHistory}
-            playerIndex={index}
+            enemyTurns={enemyHistory}
           />
         </Container>
       </Dialog>

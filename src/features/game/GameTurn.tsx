@@ -1,33 +1,34 @@
-import { Button, Stack } from '@mui/material';
+import { Button, Stack, Theme } from '@mui/material';
 import Typography from '@mui/material/Typography';
+import { SystemCssProperties } from '@mui/system/styleFunctionSx/styleFunctionSx';
 import { iterate } from 'iterare';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { MessageId } from '../../app/intl';
-import { arePointsEqual, DeepReadonly, encodePoint, Point, t } from '../../app/types';
+import { arePointsEqual, decodePoint, DeepReadonly, encodePoint, Point, t } from '../../app/types';
 import {
   Board,
   BoardCellStatus,
   defaultBoardSize,
   getSurroundingCells,
+  PlayerTurnHistory,
   Ship,
   ShipType,
-  TurnHistory,
 } from '../../models/game';
 import { Player, PlayerIndex } from '../../models/player';
-import { CellStyle } from './CellGrid';
+import { CellStyle, getDefaultCellHoverStyle } from './CellGrid';
+import './GameTurn.scss';
 import { useGameColors, useTypographyVariant } from './hooks';
 import { getCellStyle, getStyleRef } from './lib';
 import { PlayerGameView } from './PlayerGameView';
 import { PlayerName } from './PlayerName';
-import './GameTurn.scss';
 
 export interface GameTurnProps {
   shipTypes: ShipType[];
   enemySunkShips: Ship[];
   enemyBoard: Board;
   score: number;
-  turnHistory: TurnHistory;
+  playerTurns: PlayerTurnHistory;
   player: Player;
   playerIndex: PlayerIndex;
   isShooting: boolean;
@@ -40,7 +41,7 @@ export function GameTurn({
   enemySunkShips,
   enemyBoard,
   score,
-  turnHistory,
+  playerTurns,
   player,
   playerIndex,
   isShooting,
@@ -67,50 +68,40 @@ export function GameTurn({
   }, [enemySunkShips, shipTypes]);
   const [
     /**
-     * A set of surrounding cells.
-     */ surroundingSunkShipCells,
-    setSurroundingSunkShipCells,
-  ] = useState(new Set<string>());
-  const [
-    /**
      * A set of shot cells.
      */ shotCells,
-    setShotCells,
-  ] = useState(new Set<string>());
-  const recalculateTouchedCells = useCallback(
-    (excludeShipId?: number) => {
-      const shotCells = new Set<string>();
-      const surroundingCells = new Set<string>();
-      for (const ship of enemySunkShips) {
-        if (ship.shipId === excludeShipId) {
-          continue;
-        }
-        for (const cell of iterate(ship.shipCells).map(encodePoint)) {
-          shotCells.add(cell);
-        }
-        for (const cell of iterate(getSurroundingCells(ship.shipCells, defaultBoardSize)).map(
-          encodePoint
-        )) {
-          surroundingCells.add(cell);
-        }
+    /**
+     * A set of surrounding cells.
+     */ surroundingSunkShipCells,
+  ] = useMemo(() => {
+    const shotCells = new Set<string>();
+    const surroundingCells = new Set<string>();
+    for (const ship of enemySunkShips) {
+      for (const cell of iterate(ship.shipCells).map(encodePoint)) {
+        shotCells.add(cell);
       }
-      setShotCells(shotCells);
-      setSurroundingSunkShipCells(surroundingCells);
-    },
-    [enemySunkShips]
-  );
-  useEffect(() => {
-    recalculateTouchedCells();
-  }, [recalculateTouchedCells]);
+      for (const cell of iterate(getSurroundingCells(ship.shipCells, defaultBoardSize)).map(
+        encodePoint
+      )) {
+        surroundingCells.add(cell);
+      }
+    }
+    for (const cell of iterate(playerTurns)
+      .map((turn) => turn.cells)
+      .flatten()
+      .filter((c) => enemyBoard[c.x][c.y].status !== BoardCellStatus.Untouched)
+      .map(encodePoint)) {
+      shotCells.add(cell);
+    }
+    return [shotCells, surroundingCells];
+  }, [enemyBoard, enemySunkShips, playerTurns]);
 
   const colors = useGameColors();
   const cellStyles = useMemo(() => {
     const cellStyles: Map<string, CellStyle> = iterate(surroundingSunkShipCells)
       .map((c) => t(c, getCellStyle(colors.surroundingShipWater)))
       .toMap();
-    for (const p of iterate(turnHistory)
-      .map((t) => t.cells[playerIndex])
-      .flatten()) {
+    for (const p of iterate(shotCells).map(decodePoint)) {
       const style = getStyleRef(cellStyles, p);
       switch (enemyBoard[p.x][p.y].status) {
         case BoardCellStatus.NoShip: {
@@ -119,20 +110,27 @@ export function GameTurn({
         }
         case BoardCellStatus.Hit: {
           style.backgroundColor = colors.shipHit;
-          if (isShooting) {
-            style.cursor = 'not-allowed';
-          }
           break;
         }
         default:
           throw new TypeError('State discrepancy: the cell from history was not shot!');
       }
     }
+    if (!isShooting) {
+      return cellStyles;
+    }
     if (selectedCell) {
       const style = getStyleRef(cellStyles, selectedCell);
       style.backgroundColor = colors.selectedShip;
     }
     if (hoveredCell) {
+      const key = encodePoint(hoveredCell);
+      let hoverStyle = cellStyles.get(key) as SystemCssProperties<Theme>;
+      hoverStyle = Object.assign(getDefaultCellHoverStyle(), hoverStyle);
+      cellStyles.set(key, hoverStyle);
+      if (shotCells.has(key) || surroundingSunkShipCells.has(key)) {
+        hoverStyle.cursor = 'not-allowed';
+      }
       for (let x = 0; x < defaultBoardSize.x; x += 1) {
         if (x === hoveredCell.x) {
           continue;
@@ -150,18 +148,17 @@ export function GameTurn({
     }
     return cellStyles;
   }, [
-    colors.emptyHit,
-    colors.hoveredLines,
-    colors.selectedShip,
-    colors.shipHit,
-    colors.surroundingShipWater,
-    enemyBoard,
-    hoveredCell,
-    isShooting,
-    playerIndex,
-    selectedCell,
     surroundingSunkShipCells,
-    turnHistory,
+    isShooting,
+    selectedCell,
+    hoveredCell,
+    colors.surroundingShipWater,
+    colors.emptyHit,
+    colors.shipHit,
+    colors.selectedShip,
+    colors.hoveredLines,
+    shotCells,
+    enemyBoard,
   ]);
 
   const typographyVariant = useTypographyVariant();
@@ -175,7 +172,7 @@ export function GameTurn({
       >
         <PlayerName player={player} index={playerIndex} />
         <Typography variant={typographyVariant}>
-          <FormattedMessage id={MessageId.Turn} />: {turnHistory.length}
+          <FormattedMessage id={MessageId.Turn} />: {playerTurns.length}
         </Typography>
         <Typography variant={typographyVariant}>
           <FormattedMessage id={MessageId.Score} />: {score}
@@ -206,6 +203,7 @@ export function GameTurn({
         boardInteraction={
           isShooting
             ? {
+                cellHoverStyle: {},
                 onCellHoverChange(cell: Point, isHovering: boolean) {
                   setHoveredCell(isHovering ? cell : null);
                 },
