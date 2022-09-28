@@ -9,6 +9,7 @@ export function AppRouter() {
     <>
       <Routes>
         <Route path={routes.game.path} element={<Component />} children={getSubRoutes()} />
+        <Route path={routes.scoreboard.path} element={routes.scoreboard.element} />
         <Route path={routes.player.path} element={routes.player.element} />
         <Route path="*" element={<Navigate to={routes.game.path} />} />
       </Routes>

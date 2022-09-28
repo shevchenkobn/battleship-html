@@ -2,9 +2,11 @@ import { SvgIcon } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useMatch } from 'react-router-dom';
 import { PlayerPage } from '../features/players/PlayerPage';
+import { ScoreboardPage } from '../features/scoreboard/ScoreboardPage';
 import { MessageId } from './intl';
 import { DeepReadonly } from './types';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import ScoreboardIcon from '@mui/icons-material/Scoreboard';
 
 export const routes = (() => {
   const routes = {
@@ -17,6 +19,11 @@ export const routes = (() => {
         return this.pathPrefix + '/' + index;
       },
       element: <PlayerPage />,
+    },
+    scoreboard: {
+      path: '/scoreboard',
+      label: MessageId.ScoreboardTitle,
+      element: <ScoreboardPage />,
     },
   };
   routes.player.path = routes.player.pathPrefix + '/:' + routes.player.parameterName;
@@ -32,6 +39,7 @@ export interface NavigationLink {
 
 export function useNavigationLinks(): NavigationLink[] {
   const gameRouteMatches = useMatch({ path: routes.game.path, end: false });
+  const scoreboardRouteMatches = useMatch({ path: routes.scoreboard.path, end: false });
   return useMemo(
     () => [
       {
@@ -40,7 +48,13 @@ export function useNavigationLinks(): NavigationLink[] {
         label: routes.game.label,
         Icon: SportsEsportsIcon,
       },
+      {
+        to: routes.scoreboard.path,
+        isActive: !!scoreboardRouteMatches,
+        label: routes.scoreboard.label,
+        Icon: ScoreboardIcon,
+      },
     ],
-    [gameRouteMatches]
+    [gameRouteMatches, scoreboardRouteMatches]
   );
 }

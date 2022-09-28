@@ -77,6 +77,10 @@ export enum MessageId {
   ShipNameBattleship = 'game.ship.battleship',
   ShipNameCruiser = 'game.ship.cruiser',
   ShipNameDestroyer = 'game.ship.destroyer',
+
+  ClearScoreboardAction = 'scoreboard.action.clear',
+  ClearScoreboardQuestion = 'scoreboard.question.clear',
+  EmptyScoreboard = 'scoreboard.empty',
 }
 
 export const playerKindMessageIds: Record<PlayerKind, MessageId> = {
@@ -196,6 +200,10 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.ShipNameBattleship]: 'Battleship',
         [MessageId.ShipNameCruiser]: 'Cruiser',
         [MessageId.ShipNameDestroyer]: 'Destroyer',
+
+        [MessageId.ClearScoreboardAction]: 'Clear the Scoreboard',
+        [MessageId.ClearScoreboardQuestion]: 'Clear the Scoreboard?',
+        [MessageId.EmptyScoreboard]: 'Scoreboard is empty.',
       };
     case Locale.Ukrainian:
       return {
@@ -269,6 +277,10 @@ export function getIntlMessages(locale: Locale): Messages {
         [MessageId.ShipNameBattleship]: 'Лінкор',
         [MessageId.ShipNameCruiser]: 'Крейсер',
         [MessageId.ShipNameDestroyer]: 'Есмінець',
+
+        [MessageId.ClearScoreboardAction]: 'Очистити таблицю результатів',
+        [MessageId.ClearScoreboardQuestion]: 'Очистити таблицю результатів?',
+        [MessageId.EmptyScoreboard]: 'Таблиця результатів порожня.',
       };
   }
 }

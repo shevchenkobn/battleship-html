@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { LocalStorageKeys, StoreSliceName } from '../../app/constants';
 import { GuardedMap } from '../../app/map';
+import { RootState } from '../../app/store';
 import { as, DeepReadonly } from '../../app/types';
 import { Player, PlayerIndex, PlayerKind } from '../../models/player';
 
@@ -36,9 +37,7 @@ export function isScoreboardSlice(value: unknown): value is ScoreboardSlice {
   );
 }
 
-const initialState: ScoreboardSlice = {
-  list: [],
-};
+const initialState: ScoreboardSlice = tryLoadScoreboard();
 
 export interface PlayerScore {
   player: Player;
@@ -208,3 +207,5 @@ export function compareScoreboardEntriesDesc(
     ? -1
     : 0;
 }
+
+export const selectScoreboardList = (state: RootState) => state.scoreboard.list;

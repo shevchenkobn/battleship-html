@@ -102,14 +102,18 @@ export function AppHeader({ isDrawerOpen, onDrawerOpenToggle, onLanguageSelect }
         {matchesNotXs && (
           <>
             <Box sx={{ display: 'flex', flexGrow: 1 }}>
-              {navigationLinks.map((link) => (
+              {navigationLinks.map((link, i) => (
                 <Button
                   disabled={link.isActive}
                   startIcon={<link.Icon />}
                   component={Link}
                   to={link.to}
                   key={link.to}
-                  sx={{ color: 'white', display: 'flex' }}
+                  sx={{
+                    color: 'white',
+                    display: 'flex',
+                    marginInlineStart: i === 0 ? 'inherit' : 1,
+                  }}
                 >
                   <FormattedMessage id={link.label} />
                 </Button>
