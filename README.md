@@ -24,7 +24,7 @@ Just download [/build/index.html](./build/index.html), and you can open it in an
 
 ## Technologies
 
-This project was developed with:
+This project was developed with [React](https://reactjs.org/) framework:
 - [Create React App](https://github.com/facebook/create-react-app) - for initial configuration;
 - [WebPack 5](https://webpack.js.org/concepts/) - for building the project;
 - [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) - for state management;
@@ -36,7 +36,7 @@ This project was developed with:
 
 I selected technologies with their popularity in mind to increase the future maintainability of the project.
 
-Since it is a game, it would make more sense to use a game engine, such as [Phaser](https://phaser.io/). But I used React since it is a more popular framework. I have an example of a [game using phaser](https://github.com/shevchenkobn/phaser-game).  
+Since it is a game, it would seem to make more sense to use a game engine, such as [Phaser](https://phaser.io/). But I used React since it is a more popular framework and I wouldn't need any of the advanced Phaser's features. I have an example of a [game using phaser](https://github.com/shevchenkobn/phaser-game).  
 
 ## Additional Features
 
@@ -165,7 +165,7 @@ The project uses a **feature-based** project structure:
 - [/src/app](./src/app) - the place for final Redux store initializing, styles, localisation, global utilities and helpers;
 - [/src/models](./src/models) - interfaces and files to work with them. The files are grouped semantically (i.e. everything related to the feature in one place), not one entity (e.g. interface, class, function, enum) per one file;
 - [/src/svg](./src/svg) - non-Material SVG loaders;
-- [/src/app](./src/test-lib) - place to store utilities for testing;
+- [/src/test-lib](./src/test-lib) - place to store utilities for testing;
 - [/src/components](./src/components) - shared components;
 - [/src/*.{ts,d.ts,tsx,scss}](./src) - global app configuration and app bootstrapping;
 - [/public/*](./public) - HTML template to be used during building the project and static files to be included by the HTML template directly.
@@ -247,7 +247,7 @@ According to the initial analysis, the only thing that needs to be updated to im
 - Add game timer;
 - Add game turn history visually (the data model is already there);
 - Add localised letter-number coordinates to the board (e.g. using Cyrillic for corresponding languages);
-- Make the project a PWA (Progressive Web Application) to allow installing the game to the system (e.g. 'Add to home screen' dialog on Android or creating a shortcut in Windows);
+- Make the project a PWA (Progressive Web Application) to allow installing the game to the system (e.g. "Add to home screen" dialog on Android or creating a shortcut in Windows);
 - Implement additional game rules through additional configuration options:
   - continue shooting until miss;
   - add board selection between 10x10 (named 'Skirmish') and 5x5 ('Drill') boards;
