@@ -36,7 +36,7 @@ This project was developed with [React](https://reactjs.org/) framework:
 
 I selected technologies with their popularity in mind to increase the future maintainability of the project.
 
-Since it is a game, it would seem to make more sense to use a game engine, such as [Phaser](https://phaser.io/). But I used React since it is a more popular framework and I wouldn't need any of the advanced Phaser's features. I have an example of a [game using phaser](https://github.com/shevchenkobn/phaser-game).  
+Since it is a game, it would seem to make more sense to use a game engine, such as [Phaser](https://phaser.io/). But I used React since it is a more popular framework and I wouldn't need any of the advanced Phaser's features. I have an example of a [game using Phaser](https://github.com/shevchenkobn/phaser-game).  
 
 ## Additional Features
 
@@ -145,7 +145,7 @@ The main idea behind the UI design is to make sure that the UI accurately repres
 - Trying to use dialogs as little as possible, because they block the entire screen and reduce the area for user interaction;
 - Using dialogs for showing messages, which require user attention and the user mustn't be allowed to normally continue using the app;
 - When reporting errors, make the error message as detailed as possible.
-- Trying to do your best to keep all the pages have permanent links (e.g. `/game` - game, `/game/player/{index}` - game board configuration, `/players/{index}` - players name and password configuration page).
+- Trying to do my best to keep all the pages have permanent links (e.g. `/game` - game, `/game/player/{index}` - game board configuration, `/players/{index}` - players name and password configuration page).
 - When using routing, keeping all information only as part of the path, optional query parameters. Avoiding the use of browser route `state` property since it doesn't have a representation in the URL;
 - Designing forms in such a way, that shown values always correspond to the data model. If not, it must have a way to revert the form changes. Example: when editing the player, there must be a "Cancel" button to go back to the initial state;
 - Making sure UI is adaptive and usable at all times, especially on mobile devices. The board cell size and font size gradually decrease with the screen decrease;
@@ -180,7 +180,7 @@ The models used in the project are not entirely normalised to achieve the optima
 
 The project uses 2 state machines:
 - Game page state machine for changing the rendered component depending on the state of the game: 'Starting', 'Configuring', 'Playing', 'Finished';
-- Game configuration state machine for putting the ships on the board. The states are main states 'Adding Ship', 'Adjusting Ship', 'Idle' and auxiliary (for updating the Redux store) 'Added Ship', 'Replaced Ship', 'Removed Ship';
+- Game configuration state machine for putting the ships on the board. There are main states 'Adding Ship', 'Adjusting Ship', 'Idle' and auxiliary states (for updating the Redux store) 'Added Ship', 'Replaced Ship', 'Removed Ship';
 
 ### Code Style
 
@@ -192,17 +192,17 @@ TypeScript/ESLint notes:
 
 ### Component Responsibility
 
-The React components have well-defined single responsibilities. This simplifies component reusability and testing. All component names have a corresponding suffix in their name, except for _Container_ and _View_ components, where the suffix is optional (e.g. [PlayerPage](./src/features/players/PlayerPage.tsx), [PlayerContainer](./src/features/players/PlayerContainer.tsx), [PlayerView](./src/features/players/PlayerView.tsx)):
+The React components have well-defined single responsibilities. This simplifies component reusability and testing. All component names have a corresponding suffix in their name, except for some _Container_ and _View_ components, where the suffix is optional (e.g. [PlayerPage](./src/features/players/PlayerPage.tsx), [PlayerContainer](./src/features/players/PlayerContainer.tsx), [PlayerView](./src/features/players/PlayerView.tsx)):
 - **Layout** - is an entry point to the application. It **doesn't rely on props** much. It can take initialisation data from global constants. It **can** use the Redux store. Contains _Router_, which renders _Page_ components;
 - **Page** - is rendered through React Router. It **doesn't have props** and **uses routing hooks** (e.g. `useParams`) to get its initialisation data. It **can** use the Redux store. Contains other types of components;
 - **PageFragment** - is rendered by a nested route. It **doesn't have props** and **uses routing hooks** (e.g. `useParams`) to get its initialisation data. It **can** use the Redux store. Contains other types of components, except for _Page_ and _Layout_ components;
-- **Container** - is rendered by any type of component except for _Layout_ and _View_. It uses `props` to get its initialisation data. It **can** use the Redux store. Can contain other types of components, except for _Layout_, _Page_ and _PageFragment_ components;
-- **View** - is rendered by **any** type of component. It _heavily_ uses `props` to get its initialisation data. It **cannot** use the Redux store. Can contain **only View** components;
+- **Container** - is rendered by any type of component except for _Layout_ and _View_. It **uses `props`** to get its initialisation data. It **can** use the Redux store. Can contain other types of components, except for _Layout_, _Page_ and _PageFragment_ components;
+- **View** - is rendered by **any** type of component. It **_heavily_ uses `props`** to get its initialisation data. It **cannot** use the Redux store. Can contain **only View** components;
 
 
 ### Extensibility
 
-**The project intentionally overengineered** and violates the KISS principle to enable possible game rule variations. I would avoid certain complicated solutions used in this project in other projects because it would make maintaining real projects more complicated.
+**The project intentionally overengineered** and violates the KISS principle to make the extension for the new game rules simpler. I would avoid certain complicated solutions used in this project in other projects of this size because it would make maintaining real projects more complicated.
 
 The models, views and the Redux store are implemented to simplify:
 - enabling the use of non-rectangular boards or boards with islands (island - a set of connected cells which do not allow placing a ship);
@@ -214,25 +214,25 @@ According to the initial analysis, the only thing that needs to be updated to im
 ### Technical Debt Control
 
 - All known issues, implementation and tests flaws are documented either as comments in the code or as notes and TODOs in this file;
-- FIXMEs in code comments stand for issues, which have a known solution, that weren't used due to different reasons explained in the comment. It has a higher priority than TODOs;
-- TODOs in this [README.md](./README.md#todo) file stand for issues, which might have or have not a solution right now and could be revisited in the future;
+- **FIXME**s in code comments stand for issues, which **have a known solution**, that weren't used due to different reasons explained in the comment. It has a higher priority than TODOs;
+- **TODO**s in this [README.md](./README.md#todo) file stand for issues, which **might have or have not a solution** right now and could be revisited in the future;
 - It's possible to remove all unneeded logs (e.g. `console.log`);
 - Most of the comments must be removed. Making sure that during debugging you mark all comments with `dbg`, so that it is easier and safe to remove, even if it wasn't removed initially. Other comments might contain alternative implementations;
-- Versioning in the project isn't implemented since there wasn't a direct necessity and it is not difficult to do so. 
+- Versioning in the project isn't implemented since there wasn't a direct necessity and it is not difficult to implement. In addition, if needed, the build process can be extended by additional command line arguments to allow automatic and safe version increment (major, minor or patch version components). Later, a post-commit Git hook can be added to Husky to automatically add a Git tag with the application version.
 
 ### Notes
 
 #### Packages at [package.json](./package.json)
 - Some packages are not used. They were copied from my earlier projects to showcase the libraries I would be using. All the libraries were meticulously selected;
 - Not all building process packages are up-to-date because it might break WebPack build;
-- I tried fixing NPM vulnerabilities, but fixing them only reveals more vulnerabilities;
+- I tried fixing NPM vulnerabilities, but fixing them only reveals more vulnerabilities.
 
 ### Unused React Features
 - Normally, web projects need to inject server URLs and other values during a build. I didn't add config, because it is not needed. The type-safe config can be created from environment variables with the current prefix `REACT_APP_` (see for regex at [/config/env.js#L61](./config/env.js#L61));
 - This project didn't need a custom React context, but React Contexts can be used to share state between components or other global features such as authentication;
 
 ## TODO
-- Fix "centre" ship list column rendering in @media sm - md.
+- Fix "center" ship list column rendering in @media sm - md during game creation.
 - Fix vertical alignment of the "vs" label and "Play" button for different lengths of player names (the names must flex-grow, but they don't :'( ).
 - Fix "Unknown child route" on the change to the configuration page.
 
@@ -246,7 +246,7 @@ According to the initial analysis, the only thing that needs to be updated to im
 - Create a scoreboard for AI;
 - Add game timer;
 - Add game turn history visually (the data model is already there);
-- Add localised letter-number coordinates to the board (e.g. using Cyrillic for corresponding languages);
+- Add localised letter-number coordinates to the board (e.g. using Cyrillic for Ukrainian);
 - Make the project a PWA (Progressive Web Application) to allow installing the game to the system (e.g. "Add to home screen" dialog on Android or creating a shortcut in Windows);
 - Implement additional game rules through additional configuration options:
   - continue shooting until miss;
