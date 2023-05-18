@@ -232,6 +232,7 @@ According to the initial analysis, the only thing that needs to be updated to im
 - This project didn't need a custom React context, but React Contexts can be used to share state between components or other global features such as authentication;
 
 ## TODO
+- Refactor [`PlayerGameConfiguration` board logic (line 303)](./src/features/game/PlayerGameConfiguration.tsx#L303) using separate functions and `PlayerGameConfigurationClosure` interface, which contains all the necessary closure values.
 - Fix "center" ship list column rendering in @media sm - md during game creation.
 - Fix vertical alignment of the "vs" label and "Play" button for different lengths of player names (the names must flex-grow, but they don't :'( ).
 - Fix "Unknown child route" on the change to the configuration page.
