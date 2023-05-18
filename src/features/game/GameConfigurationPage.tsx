@@ -174,11 +174,16 @@ export function GameConfigurationPage() {
             {stepMessages.map((message, index) => {
               const label =
                 index === activeStep ? (
-                  <Typography variant="overline">
-                    <FormattedMessage {...message} />
+                  <Typography variant="body1">
+                    <strong>
+                      <FormattedMessage {...message} />
+                    </strong>
                   </Typography>
                 ) : (
-                  <FormattedMessage {...message} />
+                  <Typography variant="body2">
+                    <FormattedMessage {...message} />
+                  </Typography>
+                  // <FormattedMessage {...message} />
                 );
               return (
                 <Step key={index} completed={completedSteps[index]}>
